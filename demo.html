@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="pb.js"></script>
+	<script>
+	y(document).ready(function(){
+		y("a").addEventListener("click",function(){
+			y("b").trigger("click");
+		})
+		y("b").addEventListener("click",function(){
+			alert("b")
+		})
+	})
+	</script>
+</head>
+<body>
+	<a id="a">download</a>
+	<a id="b">downloas</a>
+	<input type="text" id="c">
+</body>
+</html>
