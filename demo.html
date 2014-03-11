@@ -6,10 +6,10 @@
 	<script src="pb.js"></script>
 	<script>
 	y(document).ready(function(){
-		y("a").addEventListener("click",function(){
+		y("a").on("click",function(){
 			y("b").trigger("click");
 		})
-		y("b").addEventListener("click",function(){
+		y("b").on("click",function(){
 			alert("b")
 		})
 	})
