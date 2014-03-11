@@ -9,9 +9,20 @@
 			if(!selector){
 				return this;
 			}
-			ele = document.getElementById(selector);
-			this.selector = ele;
+			// querySelector querySelectorAll
+			if(typeof selector === "string" && document.querySelector){
+				if(!this.hasId(selector)){
+					ele = document.querySelector(selector)
+					this.selector = ele;
+				} else {
+					this.selector = this.hasId(selector);
+				}
+			}
 			return this;
+		},
+		hasId:function(elem){
+			var elem = elem.replace("#","");
+			return document.getElementById(elem);
 		},
 		ready:function(fn){
 			if(document.addEventListener){
@@ -35,6 +46,13 @@
 				this.selector.dispatchEvent(event);
 			}else{
 				this.selector.fireEvent("on" + type);
+			}
+		},
+		html:function(html){
+			if(!html){
+				this.selector.innerHTML = ""
+			}else{
+				this.selector.innerHTML = html;
 			}
 		}
 	}

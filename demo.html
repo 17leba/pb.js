@@ -6,16 +6,19 @@
 	<script src="pb.js"></script>
 	<script>
 	y(document).ready(function(){
-		y("a").on("click",function(){
-			y("b").trigger("click");
+		y(".b .c").on("click",function(){
+			y("#b").trigger("click");
 		})
-		y("b").on("click",function(){
-			alert("b")
+		y("#b").on("click",function(){
+			y("#a").html("")
 		})
 	})
 	</script>
 </head>
 <body>
+	<div class="b">
+		<div class="c">ok</div>
+	</div>
 	<a id="a">download</a>
 	<a id="b">downloas</a>
 	<input type="text" id="c">
