@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<script src="pb.js"></script>
+	<script src="jquery.js"></script>
 	<script>
 	y(document).ready(function(){
 		// y(".b .c").on("click",function(){
@@ -20,13 +21,31 @@
 		// y(".b").on("click","#abc",function(){
 		// 	alert("i")
 		// })
-	 	var a = y(".c").html("");
-	 	console.log(a)
+	 	// var a = y(".c").html("");
+	 	// console.log(y(".c").prevObject)
+	 	// var a = document.getElementById("a");
+	 	// y("#a").on("click",function(){
+	 	// 	alert("po")
+	 	// y(".c").on("click",function(){
+	 	// 	alert("ok")
+	 	// })
+	 	// console.log(y(".c"))
+	 	// y(".b").on("click",function(){
+	 	// 	console.log("ok")
+	 	// })
+	 	// })
+	})
+
+	$(function(){
+		$(".c").on("click",function(){
+			alert("ok")
+		})
 	})
 	</script>
 </head>
 <body>
 	<div class="b">
+		<div class="c">ok</div>
 		<div class="c">ok</div>
 	</div>
 	<a id="a">download</a>

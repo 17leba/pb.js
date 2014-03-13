@@ -5,6 +5,7 @@
 	pb.fn = pb.prototype = {
 		constructor:pb,
 		selector:"",
+		length:0,
 		init:function(selector){
 			if(!selector){
 				return this;
@@ -18,6 +19,7 @@
 					this.selector = this.hasId(selector);
 				}
 			}
+			// this.pushSelector(this.selector)
 			return this;
 		},
 		hasId:function(elem){
@@ -71,6 +73,24 @@
 				// html("")
 				this.selector.innerHTML = "";
 			}
+		},
+		pushSelector:function(elems){
+			var arr = [],
+				i = this.length;
+			if(!elems){
+				return;
+			}
+			for(var k = 0;k < elems.length;k++){
+				arr.push(elems[k]);
+			}
+			for(var j = 0;j < arr.length;j++){
+				this[i++] = arr[j];
+			}
+			this.length = i;
+			return this;
+		},
+		size:function(){
+			return this.length;
 		}
 	}
 	pb.event = {
