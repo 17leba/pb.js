@@ -1,4 +1,7 @@
 (function(window,undefined){
+
+	var toString = Object.prototype.toString;
+
 	pb = function(selector){
 		return new pb.fn.init(selector);
 	}
@@ -13,13 +16,13 @@
 			// querySelector querySelectorAll
 			if(typeof selector === "string" && document.querySelector){
 				if(!this.hasId(selector)){
-					ele = document.querySelector(selector);
+					ele = document.querySelectorAll(selector);
 					this.selector = ele;
 				} else {
 					this.selector = this.hasId(selector);
 				}
 			}
-			// this.pushSelector(this.selector)
+			this.pushSelector(this.selector)
 			return this;
 		},
 		hasId:function(elem){
@@ -42,10 +45,14 @@
 				// (type,selector,fn)
 				this.selector = y(selector).parent();
 			}
-			return pb.event.addHandler(this.selector,type,fn);
+			return this.each(function(){
+				pb.event.addHandler(this,type,fn);
+			},this.length)
 		},
 		off:function(type,fn){
-			return pb.event.removeHandler(this.selector,type,fn);
+			return this.each(function(){
+				pb.event.removeHandler(this,type,fn);
+			},this.length)
 		},
 		trigger:function(type){
 			var ele = ele || document,
@@ -91,6 +98,44 @@
 		},
 		size:function(){
 			return this.length;
+		},
+		each:function(fn,num){
+			return this.eachInter(this,fn,num);
+		},
+		// type:function(obj){
+		// 	return toString.call(obj) === "[object Object]" ? true : toString.call(obj) === "[object Array]" ? true :toString.call(obj) === "[object Function]" ? true : false;
+		// },
+		eachInter:function(obj,fn,num){
+			// 遍历对象和数组
+			// num 循环个数
+			var length = obj.length,
+				num = num || length,
+				v;
+
+			if(isArray(obj)){
+				for(var i = 0;i < index;i++){
+					v = fn.call(obj[i],i,obj[i]);
+					if(v === false){
+						break;
+					}
+				}
+			}else{
+				for(var i in obj){
+					v = fn.call(obj[i],i,obj[i]);
+					if(v === false || this.index(obj[i])+1 === num){
+						break;
+					}
+				}
+			}
+			return obj;
+		},
+		index:function(obj){
+			var length = this.length;
+			for(var i = 0;i < length;i++){
+				if(this[i] === obj){
+					return i;
+				}
+			}
 		}
 	}
 	pb.event = {
@@ -108,6 +153,13 @@
 				elem.detachEvent("on" + type,fn);
 			}
 		}
+	}
+
+	function isArray(obj){
+		return toString.call(obj) === "[object Array]";
+	}
+	function isFunction(obj){
+		return toString.call(obj) === "[object Function]";
 	}
 
 	pb.fn.init.prototype = pb.fn;
