@@ -14,7 +14,7 @@
 				return this;
 			}
 			// querySelector querySelectorAll
-			if(typeof selector === "string" && document.querySelector){
+			if(typeof selector === "string" && document.querySelectorAll){
 				if(!this.hasId(selector)){
 					ele = document.querySelectorAll(selector);
 					this.selector = ele;
