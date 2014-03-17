@@ -10,24 +10,44 @@
 		selector:"",
 		length:0,
 		init:function(selector){
+			var ele;
 			if(!selector){
 				return this;
 			}
-			// querySelector querySelectorAll
-			if(typeof selector === "string" && document.querySelector){
-				if(!this.hasId(selector)){
+			// getElementById getElementsByClassName querySelectorAll 
+			// querySelectorAll(selector) IE6/7不支持 返回NodeList selector 为 string
+			if(selector.nodeType === 9){
+				// Document类型
+				this.selector = selector.documentElement;
+				this.pushSelector(this.selector);
+				return this;
+			}
+			if(typeof selector === "string" && document.querySelectorAll && !this.notId(selector)){
+				if(document.getElementsByClassName){
+					selector = selector.replace(".","");
+					this.selector = document.getElementsByClassName(selector);
+				}else{
 					ele = document.querySelectorAll(selector);
 					this.selector = ele;
-				} else {
-					this.selector = this.hasId(selector);
 				}
+			}else if(this.notId(selector)){
+				// id
+				this.selector = this.notId(selector);
+			}else{
+				//IE6/7 getElementsByClassName()
+				selector = selector.replace(".","");
+				this.selector = getElementsByClassName(selector);
 			}
-			this.pushSelector(this.selector)
+
+			this.pushSelector(this.selector);
 			return this;
 		},
-		hasId:function(elem){
-			var elem = elem.replace("#","");
-			return document.getElementById(elem);
+		notId:function(elem){
+			var rgexp = /^#/;
+			if(elem && typeof elem === "string" && rgexp.test(elem)){
+				var elem = elem.replace("#","");
+				return document.getElementById(elem);
+			}
 		},
 		ready:function(fn){
 			if(document.addEventListener){
@@ -160,6 +180,25 @@
 	}
 	function isFunction(obj){
 		return toString.call(obj) === "[object Function]";
+	}
+	function getElementsByClassName(className,node,tag){
+		var node = node || document,
+			tag = tag || "*",
+			childs = node.getElementsByTagName(tag),
+			arr = [],
+			lengths = childs.length;
+		for(var i = 0;i < lengths;i++){
+			var classNames = childs[i].className.split(" "),
+				length = classNames.length,
+				child = childs[i];
+			for(var j = 0;j < length;j++){
+				if(classNames[j] === className){
+					arr.push(child);
+					break;
+				}
+			}
+		}
+		return arr;
 	}
 
 	pb.fn.init.prototype = pb.fn;

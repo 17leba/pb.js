@@ -4,7 +4,6 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<script src="pb.js"></script>
-	<script src="jquery.js"></script>
 	<script>
 	y(document).ready(function(){
 		// y(".b .c").on("click",function(){
@@ -34,17 +33,22 @@
 	 	// 	console.log("ok")
 	 	// })
 	 	// })
-		y(".c").each(function(){
-			console.log("ok")
+	// var a = document.getElementsByClassName("c");
+	// var b = document.querySelectorAll("#a");
+	// // console.log(a,b)
+		y(".a-c").on("click",function(){
+			alert("ok")
 		})
 	})
+	
 
 	</script>
 </head>
 <body>
 	<div class="b">
-		<div class="c">ok</div>
-		<div class="c">ok</div>
+		<div class="a-c a">ok</div>
+		<div class="a-c">ok</div>
+		<div class="c">s	</div>
 	</div>
 	<a id="a">download</a>
 	<a id="b">downloas</a>
