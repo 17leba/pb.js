@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<script src="jquery.js"></script>
 	<script src="pb.js"></script>
 	<script>
 	y(document).ready(function(){
@@ -36,12 +37,18 @@
 	// var a = document.getElementsByClassName("c");
 	// var b = document.querySelectorAll("#a");
 	// // console.log(a,b)
-		y(".a-c").on("click",function(){
-			alert("ok")
+		// y(".a-c").on("click",function(){
+		// 	alert("ok")
+		// })
+	})
+	if(document.documentElement){
+		// console.log(window.frameElement,document.documentElement.doScroll)
+	}
+	$(function(){
+		$(".a-c").on("click",function(){
+			alert("no")
 		})
 	})
-	
-
 	</script>
 </head>
 <body>

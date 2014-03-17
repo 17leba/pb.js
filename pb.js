@@ -51,9 +51,28 @@
 		},
 		ready:function(fn){
 			if(document.addEventListener){
-				document.addEventListener("DOMContentLoaded",fn);
+				document.addEventListener("DOMContentLoaded",fn,false);
 			}else{
-				document.attachEvent("onreadystatechange",fn);
+				if(document.readyState === "complete"){
+					document.attachEvent("onreadystatechange",fn);
+				}
+
+				// var t;
+				// try{
+				// 	t = window.frameElement == null && document.documentElement;
+				// } catch(e){
+
+				// }
+				// if(t && t.doScroll){
+				// 	(function doScrollCheck(){
+				// 		try{
+				// 			t.doScroll("left");
+				// 		}catch(e){
+				// 			return setTimeout(arguments.callee,10);
+				// 		}
+				// 		fn();
+				// 	})()
+				// }
 			}
 		},
 		on:function(type,selector,fn){
