@@ -6,49 +6,100 @@
 	<script src="jquery.js"></script>
 	<script src="pb.js"></script>
 	<script>
-	y(document).ready(function(){
-		// y(".b .c").on("click",function(){
-		// 	y("#b").trigger("click");
-		// })
-		// y("#b").on("click",function(){
-		// 	y("#a").html("")
-		// })
-		// var h6 = document.createElement("h6");
-		// // console.log(h6)
-		// h6.id = "abc";
-		// h6.innerHTML = "OKKK";
-		// document.querySelector(".b").appendChild(h6)
-		// y(".b").on("click","#abc",function(){
-		// 	alert("i")
-		// })
-	 	// var a = y(".c").html("");
-	 	// console.log(y(".c").prevObject)
-	 	// var a = document.getElementById("a");
-	 	// y("#a").on("click",function(){
-	 	// 	alert("po")
-	 	// y(".c").on("click",function(){
-	 	// 	alert("ok")
-	 	// })
-	 	// console.log(y(".c"))
-	 	// y(".b").on("click",function(){
-	 	// 	console.log("ok")
-	 	// })
-	 	// })
-	// var a = document.getElementsByClassName("c");
-	// var b = document.querySelectorAll("#a");
-	// // console.log(a,b)
-		// y(".a-c").on("click",function(){
-		// 	alert("ok")
-		// })
-	})
+	// y(document).ready(function(){
+	// 	// y(".b .c").on("click",function(){
+	// 	// 	y("#b").trigger("click");
+	// 	// })
+	// 	// y("#b").on("click",function(){
+	// 	// 	y("#a").html("")
+	// 	// })
+	// 	// var h6 = document.createElement("h6");
+	// 	// // console.log(h6)
+	// 	// h6.id = "abc";
+	// 	// h6.innerHTML = "OKKK";
+	// 	// document.querySelector(".b").appendChild(h6)
+	// 	// y(".b").on("click","#abc",function(){
+	// 	// 	alert("i")
+	// 	// })
+	//  	// var a = y(".c").html("");
+	//  	// console.log(y(".c").prevObject)
+	//  	// var a = document.getElementById("a");
+	//  	// y("#a").on("click",function(){
+	//  	// 	alert("po")
+	//  	// y(".c").on("click",function(){
+	//  	// 	alert("ok")
+	//  	// })
+	//  	// console.log(y(".c"))
+	//  	// y(".b").on("click",function(){
+	//  	// 	console.log("ok")
+	//  	// })
+	//  	// })
+	// // var a = document.getElementsByClassName("c");
+	// // var b = document.querySelectorAll("#a");
+	// // // console.log(a,b)
+	// 	// y(".a-c").on("click",function(){
+	// 	// 	alert("ok")
+	// 	// })
+	// })
 	if(document.documentElement){
 		// console.log(window.frameElement,document.documentElement.doScroll)
 	}
-	$(function(){
-		$(".a-c").on("click",function(){
-			alert("no")
-		})
-	})
+	// $(function(){
+	// })
+	function keys(obj){
+		var arr = [];
+		if(Object.keys){
+			return Object.keys(obj)
+		}else{
+			for(var i in obj){
+				arr.push(i)
+			}
+			return arr;
+		}
+	}
+	var a = {"a":"A","b":"B"};
+// 		arr = [];
+// 	Object.prototype.c = "C";
+// 	for(var i in a){
+// 		arr.push(i)
+// 	}
+
+// var arr = ["a", "b", "c"];
+// function A(){}
+// A.prototype = {
+// 	c:"c"
+// };
+// var a = new A()
+// console.log(Object.getOwnPropertyNames(Function))
+ var DONT_ENUM =  "propertyIsEnumerable,isPrototypeOf,hasOwnProperty,toLocaleString,toString,valueOf,constructor".split(","),
+    hasOwn = ({}).hasOwnProperty;
+    // for (var i in {
+    //     toString: 1
+    // }){
+    //     DONT_ENUM = false;
+    // }
+    Object.keys = !Object.keys || function(obj){//ecma262v5 15.2.3.14
+            var result = [];
+
+            for(var key in obj ) if(hasOwn.call(obj,key)){
+                result.push(key)
+            }
+
+            if(DONT_ENUM && obj){
+                for(var i = 0 ;key = DONT_ENUM[i++]; ){
+                	
+                    if(hasOwn.call(obj,key)){
+                	console.log(key)
+                    	
+                        result.push(key);
+
+
+                    }
+                }
+            }
+            return result;
+        };
+Object.keys(a)
 	</script>
 </head>
 <body>

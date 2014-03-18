@@ -2,7 +2,7 @@
 
 	var toString = Object.prototype.toString;
 
-	pb = function(selector){
+	var pb = function(selector){
 		return new pb.fn.init(selector);
 	}
 	pb.fn = pb.prototype = {
@@ -222,5 +222,5 @@
 
 	pb.fn.init.prototype = pb.fn;
 
-	window.y = pb;
+	window.y = window.pb = pb;
 })(window)
