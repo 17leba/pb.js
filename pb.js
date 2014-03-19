@@ -1,6 +1,7 @@
 (function(window,undefined){
 
-	var toString = Object.prototype.toString;
+	var toString = Object.prototype.toString,
+		isReady = false;
 
 	var pb = function(selector){
 		return new pb.fn.init(selector);
@@ -21,6 +22,10 @@
 				this.selector = selector.documentElement;
 				this.pushSelector(this.selector);
 				return this;
+			}
+			//selector 为函数则 返回 ready()
+			if(isFunction(selector)){
+				return pb(document).ready(selector);
 			}
 			if(typeof selector === "string" && document.querySelectorAll && !this.notId(selector)){
 				if(document.getElementsByClassName){
@@ -50,29 +55,14 @@
 			}
 		},
 		ready:function(fn){
-			if(document.addEventListener){
-				document.addEventListener("DOMContentLoaded",fn,false);
-			}else{
-				if(document.readyState === "complete"){
-					document.attachEvent("onreadystatechange",fn);
+			if(!isReady){
+				isReady = true;
+				if(document.addEventListener){
+					document.addEventListener("DOMContentLoaded",readied,false);
+				}else{
+					document.attachEvent("onreadystatechange",readied);
 				}
-
-				// var t;
-				// try{
-				// 	t = window.frameElement == null && document.documentElement;
-				// } catch(e){
-
-				// }
-				// if(t && t.doScroll){
-				// 	(function doScrollCheck(){
-				// 		try{
-				// 			t.doScroll("left");
-				// 		}catch(e){
-				// 			return setTimeout(arguments.callee,10);
-				// 		}
-				// 		fn();
-				// 	})()
-				// }
+				fn.call(document,pb);
 			}
 		},
 		on:function(type,selector,fn){
@@ -194,6 +184,15 @@
 		}
 	}
 
+	function readied(){
+		if(document.addEventListener){
+			document.removeEventListener("DOMContentLoaded",readied,false);
+		}else if(document.attachEvent){
+			if(document.readyState === "complete"){
+				document.detachEvent("onreadystatechange",readied);
+			}
+		}
+	}
 	function isArray(obj){
 		return toString.call(obj) === "[object Array]";
 	}
