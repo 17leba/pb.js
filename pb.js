@@ -27,7 +27,7 @@
 			if(isFunction(selector)){
 				return pb(document).ready(selector);
 			}
-			if(typeof selector === "string" && document.querySelectorAll && !this.notId(selector)){
+			if(typeof selector === "string" && document.querySelectorAll && !this.isId(selector)){
 				if(document.getElementsByClassName){
 					selector = selector.replace(".","");
 					this.selector = document.getElementsByClassName(selector);
@@ -35,9 +35,9 @@
 					ele = document.querySelectorAll(selector);
 					this.selector = ele;
 				}
-			}else if(this.notId(selector)){
+			}else if(this.isId(selector)){
 				// id
-				this.selector = this.notId(selector);
+				this.selector = this.isId(selector);
 			}else{
 				//IE6/7 getElementsByClassName()
 				selector = selector.replace(".","");
@@ -47,7 +47,7 @@
 			this.pushSelector(this.selector);
 			return this;
 		},
-		notId:function(elem){
+		isId:function(elem){
 			var rgexp = /^#/;
 			if(elem && typeof elem === "string" && rgexp.test(elem)){
 				var elem = elem.replace("#","");
@@ -58,11 +58,12 @@
 			if(!isReady){
 				isReady = true;
 				if(document.addEventListener){
-					document.addEventListener("DOMContentLoaded",readied,false);
+					// bug
+					document.addEventListener("DOMContentLoaded",fn,false);
 				}else{
-					document.attachEvent("onreadystatechange",readied);
+					document.attachEvent("onreadystatechange",fn);
 				}
-				fn.call(document,pb);
+				// fn.call(document,pb);
 			}
 		},
 		on:function(type,selector,fn){
@@ -116,6 +117,10 @@
 			if(!elems){
 				return;
 			}
+			if(elems.nodeType === 1){
+				this[0] = elems;
+				return this;
+			}
 			for(var k = 0;k < elems.length;k++){
 				arr.push(elems[k]);
 			}
@@ -125,15 +130,9 @@
 			this.length = i;
 			return this;
 		},
-		size:function(){
-			return this.length;
-		},
 		each:function(fn,num){
 			return this.eachInter(this,fn,num);
 		},
-		// type:function(obj){
-		// 	return toString.call(obj) === "[object Object]" ? true : toString.call(obj) === "[object Array]" ? true :toString.call(obj) === "[object Function]" ? true : false;
-		// },
 		eachInter:function(obj,fn,num){
 			// 遍历对象和数组
 			// num 循环个数
@@ -167,6 +166,60 @@
 			}
 		}
 	}
+
+	pb.fn.init.prototype = pb.fn;
+
+	pb.extend = pb.fn.extend = function(){
+		var target,copy,src,options,name,clone,copyIsArray,
+			i = 1,
+			target = arguments[0] || {},
+			deep = false,
+			length = arguments.length;
+		if(typeof arguments[0] === "boolean"){
+			//arguments[0] == true deepCopy
+			deep = true;
+			//跳过前两个参数 true target
+			i = 2;
+			target = arguments[1] || {};
+		}
+		if(i === length){
+			//合并到pb对象
+			target = this;
+			//从第一个参数开始遍历
+			--i;
+		}
+		for(;i < length;i++){
+			if((options = arguments[i]) != null){
+				for(name in options){
+					src = target[name];
+					copy = options[name];
+					if(copy === target){
+						continue;
+					}
+					if(!deep && copy !== undefined){
+						target[name] = copy;
+					}else if(deep && copy && (copyIsArray = isArray(copy) || isObject(copy))){
+						if(copyIsArray){
+							copyIsArray = false;
+							clone = src && isArray(src) ? src : [];
+						}else{
+							clone = src && isObject(src) ? src : [];
+						}
+						target[name] = pb.extend(deep,clone,copy);
+					}
+				}
+			}
+		}
+		return target;
+	}
+
+	//为什么pb.extend()不可以？？ bug
+	pb.fn.extend({
+		size:function(){
+			return this.length;
+		}
+	})
+
 	pb.event = {
 		addHandler:function(elem,type,fn){
 			if(elem.addEventListener){
@@ -193,11 +246,15 @@
 			}
 		}
 	}
+	
 	function isArray(obj){
 		return toString.call(obj) === "[object Array]";
 	}
 	function isFunction(obj){
 		return toString.call(obj) === "[object Function]";
+	}
+	function isObject(obj){
+		return toString.call(obj) === "[object Object]";
 	}
 	function getElementsByClassName(className,node,tag){
 		var node = node || document,
@@ -219,7 +276,6 @@
 		return arr;
 	}
 
-	pb.fn.init.prototype = pb.fn;
-
 	window.y = window.pb = pb;
+
 })(window)
