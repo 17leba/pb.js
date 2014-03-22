@@ -213,7 +213,6 @@
 		return target;
 	}
 
-	//为什么pb.extend()不可以？？ bug
 	pb.fn.extend({
 		size:function(){
 			return this.length;
