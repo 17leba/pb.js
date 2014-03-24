@@ -61,9 +61,10 @@
 					// bug
 					document.addEventListener("DOMContentLoaded",fn,false);
 				}else{
-					document.attachEvent("onreadystatechange",fn);
+					if(document.readyState === "complete"){
+						document.attachEvent("onreadystatechange",fn);
+					}
 				}
-				// fn.call(document,pb);
 			}
 		},
 		on:function(type,selector,fn){
@@ -164,6 +165,9 @@
 					return i;
 				}
 			}
+		},
+		size:function(){
+			return this.length;
 		}
 	}
 
@@ -213,10 +217,7 @@
 		return target;
 	}
 
-	pb.fn.extend({
-		size:function(){
-			return this.length;
-		}
+	pb.extend({
 	})
 
 	pb.event = {
@@ -232,16 +233,6 @@
 				elem.removeHandler(type,fn,false);
 			}else if(elem.detachEvent){
 				elem.detachEvent("on" + type,fn);
-			}
-		}
-	}
-
-	function readied(){
-		if(document.addEventListener){
-			document.removeEventListener("DOMContentLoaded",readied,false);
-		}else if(document.attachEvent){
-			if(document.readyState === "complete"){
-				document.detachEvent("onreadystatechange",readied);
 			}
 		}
 	}
