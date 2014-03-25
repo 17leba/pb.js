@@ -86,8 +86,6 @@
 			},this.length)
 		},
 		trigger:function(type){
-			var ele = ele || document,
-				result;
 			if(document.createEvent){
 				event = document.createEvent("Events");
 				event.initEvent(type,false,false);
