@@ -64,6 +64,48 @@
 	domReady(function(){
 		return 2;
 	})
+	var dom = {};
+	dom.events = [];
+	dom.ready = function(fn){
+		if(typeof fn !== "function"){
+			return;
+		}
+		dom.events[dom.events.length] = fn;
+		if(document.addEventListener){
+			document.addEventListener("DOMContentLoaded",dom.initReady,false);
+		}else{
+			if(document.readyState === "complete"){
+				document.attachEvent("onreadystatechange",dom.initReady);
+			}
+		}
+	}
+	dom.initReady = function(){
+		var DOMContentLoaded,
+			len = dom.events.length;
+		if(dom.isReady){
+			return;
+		}
+		dom.isReady = true;
+		for(var i = 0;i < len;i++){
+			var fn = dom.events[i];
+			fn();
+		}
+		return function(){
+			if(document.addEventListener){
+				document.removeEventListener("DOMContentLoaded",dom.initReady,false);
+				dom.initReady();
+			}else{
+				document.detachEvent("onreadystatechange",dom.initReady);
+				dom.initReady();
+			}
+		}
+	}
+	dom.ready(function(){
+		// alert(1)
+	})
+	dom.ready(function(){
+		// alert(2)
+	})
 	// window.onload = function(){
 	// 	document.attachEvent("onclick",function(){
 	// 		alert(1)
