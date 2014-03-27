@@ -8,20 +8,79 @@
 	<script>
 	y(function(){
 	})
+	y(function(){})
 	$(function(){
-		// console.log(jQuery())
+		// alert("")
 	})
+	$(function(){
+		// alert("")
+	})
+	// DOMContentLoaded DOM树建成之时就触发
+	// onload必须要等待页面所有元素的资源都下载完毕时才触发
+	var readyList = [];
+	function domReady(fn){
+		var	DOMContentLoaded,
+			initReady,
+			isReady = false;
+		// 确保参数为函数 且只执行一次
+		if(typeof fn !== "function" || isReady){
+			return;
+		}
+		isReady = true;
+		// DOMContentLoaded的多重加载，全部放进readyList数组中
+		// initReady:循环执行 readyList中的事件
+		readyList[readyList.length] = fn;
+		initReady = function(){
+			for(var i = 0;i < readyList.length;i++){
+				var fn = readyList[i];
+				fn();
+			}
+		}
+		// DOMContentLoaded的动态赋值
+		if(document.addEventListener){
+			DOMContentLoaded = function(){
+				// 清除DOMContentLoaded事件
+				document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false);
+				// 开始执行
+				initReady();
+			}
+		}else{
+			DOMContentLoaded = function(){
+				if(document.readyState === "complete"){
+					document.detachEvent("onreadystatechange",DOMContentLoaded);
+					initReady();
+				}
+			}
+		}
+		if(document.addEventListener){
+			document.addEventListener("DOMContentLoaded",DOMContentLoaded,false);
+		}else{
+			document.attachEvent("onreadystatechange",DOMContentLoaded);
+		}
+	}
+	domReady(function(){
+		return 1;
+	})
+	domReady(function(){
+		return 2;
+	})
+	// window.onload = function(){
+	// 	document.attachEvent("onclick",function(){
+	// 		alert(1)
+	// 	})
+	// 	document.attachEvent("onclick",function(){
+	// 		alert(2)
+	// 	})
+	// }
+	// console.log(readyList)
 	</script>
 </head>
 <body>
 	<div class="b">
-		<div class="a-c a">ok</div>
-		<div class="c">ok</div>
-		<div class="c">s	</div>
+		<div class="c">testC</div>
 	</div>
-	<a id="a">download</a>
-	<a id="b">downloas</a>
-	<input type="text" id="c">
+	<a id="a">testA</a>
+	<!-- <input type="text" id="c"> -->
 	<!-- <img src="test.jpg" alt=""> -->
 </body>
 </html>

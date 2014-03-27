@@ -1,7 +1,9 @@
 (function(window,undefined){
 
 	var toString = Object.prototype.toString,
-		isReady = false;
+		//事件列表
+		readyList = [],
+		DOMContentLoaded;
 
 	var pb = function(selector){
 		return new pb.fn.init(selector);
@@ -55,16 +57,11 @@
 			}
 		},
 		ready:function(fn){
-			if(!isReady){
-				isReady = true;
-				if(document.addEventListener){
-					// bug
-					document.addEventListener("DOMContentLoaded",fn,false);
-				}else{
-					if(document.readyState === "complete"){
-						document.attachEvent("onreadystatechange",fn);
-					}
-				}
+			readyList[readyList.length] = fn;
+			if(document.addEventListener){
+				document.addEventListener("DOMContentLoaded",DOMContentLoaded,false)
+			}else{
+				document.attachEvent("onreadystatechange",DOMContentLoaded)
 			}
 		},
 		on:function(type,selector,fn){
@@ -216,6 +213,18 @@
 	}
 
 	pb.extend({
+		isReady:false,
+		ready:function(){
+			if(pb.isReady){
+				return;
+			}
+			pb.isReady = true;
+			for(var i = 0; i < readyList.length;i++){
+				var fn = readyList[i];
+				fn();
+			}
+		}
+
 	})
 
 	pb.event = {
@@ -235,6 +244,19 @@
 		}
 	}
 	
+	if(document.addEventListener){
+		DOMContentLoaded = function(){
+			document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false)
+			pb.ready();
+		}
+	}else{
+		DOMContentLoaded = function(){
+			if(document.readyState === "complete"){
+				document.detachEvent("onreadystatechange",DOMContentLoaded)
+				pb.ready();
+			}
+		}
+	}
 	function isArray(obj){
 		return toString.call(obj) === "[object Array]";
 	}
