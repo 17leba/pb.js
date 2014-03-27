@@ -59,9 +59,9 @@
 		ready:function(fn){
 			readyList[readyList.length] = fn;
 			if(document.addEventListener){
-				document.addEventListener("DOMContentLoaded",DOMContentLoaded,false)
+				document.addEventListener("DOMContentLoaded",DOMContentLoaded,false);
 			}else{
-				document.attachEvent("onreadystatechange",DOMContentLoaded)
+				document.attachEvent("onreadystatechange",DOMContentLoaded);
 			}
 		},
 		on:function(type,selector,fn){
@@ -244,17 +244,26 @@
 		}
 	}
 	
-	if(document.addEventListener){
-		DOMContentLoaded = function(){
-			document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false)
+	// if(document.addEventListener){
+	// 	DOMContentLoaded = function(){
+	// 		document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false)
+	// 		pb.ready();
+	// 	}
+	// }else{
+	// 	DOMContentLoaded = function(){
+	// 		if(document.readyState === "complete"){
+	// 			document.detachEvent("onreadystatechange",DOMContentLoaded)
+	// 			pb.ready();
+	// 		}
+	// 	}
+	// }
+	DOMContentLoaded = function(){
+		if(document.addEventListener){
+			document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false);
 			pb.ready();
-		}
-	}else{
-		DOMContentLoaded = function(){
-			if(document.readyState === "complete"){
-				document.detachEvent("onreadystatechange",DOMContentLoaded)
-				pb.ready();
-			}
+		}else if(document.readyState === "complete"){
+			document.detachEvent("onreadystatechange",DOMContentLoaded);
+			pb.ready();
 		}
 	}
 	function isArray(obj){
