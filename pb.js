@@ -25,27 +25,24 @@
 				this.pushSelector(this.selector);
 				return this;
 			}
-			//selector 为函数则 返回 ready()
-			if(isFunction(selector)){
-				return pb(document).ready(selector);
-			}
-			if(typeof selector === "string" && document.querySelectorAll && !this.isId(selector)){
-				if(document.getElementsByClassName){
-					selector = selector.replace(".","");
-					this.selector = document.getElementsByClassName(selector);
-				}else{
+
+			if(typeof selector === "string"){
+				if(this.isId(selector)){
+					var arr = [];
+					arr[arr.length] = this.isId(selector);
+					this.selector = arr;
+				}else if(document.querySelectorAll){
 					ele = document.querySelectorAll(selector);
 					this.selector = ele;
+				}else{
+					//IE6/7 class
+					selector = selector.replace(".","");
+					this.selector = getElementsByClassName(selector);
 				}
-			}else if(this.isId(selector)){
-				// id
-				this.selector = this.isId(selector);
-			}else{
-				//IE6/7 getElementsByClassName()
-				selector = selector.replace(".","");
-				this.selector = getElementsByClassName(selector);
+			//selector 为函数则 返回 ready()
+			}else if(isFunction(selector)){
+				return pb(document).ready(selector);
 			}
-
 			this.pushSelector(this.selector);
 			return this;
 		},
@@ -55,13 +52,33 @@
 				var elem = elem.replace("#","");
 				return document.getElementById(elem);
 			}
+			return false;
 		},
 		ready:function(fn){
 			readyList[readyList.length] = fn;
 			if(document.addEventListener){
 				document.addEventListener("DOMContentLoaded",DOMContentLoaded,false);
+				window.addEventListener("load",DOMContentLoaded,false);
 			}else{
+				var top = false;
+				try{
+					top = window.frameElement == null && document.documentElement;
+				}catch(e){}
+
+				if(top && top.doScroll){
+					(function(){
+						if(!pb.isReady){
+							try{
+								top.doScroll("left");
+							}catch(e){
+								return setTimeout(arguments.callee,10);
+							}
+						}
+						pb.ready();
+					})()
+				}
 				document.attachEvent("onreadystatechange",DOMContentLoaded);
+				window.attachEvent("onload",DOMContentLoaded);
 			}
 		},
 		on:function(type,selector,fn){
@@ -112,10 +129,6 @@
 				i = this.length;
 			if(!elems){
 				return;
-			}
-			if(elems.nodeType === 1){
-				this[0] = elems;
-				return this;
 			}
 			for(var k = 0;k < elems.length;k++){
 				arr.push(elems[k]);
