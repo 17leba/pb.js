@@ -5,27 +5,19 @@
 		readyList = [],
 		DOMContentLoaded;
 
-	var pb = function(selector){
-		return new pb.fn.init(selector);
+	var pb = function(selector,context){
+		return new pb.fn.init(selector,context);
 	}
 	pb.fn = pb.prototype = {
 		constructor:pb,
 		selector:"",
 		length:0,
-		init:function(selector){
-			var ele;
+		init:function(selector,context){
+			var	ele;
 			if(!selector){
 				return this;
 			}
 			// getElementById getElementsByClassName querySelectorAll 
-			// querySelectorAll(selector) IE6/7不支持 返回NodeList selector 为 string
-			if(selector.nodeType === 9){
-				// Document类型
-				this.selector = selector.documentElement;
-				this.pushSelector(this.selector);
-				return this;
-			}
-
 			if(typeof selector === "string"){
 				if(this.isId(selector)){
 					var arr = [];
@@ -42,6 +34,9 @@
 			//selector 为函数则 返回 ready()
 			}else if(isFunction(selector)){
 				return pb(document).ready(selector);
+			}else if(selector.nodeType){
+				this.selector = selector;
+				this.length = 1;
 			}
 			this.pushSelector(this.selector);
 			return this;
