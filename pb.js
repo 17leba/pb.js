@@ -77,17 +77,19 @@
 			}
 		},
 		on:function(type,selector,fn){
-			if(fn == null ){
+			var that = this;
+			if(fn == null){
 				// (type,fn)
 				fn = selector;
 				selector = undefined;
 			}else{
 				// (type,selector,fn)
-				this.selector = y(selector).parent();
+				// bug ?
+				that = y(selector);
 			}
-			return this.each(function(){
+			return that.each(function(){
 				pb.event.addHandler(this,type,fn);
-			},this.length)
+			},that.length)
 		},
 		off:function(type,fn){
 			return this.each(function(){
@@ -231,6 +233,17 @@
 				var fn = readyList[i];
 				fn();
 			}
+		},
+		stopPropagation:function(e){
+			var e = this.originalEvent;
+			if(!e){
+				return;
+			}
+			if(e.stopPropagation){
+				e.stopPropagation();
+			}else{
+				e.cancelBubble = true;
+			}
 		}
 
 	})
@@ -252,19 +265,14 @@
 		}
 	}
 	
-	// if(document.addEventListener){
-	// 	DOMContentLoaded = function(){
-	// 		document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false)
-	// 		pb.ready();
-	// 	}
-	// }else{
-	// 	DOMContentLoaded = function(){
-	// 		if(document.readyState === "complete"){
-	// 			document.detachEvent("onreadystatechange",DOMContentLoaded)
-	// 			pb.ready();
-	// 		}
-	// 	}
-	// }
+	pb.Event = function(src){
+		if(src && src.type){
+			this.originalEvent = src;
+			this.type = type; 
+		}else{
+			this.type = src;
+		}
+	}
 	DOMContentLoaded = function(){
 		if(document.addEventListener){
 			document.removeEventListener("DOMContentLoaded",DOMContentLoaded,false);
