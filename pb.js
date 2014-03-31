@@ -147,7 +147,7 @@
 				v;
 
 			if(isArray(obj)){
-				for(var i = 0;i < index;i++){
+				for(var i = 0;i < num;i++){
 					v = fn.call(obj[i],i,obj[i]);
 					if(v === false){
 						break;
@@ -163,13 +163,15 @@
 			}
 			return obj;
 		},
-		index:function(obj){
+		index:function(obj,index){
 			var length = this.length;
-			for(var i = 0;i < length;i++){
+			i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;
+			for(;i < length;i++){
 				if(this[i] === obj){
 					return i;
 				}
 			}
+			return -1;
 		},
 		size:function(){
 			return this.length;
