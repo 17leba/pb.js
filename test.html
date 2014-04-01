@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Test Page</title>
+</head>
+<body>
+	
+</body>
+<script>
+	var $body = document.getElementsByTagName("body")[0];
+	var child = document.createElement("div");
+		child.innerHTML = "TEST";
+		child.className = "test";
+	function test(){
+		// var a = child;
+		return function(){
+			return child;
+		}
+	}
+	for(var i = 0; i < 100000;i++){
+		// $body.appendChild(test())
+		var a = test()()
+		$body.appendChild(a)
+	}
+	// var date = new Date();
+	// for(var i = 0,l = document.getElementsByClassName("test").length;i < document.getElementsByClassName("test").length;i++){
+	// 	// console.log(i)
+	// }
+	// console.log(new Date - date,document.getElementsByClassName("test").length)
+</script>
+</html>
