@@ -74,6 +74,11 @@ var
 	// A simple way to check for HTML strings
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 	// Strict HTML recognition (#11290: must start with <)
+	// (?:pattern) 匹配pattern但是不获取结果 a(?:a|b) 等同于 aa|ab
+	// 匹配简单的html和id,即使是错误的html
+	// #([\w-]*):#,#1,#a,#a1,#_
+	// (<[\w\W]+>)[^>]*:<p></p>,<br/>,<br>,<p>>,<p>,<abc3>
+	// 所以是简单匹配
 	rquickExpr = /^(?:(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
 	// Match a standalone tag
@@ -132,20 +137,27 @@ jQuery.fn = jQuery.prototype = {
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
 				// Assume that strings that start and end with <> are HTML and skip the regex check
+				// 当以 < 开头，以 > 结尾且中间至少有一个字符的html，跳过rquickExpr检测。
 				match = [ null, selector, null ];
 
 			} else {
+				// exec():如果 exec() 找到了匹配的文本，则返回一个结果数组。否则，返回 null。此数组的第 0 个元素是与正则表达式相匹配的文本，第 1 个元素是与 RegExpObject // 的第 1 个子表达式相匹配的文本（如果有的话），第 2 个元素是与 RegExpObject 的第 2 个子表达式相匹配的文本（如果有的话），以此类推。
+				// match[1] 匹配 html,match[2](如果有) 匹配 id
 				match = rquickExpr.exec( selector );
 			}
 
 			// Match html or make sure no context is specified for #id
+			// match && (mathc[1] || !context) 相当于  match && match[1] || match && match[2] && !context
+			// 在match[1]存在的情况下，context是可选的！
+			// 因为不匹配 match[1]就匹配match[2]，在match不为空的情况下。
 			if ( match && (match[1] || !context) ) {
-
 				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
+					// 把context转换成DOM对象
 					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
+					// 处理完 html 合并到 jQuery对象中
 					jQuery.merge( this, jQuery.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
@@ -153,71 +165,101 @@ jQuery.fn = jQuery.prototype = {
 					) );
 
 					// HANDLE: $(html, props)
+					// rsingleTag:匹配空元素html标签，如：<img>,<input>,<br/>,<p></p>。
+					// 如果是空元素，则创建节点。并且设置各种属性,如：
+					// $("<img>",{src:"1.png","class":"img"})
+					// $("<a></a>",{src:"1.png","class":"img"})
 					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
 						for ( match in context ) {
 							// Properties of context are called as methods if possible
+							// 绑定事件,添加jQuery对象中的有的方法等。如：
+							// $("<a></a>",{src:"1.png","class":"img",click:function(){},on:{keyup:function(){}}})
+							// 只能感叹太巧妙。
 							if ( jQuery.isFunction( this[ match ] ) ) {
+								// 是函数类型才能执行
+								// 执行。context[ match ]为参数。
 								this[ match ]( context[ match ] );
-
 							// ...and otherwise set as attributes
 							} else {
+								//可以自定义属性。
 								this.attr( match, context[ match ] );
 							}
 						}
 					}
 
+
 					return this;
 
 				// HANDLE: $(#id)
 				} else {
+					// 处理id，没有context参数。
 					elem = document.getElementById( match[2] );
-
 					// Check parentNode to catch when Blackberry 4.6 returns
 					// nodes that are no longer in the document #6963
 					if ( elem && elem.parentNode ) {
 						// Handle the case where IE and Opera return items
 						// by name instead of ID
+						// console.log(selector)
+						// 低版本IE，name值代替id值。
 						if ( elem.id !== match[2] ) {
+							// sizzle 选择器
 							return rootjQuery.find( selector );
 						}
 
 						// Otherwise, we inject the element directly into the jQuery object
+						// 把 elem 插进jQuery对象中,一个页面中只有一个id，length为1。
 						this.length = 1;
 						this[0] = elem;
 					}
-
+					// 设置context 和 selector属性
 					this.context = document;
 					this.selector = selector;
 					return this;
 				}
 
 			// HANDLE: $(expr, $(...))
-			} else if ( !context || context.jquery ) {
+			// 处理css选择表达式。
+			// 如果是支持querySelectorAll的标准浏览器，用querySelectorAll足以。但是还有可耻的IE等。
+			// 所以这儿是用了sizzle这个复杂的查询器。主要是对不支持querySelector的浏览器进行了处理。
+			} else if ( !context || context.jquery) {
+				//$("a",$("body"))
+				// 只要context是jQuery对象，则有jquery（版本号）属性。
+				// 所以一定进入这个分支。
 				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
 			// (which is just equivalent to: $(context).find(expr)
 			} else {
+				// context 不是jQuery对象,如DOM，css选择器，“body”等。
+				// 则构造jQuery对象。
 				return this.constructor( context ).find( selector );
 			}
 
 		// HANDLE: $(DOMElement)
+		// 处理 DOM元素
 		} else if ( selector.nodeType ) {
+			// 修正各种值
 			this.context = this[0] = selector;
 			this.length = 1;
 			return this;
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
+		// $(fn) -- > ready()
 		} else if ( jQuery.isFunction( selector ) ) {
 			return rootjQuery.ready( selector );
 		}
 
+		// 
+
+		// $($(selector))
+		// 考虑的还挺多
 		if ( selector.selector !== undefined ) {
 			this.selector = selector.selector;
 			this.context = selector.context;
 		}
-
+		// 处理这种不多见的情况
+		// jQuery数组
 		return jQuery.makeArray( selector, this );
 	},
 
@@ -681,11 +723,12 @@ jQuery.extend({
 		},
 
 	// results is for internal usage only
+	// selector this
 	makeArray: function( arr, results ) {
 		var ret = results || [];
 
 		if ( arr != null ) {
-			if ( isArraylike( Object(arr) ) ) {
+			if ( isArraylike( arr ) ) {
 				jQuery.merge( ret,
 					typeof arr === "string" ?
 					[ arr ] : arr
@@ -694,7 +737,6 @@ jQuery.extend({
 				core_push.call( ret, arr );
 			}
 		}
-
 		return ret;
 	},
 
