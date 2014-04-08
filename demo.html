@@ -23,7 +23,13 @@
 		// 	// "class":function(){}
 		// }).appendTo($("body"))
 		var body = document.getElementsByTagName("div")[0];
-		$($($("#ok"))).remove();
+		// $($($("#ok"))).remove();
+		var a = "<div></div><script>";
+		var b = $.parseHTML(a,document);
+		// console.log(b)
+		// console.log($({"ok":2,"no":1}));
+		// console.log($([1,2,],[3]))
+
 		// console.log($())
 	})
 	</script>

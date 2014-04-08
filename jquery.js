@@ -250,8 +250,6 @@ jQuery.fn = jQuery.prototype = {
 			return rootjQuery.ready( selector );
 		}
 
-		// 
-
 		// $($(selector))
 		// 考虑的还挺多
 		if ( selector.selector !== undefined ) {
@@ -259,6 +257,7 @@ jQuery.fn = jQuery.prototype = {
 			this.context = selector.context;
 		}
 		// 处理这种不多见的情况
+		// $({}),$([])....
 		// jQuery数组
 		return jQuery.makeArray( selector, this );
 	},
@@ -569,7 +568,8 @@ jQuery.extend({
 		if ( parsed ) {
 			return [ context.createElement( parsed[1] ) ];
 		}
-
+		// console.log(1)
+		// console.log(jQuery( scripts ))
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 		if ( scripts ) {
 			jQuery( scripts ).remove();
