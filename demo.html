@@ -6,34 +6,51 @@
 	<script src="jquery.js"></script>
 	<script src="pb.js"></script>
 	<script>
-	$(function(){
-		// $("<p></p>",{
-		// 	"data-img":"ok",
-		// 	length:2,
-		// 	// html:"okk",
-		// 	// text:"ok",
-		// 	// fadeOut:300,
-		// 	on:{
-		// 		click:function(){alert(1)},
-		// 		focusin:function(){},
-		// 		focusout:function(){}
-		// 	},
-		// 	// fadeOut:function(){},
-		// 	// // click:function(){alert(1)},
-		// 	// "class":function(){}
-		// }).appendTo($("body"))
-		var body = document.getElementsByTagName("div")[0];
-		// $($($("#ok"))).remove();
-		var a = "<div></div><script>";
-		var b = $.parseHTML(a,document);
-		// console.log(b)
-		// console.log($({"ok":2,"no":1}));
-		// console.log($([1,2,],[3]))
-
-		// console.log($())
+	y(function(){
+		var a = y.type(function(){})
+		console.log(a)
 	})
-	</script>
-	<script>
+	// $(function(){
+	// 	var body = document.getElementsByTagName("div")[0];
+	// 	var a = "hello, <b>my name is</b><p>ds</p> jQuery.script<script><\/script>";
+	// 	var b = $.parseHTML(a);
+	// 	var c = document.querySelectorAll(".c")[0],
+	// 		b = document.querySelectorAll(".b")[0];
+	// 	var a = [1,2,3,10,2];
+	// 	var core_push = [].push;
+	// 	// console.log(a.core_push(100),a)
+	// 	// console.log(a.indexOf(2))
+	// 	// console.log(a.concat(0,"l",[3,4],{2:"2"}))
+	// 	// var a = document.createElement('a');
+ // 	// 	a.href = 'http://www.cnblogs.com/wayou/p/';
+ // 	// 	// console.log(window.location,a)
+ // 		function t(){
+ 			
+	// 		for(var i in a){
+	// 			var ii = i
+	// 		}
+	// 		console.log(ii)
+ // 		}
+ // 		var l = document.querySelectorAll(".c").length;
+ // 		for(var i = 0; i < l;i++){
+ // 			// t(i)()
+ // 		}
+ // 		function t(i){
+ // 			return function(){
+ // 				document.querySelectorAll(".c")[i].addEventListener("click",function(){
+ // 					alert(i)
+ // 				},false)
+ // 			}
+ // 		}
+	// })
+	// var a = document.createDocumentFragment(),
+	// 	b = document.createElement("div");
+	// var a=1,b=2;a=[b,b=a][0];
+	// var c = !!a && 10;
+	// if(obj == null){
+	// 	var obj = {}
+	// 	console.log(obj)
+	// }
 	</script>
 	<style>
 	body{
@@ -41,25 +58,53 @@
 		margin:0;
 	}
 	.b{
+		width: 100px;
+		height: 100px;
+		padding:10px;
 		border:1px solid blue;
+		padding:20px;
 	}
 	#c{
+		/*background-color: transparent;
+		box-shadow: #111 0 0 5px;
+		text-shadow:#111 0 0 5px;
+		color: transparent;
 		width:100px;
-		height: 100px;
-		border:1px solid red;
-		margin:20px;
+		height: 100px;*/
+		/*border:1px solid red;*/
+		margin:10%;
+		position: relative;
+		padding: 10%;
+
+	}
+	#cc{
+		/*position: absolute;
+		left:-webkit-calc(100px - 66px);
+		top:0;
+		right:0;
+		bottom:0;*/
+		width: -moz-calc(100% - 10px);
+		height: 100%;
+		background-color: blue
+	}
+	.c{
+		position: relative;
+		top:50%;
+		transform:translateY(-50%);
 	}
 	</style>
 </head>
 <body>
+
+	<h1>it is a test</h1>
 	<!-- <input type="text" name="ok" value="ook"> -->
 	<div id="c">
-		<div id="123">testD</div>
+		<div id="cc">testD</div>
 	</div>
 	<div id="ok">pb</div>
 	<div class="b">
 		<div class="c">testC</div>
-		<div class="c">testC</div>
+		<!-- <div class="c">testC</div> -->
 	</div>
 	<a id="a">testA</a>
 	<!-- <input type="text" id="c"> -->

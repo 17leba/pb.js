@@ -568,8 +568,6 @@ jQuery.extend({
 		if ( parsed ) {
 			return [ context.createElement( parsed[1] ) ];
 		}
-		// console.log(1)
-		// console.log(jQuery( scripts ))
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 		if ( scripts ) {
 			jQuery( scripts ).remove();
@@ -5880,6 +5878,8 @@ var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figca
 	rnoshimcache = new RegExp("<(?:" + nodeNames + ")[\\s/>]", "i"),
 	rleadingWhitespace = /^\s+/,
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
+	// \w:匹配包括下划线在内的任何单词字符 等价于[A-Za-z0-9_]。
+	// 
 	rtagName = /<([\w:]+)/,
 	rtbody = /<tbody/i,
 	rhtml = /<|&#?\w+;/,
@@ -6479,6 +6479,7 @@ jQuery.extend({
 	buildFragment: function( elems, context, scripts, selection ) {
 		var j, elem, contains,
 			tmp, tag, tbody, wrap,
+
 			l = elems.length,
 
 			// Ensure a safe fragment
@@ -6486,12 +6487,9 @@ jQuery.extend({
 
 			nodes = [],
 			i = 0;
-
 		for ( ; i < l; i++ ) {
 			elem = elems[ i ];
-
 			if ( elem || elem === 0 ) {
-
 				// Add nodes directly
 				if ( jQuery.type( elem ) === "object" ) {
 					jQuery.merge( nodes, elem.nodeType ? [ elem ] : elem );
@@ -6507,7 +6505,7 @@ jQuery.extend({
 					// Deserialize a standard representation
 					tag = ( rtagName.exec( elem ) || ["", ""] )[1].toLowerCase();
 					wrap = wrapMap[ tag ] || wrapMap._default;
-
+					
 					tmp.innerHTML = wrap[1] + elem.replace( rxhtmlTag, "<$1></$2>" ) + wrap[2];
 
 					// Descend through wrappers to the right content

@@ -3,7 +3,8 @@
 	var toString = Object.prototype.toString,
 		//事件列表
 		readyList = [],
-		DOMContentLoaded;
+		DOMContentLoaded,
+		class2type = {};
 
 	var pb = function(selector,context){
 		return new pb.fn.init(selector,context);
@@ -32,7 +33,7 @@
 					this.selector = getElementsByClassName(selector);
 				}
 			//selector 为函数则 返回 ready()
-			}else if(isFunction(selector)){
+			}else if(pb.isFunction(selector)){
 				return pb(document).ready(selector);
 			}else if(selector.nodeType){
 				this.selector = selector;
@@ -137,42 +138,9 @@
 			return this;
 		},
 		each:function(fn,num){
-			return this.eachInter(this,fn,num);
+			return pb.each(this,fn,num);
 		},
-		eachInter:function(obj,fn,num){
-			// 遍历对象和数组
-			// num 循环个数
-			var length = obj.length,
-				num = num || length,
-				v;
-
-			if(isArray(obj)){
-				for(var i = 0;i < num;i++){
-					v = fn.call(obj[i],i,obj[i]);
-					if(v === false){
-						break;
-					}
-				}
-			}else{
-				for(var i in obj){
-					v = fn.call(obj[i],i,obj[i]);
-					if(v === false || this.index(obj[i])+1 === num){
-						break;
-					}
-				}
-			}
-			return obj;
-		},
-		index:function(obj,index){
-			var length = this.length;
-			i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;
-			for(;i < length;i++){
-				if(this[i] === obj){
-					return i;
-				}
-			}
-			return -1;
-		},
+		
 		size:function(){
 			return this.length;
 		}
@@ -209,10 +177,10 @@
 					}
 					if(!deep && copy !== undefined){
 						target[name] = copy;
-					}else if(deep && copy && (copyIsArray = isArray(copy) || isObject(copy))){
+					}else if(deep && copy && (copyIsArray = pb.isArray(copy) || isObject(copy))){
 						if(copyIsArray){
 							copyIsArray = false;
-							clone = src && isArray(src) ? src : [];
+							clone = src && pb.isArray(src) ? src : [];
 						}else{
 							clone = src && isObject(src) ? src : [];
 						}
@@ -236,6 +204,53 @@
 				fn();
 			}
 		},
+		each:function(obj,fn,num){
+			// 遍历对象和数组
+			// num 循环个数
+			var length = obj.length,
+				num = num || length,
+				v;
+
+			if(pb.isArray(obj)){
+				for(var i = 0;i < num;i++){
+					v = fn.call(obj[i],i,obj[i]);
+					if(v === false){
+						break;
+					}
+				}
+			}else{
+				for(var i in obj){
+					v = fn.call(obj[i],i,obj[i]);
+					if(v === false || this.index(obj[i])+1 === num){
+						break;
+					}
+				}
+			}
+			return obj;
+		},
+		index:function(obj,index){
+			var length = this.length;
+			i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;
+			for(;i < length;i++){
+				if(this[i] === obj){
+					return i;
+				}
+			}
+			return -1;
+		},
+		type:function(obj){
+			if(obj == null){
+				return String(obj);
+			}
+			return typeof obj === "object" || obj === "function" ?
+				class2type[toString.call(obj)] || "object" : typeof obj;
+		},
+		isFunction:function(obj){
+			return pb.type(obj) === "function";
+		},
+		isArray:function(obj){
+			return pb.type(obj) === "array";
+		},
 		stopPropagation:function(e){
 			var e = this.originalEvent;
 			if(!e){
@@ -248,6 +263,10 @@
 			}
 		}
 
+	})
+
+	pb.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+		class2type[ "[object " + name + "]" ] = name.toLowerCase();
 	})
 
 	pb.event = {
@@ -283,12 +302,6 @@
 			document.detachEvent("onreadystatechange",DOMContentLoaded);
 			pb.ready();
 		}
-	}
-	function isArray(obj){
-		return toString.call(obj) === "[object Array]";
-	}
-	function isFunction(obj){
-		return toString.call(obj) === "[object Function]";
 	}
 	function isObject(obj){
 		return toString.call(obj) === "[object Object]";
