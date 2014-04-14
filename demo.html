@@ -7,50 +7,31 @@
 	<script src="pb.js"></script>
 	<script>
 	y(function(){
-		var a = y.type(function(){})
-		y.log(a)
+		var c = 1;
+		function f(){
+			// var a = (b = 0);
+			var a = b = 0; 
+		}
+		f();
+		// console.log(a);
+		// console.log(b);
+		// delete b,c;
+		// // console.log(b);
+		// console.log(c)
+		// for(var i = 5;i--;){
+		// 	// console.log(i)
+		// }
+		function t(){
+			var i = 0;
+			console.log(++i)
+		}
+		// t()
+		// t()
+		// var tt = function(){
+			// console.log(0)
+		// }()
+		function ttt(){console.log(10)}(11)
 	})
-	// $(function(){
-	// 	var body = document.getElementsByTagName("div")[0];
-	// 	var a = "hello, <b>my name is</b><p>ds</p> jQuery.script<script><\/script>";
-	// 	var b = $.parseHTML(a);
-	// 	var c = document.querySelectorAll(".c")[0],
-	// 		b = document.querySelectorAll(".b")[0];
-	// 	var a = [1,2,3,10,2];
-	// 	var core_push = [].push;
-	// 	// console.log(a.core_push(100),a)
-	// 	// console.log(a.indexOf(2))
-	// 	// console.log(a.concat(0,"l",[3,4],{2:"2"}))
-	// 	// var a = document.createElement('a');
- // 	// 	a.href = 'http://www.cnblogs.com/wayou/p/';
- // 	// 	// console.log(window.location,a)
- // 		function t(){
- 			
-	// 		for(var i in a){
-	// 			var ii = i
-	// 		}
-	// 		console.log(ii)
- // 		}
- // 		var l = document.querySelectorAll(".c").length;
- // 		for(var i = 0; i < l;i++){
- // 			// t(i)()
- // 		}
- // 		function t(i){
- // 			return function(){
- // 				document.querySelectorAll(".c")[i].addEventListener("click",function(){
- // 					alert(i)
- // 				},false)
- // 			}
- // 		}
-	// })
-	// var a = document.createDocumentFragment(),
-	// 	b = document.createElement("div");
-	// var a=1,b=2;a=[b,b=a][0];
-	// var c = !!a && 10;
-	// if(obj == null){
-	// 	var obj = {}
-	// 	console.log(obj)
-	// }
 	</script>
 	<style>
 	body{
@@ -106,7 +87,7 @@
 		<div class="c">testC</div>
 		<!-- <div class="c">testC</div> -->
 	</div>
-	<a id="a">testA</a>
+	<a id="ac">testA</a>
 	<!-- <input type="text" id="c"> -->
 	<!-- <img src="test.jpg" alt=""> -->
 </body>
