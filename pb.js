@@ -261,6 +261,9 @@
 			}else{
 				e.cancelBubble = true;
 			}
+		},
+		log:function(obj){
+			return window.console && console.log ? console.log(obj) : alert(obj);
 		}
 
 	})
