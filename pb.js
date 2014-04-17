@@ -107,7 +107,11 @@
 			}
 		},
 		parent:function(){
-			return this.selector.parentNode;
+			var stack = [];
+			pb.each(this,function(i,obj){
+				stack[stack.length] = obj.parentNode;
+			},this.length);
+			return stack;
 		},
 		html:function(html){
 			if(html === undefined){
@@ -143,6 +147,16 @@
 		
 		size:function(){
 			return this.length;
+		},
+		index:function(obj,index){
+			var length = this.length,
+				i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;
+			for(;i < length;i++){
+				if(this[i] === obj){
+					return i;
+				}
+			}
+			return -1;
 		}
 	}
 
@@ -209,35 +223,26 @@
 			// num 循环个数
 			var length = obj.length,
 				num = num || length,
+				i = 0,
 				v;
-
 			if(pb.isArray(obj)){
-				for(var i = 0;i < num;i++){
+				for(;i < num;i++){
 					v = fn.call(obj[i],i,obj[i]);
 					if(v === false){
 						break;
 					}
 				}
 			}else{
-				for(var i in obj){
+				for(i in obj){
 					v = fn.call(obj[i],i,obj[i]);
-					if(v === false || this.index(obj[i])+1 === num){
+					if(v === false || parseInt(i)+1 === num){
 						break;
 					}
 				}
 			}
 			return obj;
 		},
-		index:function(obj,index){
-			var length = this.length,
-				i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;
-			for(;i < length;i++){
-				if(this[i] === obj){
-					return i;
-				}
-			}
-			return -1;
-		},
+
 		type:function(obj){
 			if(obj == null){
 				return String(obj);

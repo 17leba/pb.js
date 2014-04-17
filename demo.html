@@ -7,30 +7,19 @@
 	<script src="pb.js"></script>
 	<script>
 	y(function(){
-		var c = 1;
-		function f(){
-			// var a = (b = 0);
-			var a = b = 0; 
-		}
-		f();
-		// console.log(a);
-		// console.log(b);
-		// delete b,c;
-		// // console.log(b);
-		// console.log(c)
-		// for(var i = 5;i--;){
-		// 	// console.log(i)
-		// }
-		function t(){
-			var i = 0;
-			console.log(++i)
-		}
-		// t()
-		// t()
-		// var tt = function(){
-			// console.log(0)
-		// }()
-		function ttt(){console.log(10)}(11)
+		// y("#cc").on("click",function(e){
+		// 	// e.stopPropagation();
+		// 	console.log("cc")
+		// })
+		// y("#c").on("click",function(){
+		// 	console.log("c")
+		// })
+		y(".c").parent()
+		// console.log(y(".c"))
+	})
+	$(function(){
+		$(".c")
+		// console.log($(".c").parent())
 	})
 	</script>
 	<style>
@@ -53,9 +42,9 @@
 		width:100px;
 		height: 100px;*/
 		/*border:1px solid red;*/
-		margin:10%;
+		/*margin:10%;
 		position: relative;
-		padding: 10%;
+		padding: 10%;*/
 
 	}
 	#cc{
@@ -64,7 +53,7 @@
 		top:0;
 		right:0;
 		bottom:0;*/
-		width: -moz-calc(100% - 10px);
+		width: 100px;
 		height: 100%;
 		background-color: blue
 	}
@@ -81,6 +70,7 @@
 	<!-- <input type="text" name="ok" value="ook"> -->
 	<div id="c">
 		<div id="cc">testD</div>
+		<div class="c">ok</div>
 	</div>
 	<div id="ok">pb</div>
 	<div class="b">
