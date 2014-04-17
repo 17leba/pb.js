@@ -242,7 +242,6 @@
 			}
 			return obj;
 		},
-
 		type:function(obj){
 			if(obj == null){
 				return String(obj);
