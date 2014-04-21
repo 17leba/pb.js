@@ -9410,9 +9410,9 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 // options为可选参数。有参数则设置新的偏移值，没有则获取当前偏移值。
 // 主要是通过大部分浏览器都支持的getBoundingClientRect方法来实现的，不支持这个方法的直接设置为{top:0,left:0}。
 // 注意IE8及以下getBoundingClientRect会返回相对于当前文档窗口的位置偏移。
-// 以前的jQuery版本会用很冗长麻烦的代码来处理不支持getBoundingClientRect的情况。
 // 而关于getBoundingClientRect，它返回的是一个相对于可视窗口左上角的坐标偏移，left、right、top、bottom都有。
 // 返回的东西在不同浏览器下可能不一样，比如在chrome和firefox下会返回元素的高度和宽度，但是都会返回left、right、top、bottom。
+// 以前的jQuery版本会用很冗长麻烦的代码来处理不支持getBoundingClientRect的情况。
 jQuery.fn.offset = function( options ) {
 	// 如果存在参数，则为设置jQuery对象的偏移值
 	if ( arguments.length ) {
@@ -9452,11 +9452,10 @@ jQuery.fn.offset = function( options ) {
 	}
 	// 获取当前window对象。
 	win = getWindow( doc );
-	// IE8及以下不支持pageYOffset和pageXOffset。
 	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移。
-	// clientTop就是指元素的上边框高度
+	// IE8及以下不支持pageYOffset和pageXOffset。
+	// clientTop就是指元素的上边框高度。
 	// IE的标准模式中，html元素是有border的，默认是2px。经测试：ie6/7测试都为2，ie8为0。
-	// 可能低版本的浏览器的确是这样的。
 	return {
 		top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
 		left: box.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )
