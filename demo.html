@@ -6,79 +6,42 @@
 	<script src="jquery.js"></script>
 	<script src="pb.js"></script>
 	<script>
-	y(function(){
-		// y("#cc").on("click",function(e){
-		// 	// e.stopPropagation();
-		// 	console.log("cc")
-		// })
-		// y("#c").on("click",function(){
-		// 	console.log("c")
-		// })
-		y(".c").parent()
-		// console.log(y(".c"))
-	})
-	$(function(){
-		$(".c")
-		// console.log($(".c").parent())
-	})
+
 	</script>
 	<style>
+	*{
+		margin:10px;
+		border-color:#000;
+	}
 	body{
+		border:20px solid red;
 		padding:0;
 		margin:0;
+		height: 1000px;
 	}
-	.b{
-		width: 100px;
-		height: 100px;
-		padding:10px;
-		border:1px solid blue;
-		padding:20px;
-	}
-	#c{
-		/*background-color: transparent;
-		box-shadow: #111 0 0 5px;
-		text-shadow:#111 0 0 5px;
-		color: transparent;
-		width:100px;
-		height: 100px;*/
-		/*border:1px solid red;*/
-		/*margin:10%;
-		position: relative;
-		padding: 10%;*/
-
-	}
-	#cc{
-		/*position: absolute;
-		left:-webkit-calc(100px - 66px);
-		top:0;
-		right:0;
-		bottom:0;*/
-		width: 100px;
-		height: 100%;
-		background-color: blue
-	}
-	.c{
-		position: relative;
-		top:50%;
-		transform:translateY(-50%);
+	#ab{
+		border-width:1px;
+		height: 900px;
+		margin-top: 30px;
 	}
 	</style>
 </head>
 <body>
-
-	<h1>it is a test</h1>
-	<!-- <input type="text" name="ok" value="ook"> -->
-	<div id="c">
-		<div id="cc">testD</div>
-		<div class="c">ok</div>
-	</div>
-	<div id="ok">pb</div>
-	<div class="b">
-		<div class="c">testC</div>
-		<!-- <div class="c">testC</div> -->
-	</div>
-	<a id="ac">testA</a>
-	<!-- <input type="text" id="c"> -->
-	<!-- <img src="test.jpg" alt=""> -->
+	<a href="" id="ab">tt</a>
+	<script>
+	var c = document.documentElement.clientTop;
+	alert(c)
+	function getStyle(obj){
+		var cur;
+		if(obj.currentStyle){
+			cur = obj.currentStyle;
+		}else{
+			cur = document.defaultView.getComputedStyle(obj,null);
+		}
+		return cur;
+	}
+	var dd = getStyle(document.getElementsByTagName("html")[0]);
+	// var j = document.defaultView.getComputedStyle(dd,null).left
+	</script>
 </body>
 </html>
