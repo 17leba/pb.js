@@ -9453,6 +9453,7 @@ jQuery.fn.offset = function( options ) {
 	// 获取当前window对象。
 	win = getWindow( doc );
 	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移。
+	// 
 	// IE8及以下不支持pageYOffset和pageXOffset。
 	// clientTop就是指元素的上边框高度。
 	// IE的标准模式中，html元素是有border的，默认是2px。经测试：ie6/7测试都为2，ie8为0。
@@ -9466,7 +9467,6 @@ jQuery.offset = {
 
 	setOffset: function( elem, options, i ) {
 		var position = jQuery.css( elem, "position" );
-
 		// set position first, in-case top/left are set even on static elem
 		if ( position === "static" ) {
 			elem.style.position = "relative";
@@ -9567,7 +9567,6 @@ jQuery.each( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( me
 	jQuery.fn[ method ] = function( val ) {
 		return jQuery.access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
-
 			if ( val === undefined ) {
 				return win ? (prop in win) ? win[ prop ] :
 					win.document.documentElement[ method ] :

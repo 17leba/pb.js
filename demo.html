@@ -1,20 +1,26 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html>
 <html lang="en">
 <head>
+
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<script src="jquery.js"></script>
-	<script src="pb.js"></script>
 	<script>
-
+	$(function(){
+		$("#ab").offset({
+			left:10,
+			top:12
+		})
+	})
 	</script>
+	<script src="pb.js"></script>
+	
 	<style>
 	*{
 		margin:10px;
 		border-color:#000;
 	}
 	body{
-		border:20px solid red;
 		padding:0;
 		margin:0;
 		height: 1000px;
@@ -27,20 +33,9 @@
 	</style>
 </head>
 <body>
+	 
 	<a href="" id="ab">tt</a>
 	<script>
-	var c = document.body.scrollTop;
-	alert(c)
-	function getStyle(obj){
-		var cur;
-		if(obj.currentStyle){
-			cur = obj.currentStyle;
-		}else{
-			cur = document.defaultView.getComputedStyle(obj,null);
-		}
-		return cur;
-	}
-	var dd = getStyle(document.getElementsByTagName("html")[0]);
 	// var j = document.defaultView.getComputedStyle(dd,null).left
 	</script>
 </body>
