@@ -9455,7 +9455,8 @@ jQuery.fn.offset = function( options ) {
 	// IE8及以下不支持pageYOffset和pageXOffset。
 	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移。
 	// clientTop就是指元素的上边框高度
-	// IE的标准模式中，html元素是有border的，默认是2px。(其实我测试的是一直为0)
+	// IE的标准模式中，html元素是有border的，默认是2px。经测试：ie6/7测试都为2，ie8为0。
+	// 可能低版本的浏览器的确是这样的。
 	return {
 		top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
 		left: box.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -29,7 +29,7 @@
 <body>
 	<a href="" id="ab">tt</a>
 	<script>
-	var c = document.documentElement.clientTop;
+	var c = document.body.scrollTop;
 	alert(c)
 	function getStyle(obj){
 		var cur;
@@ -41,7 +41,6 @@
 		return cur;
 	}
 	var dd = getStyle(document.getElementsByTagName("html")[0]);
-	// var j = document.defaultView.getComputedStyle(dd,null).left
 	</script>
 </body>
 </html>
