@@ -148,6 +148,9 @@
 		size:function(){
 			return this.length;
 		},
+		toArray:function(){
+			return [].slice.call(this);
+		},
 		index:function(obj,index){
 			var length = this.length,
 				i = index == null ? 0 : index < 0 ? Math.max(0,length + index) : index;

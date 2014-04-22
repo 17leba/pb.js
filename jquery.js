@@ -119,7 +119,6 @@ var
 			window.detachEvent( "onload", completed );
 		}
 	};
-
 jQuery.fn = jQuery.prototype = {
 	// The current version of jQuery being used
 	jquery: core_version,
@@ -127,7 +126,6 @@ jQuery.fn = jQuery.prototype = {
 	constructor: jQuery,
 	init: function( selector, context, rootjQuery ) {
 		var match, elem;
-
 		// HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
 			return this;
@@ -199,7 +197,6 @@ jQuery.fn = jQuery.prototype = {
 					if ( elem && elem.parentNode ) {
 						// Handle the case where IE and Opera return items
 						// by name instead of ID
-						// console.log(selector)
 						// 低版本IE，name值代替id值。
 						if ( elem.id !== match[2] ) {
 							// sizzle 选择器
@@ -269,16 +266,23 @@ jQuery.fn = jQuery.prototype = {
 	length: 0,
 
 	// The number of elements contained in the matched element set
+	// jQuery对象中元素的个数。
+	// 不过一般$(obj).length就可以，简洁明了还比size()快那么一点点，size毕竟包装成函数返回了。
 	size: function() {
 		return this.length;
 	},
-
+	// 把jQuery对象转换成数组，运用[].slice.call(类数组)这个技巧。只要是数组或者类数组对象即可这么用。
+	// 什么是类数组对象呢？其实就和鸭子模型差不多，只要这个对象具有length属性就行，如：var o = {0:"a",1:"b","length":2};
+	// o对象就可以调用[].slice.call(o)返回数组["a","b"]。
 	toArray: function() {
 		return core_slice.call( this );
 	},
 
 	// Get the Nth element in the matched element set OR
 	// Get the whole matched element set as a clean array
+	// 取得匹配的DOM元素。不传参数则返回一个包含全部匹配元素的数组，等同于toArray()。
+	// 参数num小于0则从末尾开始算起。
+	// $(obj).get(num) == $(obj)[num]
 	get: function( num ) {
 		return num == null ?
 
@@ -286,16 +290,19 @@ jQuery.fn = jQuery.prototype = {
 			this.toArray() :
 
 			// Return just the object
+			// 
 			( num < 0 ? this[ this.length + num ] : this[ num ] );
 	},
 
 	// Take an array of elements and push it onto the stack
 	// (returning the new matched element set)
+	// 造一个新的jQuery对象。
 	pushStack: function( elems ) {
 		// Build a new jQuery matched element set
+		// 把数组元素合并到jQuery构造对象中，产生一个新的jQuery对象
 		var ret = jQuery.merge( this.constructor(), elems );
-
 		// Add the old object onto the stack (as a reference)
+		// 把旧的对象设置为prevObject。context也同样设置。
 		ret.prevObject = this;
 		ret.context = this.context;
 		
@@ -306,21 +313,27 @@ jQuery.fn = jQuery.prototype = {
 	// Execute a callback for every element in the matched set.
 	// (You can seed the arguments with an array of args, but this is
 	// only used internally.)
+	// 遍历元素，调用工具函数jQuery.each()。
 	each: function( callback, args ) {
 		return jQuery.each( this, callback, args );
 	},
-
+	// domReady 判断
+	// 简单分析：http://www.17leba.com/js%E7%9A%84domready/
 	ready: function( fn ) {
 		// Add the callback
 		jQuery.ready.promise().done( fn );
 
 		return this;
 	},
-
+	// 选取子集。和数组的slice方法类似。
 	slice: function() {
+		// 返回新的jQuery对象。
+		// 可以看到就是在jQuery对象上调用数组的slice方法。
+		// arguments就是个类数组。所以用apply。
 		return this.pushStack( core_slice.apply( this, arguments ) );
 	},
-
+	// first(),last()取得匹配的第一和最后一个元素。
+	// 都是调用eq()。
 	first: function() {
 		return this.eq( 0 );
 	},
@@ -328,19 +341,23 @@ jQuery.fn = jQuery.prototype = {
 	last: function() {
 		return this.eq( -1 );
 	},
-
+	// 获取第i个元素，i从0开始，i为负数时，从最后一个元素开始算起。
 	eq: function( i ) {
+		// j:对下标i进行修正。
+		// +i把i转换成Number类型，如果传入的是字符串“1”，“2”等。i < 0,则加上this长度。
 		var len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
+		// j必需大于0小于对象个数，否则为空。
 		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
 	},
-
+	// 将一组元素转换成其他数组（不论这组元素是否是元素数组）。
+	// 调用工具函数jQuery.map()。
 	map: function( callback ) {
 		return this.pushStack( jQuery.map(this, function( elem, i ) {
 			return callback.call( elem, i, elem );
 		}));
 	},
-
+	// 返回前一个匹配元素，若没有，返回空jQuery对象。
 	end: function() {
 		return this.prevObject || this.constructor(null);
 	},
@@ -355,6 +372,7 @@ jQuery.fn = jQuery.prototype = {
 // Give the init function the jQuery prototype for later instantiation
 jQuery.fn.init.prototype = jQuery.fn;
 
+// 分析见：http://www.17leba.com/深拷贝-浅拷贝/
 jQuery.extend = jQuery.fn.extend = function() {
 	var src, copyIsArray, copy, name, options, clone,
 		target = arguments[0] || {},
@@ -424,6 +442,10 @@ jQuery.extend({
 	log:function(obj){
 		return window.console && console.log ? console.log(obj) : alert(obj);
 	},
+	// 避免与其他js库冲突。
+	// 若其他js程序中已有$这个变量，则用该函数让出$：$.noConflict()。
+	// 之后可用jQuery代替$，如果deep为true，则jQuery也让出。都让出了我们怎么用啊，可以对jQuery.noConflict()赋值。
+	// var pb = jQuery.noConflict()，则用pb代替了jQuery。
 	noConflict: function( deep ) {
 		if ( window.$ === jQuery ) {
 			window.$ = _$;
