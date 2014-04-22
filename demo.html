@@ -7,22 +7,16 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		$("#ab").offset({
-			left:10,
-			top:12
-		})
+		// var t = $(".ok").position().top;
+		$(".no").offsetParent()
 	})
 	</script>
 	<script src="pb.js"></script>
 	
 	<style>
-	*{
-		margin:10px;
-		border-color:#000;
-	}
 	body{
 		padding:0;
-		margin:0;
+		margin:100px;
 		height: 1000px;
 	}
 	#ab{
@@ -30,10 +24,29 @@
 		height: 900px;
 		margin-top: 30px;
 	}
+	.ok{
+		position: relative;
+		border:1px solid red;
+		height: 100px;
+		width: 100px;
+		/*top:0px;*/
+		margin:10px;
+		border-top:40px solid red;
+	}
+	.no{
+		position: relative;
+		top:10px;
+		margin:10px;
+		border:1px solid blue;
+		width: 50px;
+		height: 50px;
+	}
 	</style>
 </head>
 <body>
-	 
+	<div class="ok">
+		<div class="no"></div>
+	</div>
 	<a href="" id="ab">tt</a>
 	<script>
 	// var j = document.defaultView.getComputedStyle(dd,null).left

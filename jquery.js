@@ -9409,7 +9409,6 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 // 注意是文档窗口，而不是浏览器窗口,即出现滚动条其值也不会变。
 // options为可选参数。有参数则设置新的偏移值，没有则获取当前偏移值。
 // 主要是通过大部分浏览器都支持的getBoundingClientRect方法来实现的，不支持这个方法的直接设置为{top:0,left:0}。
-// 注意IE8及以下getBoundingClientRect会返回相对于当前文档窗口的位置偏移。
 // 而关于getBoundingClientRect，它返回的是一个相对于可视窗口左上角的坐标偏移，left、right、top、bottom都有。
 // 返回的东西在不同浏览器下可能不一样，比如在chrome和firefox下会返回元素的高度和宽度，但是都会返回left、right、top、bottom。
 // 以前的jQuery版本会用很冗长麻烦的代码来处理不支持getBoundingClientRect的情况。
@@ -9457,6 +9456,7 @@ jQuery.fn.offset = function( options ) {
 	// IE8及以下不支持pageYOffset和pageXOffset。
 	// clientTop就是指元素的上边框高度。
 	// IE的标准模式中，html元素是有border的，默认是2px。经测试：ie6/7测试都为2，ie8为0。
+	// http://www.17leba.com/%E5%85%B3%E4%BA%8E%E4%BD%8E%E7%89%88%E6%9C%ACie%E4%B8%8Bscrolltop%E4%B8%80%E7%9B%B4%E4%B8%BA0/
 	return {
 		top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
 		left: box.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )
@@ -9464,22 +9464,32 @@ jQuery.fn.offset = function( options ) {
 };
 
 jQuery.offset = {
-
+	// 设置jQuery对象的偏移（相对于文档）。
+	// 新的偏移值 = 对象本身的left/top值 + 原来偏移值的变化值（设置值 - 原来值）
 	setOffset: function( elem, options, i ) {
+		// elem:匹配DOM对象。
+		// options:设置的参数。两种合法形式：普通对象和函数。
+		// i:DOM对象的索引。
+
+		// 获取DOM元素本身原有的position值，若为static则设置为relative。
 		var position = jQuery.css( elem, "position" );
 		// set position first, in-case top/left are set even on static elem
 		if ( position === "static" ) {
 			elem.style.position = "relative";
 		}
 
-		var curElem = jQuery( elem ),
-			curOffset = curElem.offset(),
+		var curElem = jQuery( elem ),// DOM对象转换为jQuery对象，方便下面调用jQuery方法。
+			curOffset = curElem.offset(),// 当前相对于文档的偏移。
 			curCSSTop = jQuery.css( elem, "top" ),
 			curCSSLeft = jQuery.css( elem, "left" ),
+			// 判断是否为绝对定位（固定定位为绝对定位一个分支）且没有设置top或left值，没有设置即为auto。
 			calculatePosition = ( position === "absolute" || position === "fixed" ) && jQuery.inArray("auto", [curCSSTop, curCSSLeft]) > -1,
 			props = {}, curPosition = {}, curTop, curLeft;
 
 		// need to be able to calculate position if either top or left is auto and position is either absolute or fixed
+		// 对elem当前的left/top值进行修正。
+		// 如果为绝对定位且left/top其中有一个没有设置值，则取其position（相对于父元素的偏移）。
+		// 否则取设置的值，没有设置则为0。
 		if ( calculatePosition ) {
 			curPosition = curElem.position();
 			curTop = curPosition.top;
@@ -9488,18 +9498,26 @@ jQuery.offset = {
 			curTop = parseFloat( curCSSTop ) || 0;
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
-
+		// options 为函数的情况。
+		// options的值重新计算。
+		// Example：
+		// curElem.offset(function(i,cur){
+		//	var left = cur.left * 10,
+		//		top = Math.floor(cur.top/2);
+		//	return {left:left,top:top}
+		// })
 		if ( jQuery.isFunction( options ) ) {
 			options = options.call( elem, i, curOffset );
 		}
-
+		// 计算最终的left/top值。
+		// 确保left/top不为空。
 		if ( options.top != null ) {
 			props.top = ( options.top - curOffset.top ) + curTop;
 		}
 		if ( options.left != null ) {
 			props.left = ( options.left - curOffset.left ) + curLeft;
 		}
-
+		// using:?
 		if ( "using" in options ) {
 			options.using.call( elem, props );
 		} else {
@@ -9510,31 +9528,36 @@ jQuery.offset = {
 
 
 jQuery.fn.extend({
-
+	// position():不接受参数。获取匹配元素相对于父元素的偏移。
+	// 原理是：元素的offset() - (第一个匹配的可用于定位的父元素的offset()+父元素的borderWidth) - 元素的margin值。
 	position: function() {
+		// 不存在匹配DOM元素则返回。
 		if ( !this[ 0 ] ) {
 			return;
 		}
-
+		// offsetParent:
 		var offsetParent, offset,
 			parentOffset = { top: 0, left: 0 },
 			elem = this[ 0 ];
-
 		// fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is it's only offset parent
 		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 			// we assume that getBoundingClientRect is available when computed position is fixed
+			// 如果元素是固定定位，则直接调用getBoundingClientRect()返回元素到视窗的偏移。此偏移 - margin值则为元素相对于body偏移。
 			offset = elem.getBoundingClientRect();
 		} else {
 			// Get *real* offsetParent
+			// 获取可用于元素定位的父元素，即设置了非static的祖先元素。
 			offsetParent = this.offsetParent();
 
 			// Get correct offsets
 			offset = this.offset();
+			// 如果匹配的父元素不是html根元素，则获取其偏移值。否则为{top: 0, left: 0}。
 			if ( !jQuery.nodeName( offsetParent[ 0 ], "html" ) ) {
 				parentOffset = offsetParent.offset();
 			}
 
 			// Add offsetParent borders
+			// 父元素的偏移必须加上父元素的borderWidth。
 			parentOffset.top  += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
 			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
@@ -9542,18 +9565,25 @@ jQuery.fn.extend({
 		// Subtract parent offsets and element margins
 		// note: when an element has margin: auto the offsetLeft and marginLeft
 		// are the same in Safari causing offset.left to incorrectly be 0
+		// 排除了margin/border的干扰，完全获取left/top值。
 		return {
 			top:  offset.top  - parentOffset.top - jQuery.css( elem, "marginTop", true ),
 			left: offset.left - parentOffset.left - jQuery.css( elem, "marginLeft", true)
 		};
 	},
 
+	// 获取第一个可用于子元素定位参照的父元素。
 	offsetParent: function() {
 		return this.map(function() {
+		// offsetParent属性返回一个对象的引用，这个对象是距离调用offsetParent的元素最近的（在包含层次中最靠近的），并且是已进行过CSS定位的容器元素。
+		// 如果这个容器元素未进行CSS定位, 则offsetParent属性的取值为根元素(在标准兼容模式下为html元素；在怪异呈现模式下为body元素)的引用。
+		// 当容器元素的style.display 被设置为 "none"时（译注：IE和Opera除外），offsetParent属性 返回 null。	所以只对可见元素有效。
 			var offsetParent = this.offsetParent || document.documentElement;
+			// 如果存在offsetParent并且不为根元素且其position为static，则继续往上找符合的祖先元素。
 			while ( offsetParent && ( !jQuery.nodeName( offsetParent, "html" ) && jQuery.css( offsetParent, "position") === "static" ) ) {
 				offsetParent = offsetParent.offsetParent;
 			}
+			// 没有则返回根元素。
 			return offsetParent || document.documentElement;
 		});
 	}
