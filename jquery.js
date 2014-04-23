@@ -130,7 +130,6 @@ jQuery.fn = jQuery.prototype = {
 		if ( !selector ) {
 			return this;
 		}
-
 		// Handle HTML strings
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
@@ -322,7 +321,6 @@ jQuery.fn = jQuery.prototype = {
 	ready: function( fn ) {
 		// Add the callback
 		jQuery.ready.promise().done( fn );
-
 		return this;
 	},
 	// 选取子集。和数组的slice方法类似。
@@ -459,25 +457,38 @@ jQuery.extend({
 	},
 
 	// Is the DOM ready to be used? Set to true once it occurs.
+	// domReady 标记。
 	isReady: false,
 
 	// A counter to track how many items to wait for before
 	// the ready event fires. See #6781
+	// 
 	readyWait: 1,
 
 	// Hold (or release) the ready event
+	// 详细解释参看官网：http://api.jquery.com/jQuery.holdReady/
+	// 简单说就是延迟jQuery's ready event的触发，在ready event之前做一些事情。
+	// 在ready event已经触发后，此方法将失效。
 	holdReady: function( hold ) {
 		if ( hold ) {
+			// 参数为true时，readyWait变量+1，而当 --jQuery.readyWait > 0 时，都会返回而不触发ready event。 
 			jQuery.readyWait++;
 		} else {
+			// 当参数为假时，则jQuery.ready(true)参数为真，jQuery.readyWait 会自减，直到减为0才会触发ready event。
+			// 因此有多少个$.holdReady(true)来延迟,就得有多少个$.holdReady()来解锁延迟。这样才能触发ready event。
+			// 具体看下面的ready(wait)方法。
 			jQuery.ready( true );
 		}
 	},
 
 	// Handle when the DOM is ready
+	// 用于判断jQuery.readyWait是否为0，即没有延迟。并用jQuery.isReady确保触发一次ready event。
+	// 如果jQuery.readyWait <= 0 && !wait，则触发ready event。
+	// 精华还是在readyList。
 	ready: function( wait ) {
-
 		// Abort if there are pending holds or we're already ready
+		// 对应上面的holdReady()，确保没有$.holdReady(true)的延迟即jQuery.readyWait <= 0，则往下执行。
+		// 或者根本就没出现过$.holdReady(true)，则也往下执行。因为jQuery.isReady默认为false。
 		if ( wait === true ? --jQuery.readyWait : jQuery.isReady ) {
 			return;
 		}
@@ -488,17 +499,22 @@ jQuery.extend({
 		}
 
 		// Remember that the DOM is ready
+		// 设置标记。
 		jQuery.isReady = true;
 
 		// If a normal DOM Ready event fired, decrement, and wait if need be
+		// 开始一直没想明白这个判断有什么用，在我看来上面的判断已经够严谨了。
+		// 后来经过仔细观察才明白这个判断的妙用，它的目的就是为了防止在程序中重新给$.readyWait赋值。
+		// 如果在dom ready event触发之前加一个$.readyWait = 2，那么即使readyWait不为0，也继续往下执行了。
 		if ( wait !== true && --jQuery.readyWait > 0 ) {
 			return;
 		}
-
 		// If there are functions bound, to execute
+		// 绑定的事件执行队列
 		readyList.resolveWith( document, [ jQuery ] );
 
 		// Trigger any bound ready events
+		// 有trigger!!!则执行trigeer。
 		if ( jQuery.fn.trigger ) {
 			jQuery( document ).trigger("ready").off("ready");
 		}
@@ -507,6 +523,9 @@ jQuery.extend({
 	// See test/unit/core.js for details concerning isFunction.
 	// Since version 1.3, DOM methods and functions like alert
 	// aren't supported. They return false on IE (#2968).
+	// isFunction,isArray都是调用了jQuery.type来判断。
+	// 关于jQuery.type见：http://www.17leba.com/jquery中的数据类型判断/
+	// 注意isArray中的Array.isArray:ECMAScript5中新的判断是否为数组的原生方法。
 	isFunction: function( obj ) {
 		return jQuery.type(obj) === "function";
 	},
@@ -514,11 +533,15 @@ jQuery.extend({
 	isArray: Array.isArray || function( obj ) {
 		return jQuery.type(obj) === "array";
 	},
-
+	// 判断是否为winodw。
+	// window.window == window。
 	isWindow: function( obj ) {
 		return obj != null && obj == obj.window;
 	},
-
+	// 判断是否为有限的数值类型。包括纯数值类型以及纯数字的字符串类型:123,"123"但不包括“123abc”。
+	// 这也是为什么不能用typeof来判断的原因。
+	// typeof NaN === "number"
+	// isFinite:返回一个 Boolean 值,指明所提供的数字是否是有限的。
 	isNumeric: function( obj ) {
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
@@ -531,7 +554,7 @@ jQuery.extend({
 			class2type[ core_toString.call(obj) ] || "object" :
 			typeof obj;
 	},
-
+	// 判断是否为纯的object，即{}的。
 	isPlainObject: function( obj ) {
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
@@ -563,8 +586,11 @@ jQuery.extend({
 
 	isEmptyObject: function( obj ) {
 		var name;
+		// obj为空对象，则name in obj 为false，则返回true。
+		// 技能get。
 		for ( name in obj ) {
 			return false;
+
 		}
 		return true;
 	},
@@ -9521,7 +9547,7 @@ jQuery.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 		// options 为函数的情况。
-		// options的值重新计算。
+		// 重新计算options的值。
 		// Example：
 		// curElem.offset(function(i,cur){
 		//	var left = cur.left * 10,
@@ -9540,6 +9566,8 @@ jQuery.offset = {
 			props.left = ( options.left - curOffset.left ) + curLeft;
 		}
 		// using:?
+		// using 为一个回调函数,设置完options后可以调用该函数。
+		// 可以传一个参数为最终设置的css值（top/left）。
 		if ( "using" in options ) {
 			options.using.call( elem, props );
 		} else {
