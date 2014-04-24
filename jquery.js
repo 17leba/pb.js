@@ -69,6 +69,10 @@ var
 	core_rnotwhite = /\S+/g,
 
 	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
+	// \s:匹配任何空白字符，等价于[\f\n\r\t\v]。都是ASCII里面的空格，但是不包括\xA0，这个是ASCII扩展集的空格。
+	// \uFEFF:ES5新增的空白符，即BOM(Byte Order Mark)。
+	// 具体参见：https://www.imququ.com/post/bom-and-javascript-trim.html。
+	// 有些浏览器实现的trim不支持过滤BOM。
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
 	// A simple way to check for HTML strings
@@ -701,28 +705,39 @@ jQuery.extend({
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
-
+	// elem.nodeName 是否等于 name。
+	// 返回true 或 false。
 	nodeName: function( elem, name ) {
 		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 	},
 
 	// args is for internal usage only
+	// 遍历工具函数。
+	// obj:要遍历的对象，可以为数组（包括类数组）和对象。
+	// callback:回调函数。只要某次遍历过程中返回false，则立马停止遍历。
+	// args:传给回调函数的参数，必须为数组。
+	// args只在内部使用，所以回调函数的参数一般为遍历元素的索引和本身的值，除非设置args来改变参数值。
 	each: function( obj, callback, args ) {
 		var value,
 			i = 0,
 			length = obj.length,
+			// 是否为类数组。
 			isArray = isArraylike( obj );
 
 		if ( args ) {
+			// 如果提供了参数args，args为数组。在标准浏览器下也可以为类数组（即{0:"pb","length":1},必须有length）。			
 			if ( isArray ) {
+				// obj为数组则用for循环。
 				for ( ; i < length; i++ ) {
+					// 用apply改变回调函数引用对象，因为args为数组且不定长。
 					value = callback.apply( obj[ i ], args );
-
+					// 回调函数返回false则立即停止并跳出循环。
 					if ( value === false ) {
 						break;
 					}
 				}
 			} else {
+				// obj为对象则用for in循环。
 				for ( i in obj ) {
 					value = callback.apply( obj[ i ], args );
 
@@ -734,6 +749,8 @@ jQuery.extend({
 
 		// A special, fast, case for the most common use of each
 		} else {
+			// 没有提供args的是最常见的情况。外部也可以用：$.each()。
+			// 回调函数的两个参数分别是遍历元素索引和元素本身。
 			if ( isArray ) {
 				for ( ; i < length; i++ ) {
 					value = callback.call( obj[ i ], i, obj[ i ] );
@@ -752,11 +769,14 @@ jQuery.extend({
 				}
 			}
 		}
-
+		// 返回对象本身。
 		return obj;
 	},
 
 	// Use native String.trim function wherever possible
+	// 过滤两端空格。
+	// 支持原生trim且trim能够过滤BOM，即用原生的trim。因有些浏览器实现的trim不能过滤trim。
+	// 否则（IE等）用rtrim（/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g）过滤。
 	trim: core_trim && !core_trim.call("\uFEFF\xA0") ?
 		function( text ) {
 			return text == null ?
@@ -768,69 +788,89 @@ jQuery.extend({
 		function( text ) {
 			return text == null ?
 				"" :
+				// text + "":变成字符串。
 				( text + "" ).replace( rtrim, "" );
 		},
 
 	// results is for internal usage only
 	// selector this
+	// 把类数组对象转换成真正的js数组。
+	// arr：要转换的类数组对象。results：可选数组参数，有则合并到这个数组里面。
 	makeArray: function( arr, results ) {
+		// ret：最后要返回的数组。
 		var ret = results || [];
-
+		// 确保arr不为空。
 		if ( arr != null ) {
 			if ( isArraylike( arr ) ) {
+				// 确保为类数组对象。
+				// 好吧，合并数组。把arr为string的情况也考虑了。
 				jQuery.merge( ret,
 					typeof arr === "string" ?
 					[ arr ] : arr
 				);
 			} else {
+				// 不是类数组，可能为对象，函数等。
+				// 直接push进去。
 				core_push.call( ret, arr );
 			}
 		}
 		return ret;
 	},
-
+	// 判断元素elem是否在数组arr内，在则返回在数组中的位置，不在则返回-1。
+	// i为开始寻找的位置。
 	inArray: function( elem, arr, i ) {
 		var len;
-
 		if ( arr ) {
-			if ( core_indexOf ) {
-				return core_indexOf.call( arr, elem, i );
-			}
+			// 原生的indexOf。
+			// indexOf原本是判断String的，但是ES5中加入了Array支持。旧版IE不支持。
+			// 所以会发现在标准浏览器中用这个函数判断stirng也可以，但是IE会报错，因为下面用到了in操作符。
+			// 所以这只能判断数组。切不可判断其他。
+			// if ( core_indexOf ) {
+			// 	return core_indexOf.call( arr, elem, i );
+			// }
 
 			len = arr.length;
+			// 修正i。主要是解决i为负数的情况。
 			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
 
 			for ( ; i < len; i++ ) {
 				// Skip accessing in sparse arrays
+				// 确保i在arr中，不在则没有判断arr[i] === elem的必要。
+				// 如没有i in arr这个判断：
+				// var arr = {0:2,1:2,"ok":3,"length":3};$.inArray(undefined,o);
+				// 会返回2
 				if ( i in arr && arr[ i ] === elem ) {
 					return i;
 				}
 			}
 		}
 
+		// 不存在arr或者找不到则返回-1。
 		return -1;
 	},
-
+	// 合并两个数组到第一个数组中，返回合并后的第一个数组。
+	// 第二个参数也可以为对象。
 	merge: function( first, second ) {
 		var l = second.length,
 			i = first.length,
 			j = 0;
-
 		if ( typeof l === "number" ) {
+			// second为数组
 			for ( ; j < l; j++ ) {
 				first[ i++ ] = second[ j ];
 			}
 		} else {
+			// second为普通对象，没有length。
 			while ( second[j] !== undefined ) {
 				first[ i++ ] = second[ j++ ];
 			}
 		}
-
+		// 重新赋值first的length值。
 		first.length = i;
 
 		return first;
 	},
-
+	// 过滤数组元素。
 	grep: function( elems, callback, inv ) {
 		var retVal,
 			ret = [],
@@ -840,17 +880,20 @@ jQuery.extend({
 
 		// Go through the array, only saving the items
 		// that pass the validator function
+		// 大妙！！！
+		// 运用inv与retVal的比较，push各自情况下的元素。
+		// 设置inv为true，则返回回调函数中被过滤掉的元素。
 		for ( ; i < length; i++ ) {
 			retVal = !!callback( elems[ i ], i );
 			if ( inv !== retVal ) {
 				ret.push( elems[ i ] );
 			}
 		}
-
 		return ret;
 	},
 
 	// arg is for internal usage only
+	// 对数组或者对象元素进行加工处理最后以数组形式返回，注意与grep的区别。
 	map: function( elems, callback, arg ) {
 		var value,
 			i = 0,
@@ -859,6 +902,7 @@ jQuery.extend({
 			ret = [];
 
 		// Go through the array, translating each of the items to their
+		// ret的长度在动态变化，所以用ret[ret.length] = value来代替ret.push(value)。
 		if ( isArray ) {
 			for ( ; i < length; i++ ) {
 				value = callback( elems[ i ], i, arg );
@@ -872,7 +916,6 @@ jQuery.extend({
 		} else {
 			for ( i in elems ) {
 				value = callback( elems[ i ], i, arg );
-
 				if ( value != null ) {
 					ret[ ret.length ] = value;
 				}
@@ -880,6 +923,7 @@ jQuery.extend({
 		}
 
 		// Flatten any nested arrays
+		// concat：合并两个数组，并返回新数组。
 		return core_concat.apply( [], ret );
 	},
 
@@ -888,9 +932,13 @@ jQuery.extend({
 
 	// Bind a function to a context, optionally partially applying any
 	// arguments.
+	// 返回一个指定了特定作用域的函数。
+	// 原理就是利用apply改变作用域。
+	// 第一个参数为将要改变作用域的函数，第二个参数为一个object，函数的作用域讲设置到这个object上面。
+	// 当第二个参数为string时，则认为其为将要改变作用域的函数的函数名，并且必须是context的一个属性。
 	proxy: function( fn, context ) {
+		// tmp:当第二个参数为string时，第一二参数变换的中间变量。
 		var args, proxy, tmp;
-
 		if ( typeof context === "string" ) {
 			tmp = fn[ context ];
 			context = fn;
@@ -904,7 +952,9 @@ jQuery.extend({
 		}
 
 		// Simulated bind
+		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数。--PB-PROBLEM
 		args = core_slice.call( arguments, 2 );
+
 		proxy = function() {
 			return fn.apply( context || this, args.concat( core_slice.call( arguments ) ) );
 		};
@@ -917,6 +967,7 @@ jQuery.extend({
 
 	// Multifunctional method to get and set values of a collection
 	// The value/s can optionally be executed if it's a function
+	// 
 	access: function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		var i = 0,
 			length = elems.length,
@@ -958,7 +1009,6 @@ jQuery.extend({
 				}
 			}
 		}
-
 		return chainable ?
 			elems :
 
@@ -972,7 +1022,7 @@ jQuery.extend({
 		return ( new Date() ).getTime();
 	}
 });
-
+// 参见：http://www.17leba.com/js的domready/
 jQuery.ready.promise = function( obj ) {
 	if ( !readyList ) {
 
@@ -1035,9 +1085,11 @@ jQuery.ready.promise = function( obj ) {
 };
 
 // Populate the class2type map
+// jQuery.type 需要的calss2Type。
 jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
+// 判断是不是类数组。
 
 function isArraylike( obj ) {
 	var length = obj.length,
@@ -1046,11 +1098,13 @@ function isArraylike( obj ) {
 	if ( jQuery.isWindow( obj ) ) {
 		return false;
 	}
-
+	// 元素节点。且为HTMLCollect。
 	if ( obj.nodeType === 1 && length ) {
 		return true;
 	}
-
+	// 纯正的array，带有length属性的object且length-1也是obj的属性。
+	// 但是好像不严谨。如：{0:"2","ok":34,"length":2}这个返回false，而{1:"2","ok":34,"length":2}返回true。
+	// 究竟什么是类数组？？--PB-PROBLEM
 	return type === "array" || type !== "function" &&
 		( length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj );

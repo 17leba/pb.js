@@ -9,17 +9,29 @@
 	<script>
 
 	$(function(){
-		$.isEmptyObject({})
-		// $.log({}.constructor)
+		var t = $.access($("div"),function(i,a){
+			return 10
+		})
+		function isArraylike( obj ) {
+	var length = obj.length,
+		type = jQuery.type( obj );
+
+	if ( jQuery.isWindow( obj ) ) {
+		return false;
+	}
+	// 元素节点。且为HTMLCollect。
+	if ( obj.nodeType === 1 && length ) {
+		return true;
+	}
+	// 纯正的array，带有length属性的object
+	return type === "array" || type !== "function" &&
+		( length === 0 ||
+		typeof length === "number" && length > 0 && ( length - 1 ) in obj );
+}
+var o = {0:"2","ok":34,"length":2};
+$.log(isArraylike(o))
 	})
 	y(function(){
-		// var r = y("#ab").toArray();
-		// $.log(r);
-		// function to(obj){
-		// 	return [].slice.call(obj)
-		// }
-		// var o = {0:"a",1:"b","length":2};
-		// console.log(to(o))
 	})
 	</script>
 	<style>
