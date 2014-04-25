@@ -965,14 +965,21 @@ jQuery.extend({
 		return proxy;
 	},
 
-	// Multifunctional method to get and set values of a collection
+	// Multifunctional method to get and set values of a collection --PB-PROBLEM
 	// The value/s can optionally be executed if it's a function
-	// 
+	// 这个方法得结合它的用法来看。不然搞不懂其意图。太灵活多变了。
+	// 在jQuery的方法中，有一些方法没有传参数的时候，可以获取元素属性的值，而当传入了参数的时候，又可以设置元素属性的值，如
+	// html(),attr(),prop(),text(),html(),css(),data(),scrollTop/scrollLeft(),height()/width()。好吧，我把jQuery内部调用jQuery.access()
+	// 的方法都列举了。
+	// 而当key为object时，即这样的：
+	// css({width:100,height:100})。则继续遍历调用access来设置属性值。
+	// 而html(),text(),scrollTop/scrollLeft(),height()/width()和attr(),prop(),css(),data()在设置和获取属性值时的方式也不一样。
+	// 而这也是最后返回时多重三元判断的原因。
+	// value：为将要设置的属性值，为fn的参数。
 	access: function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		var i = 0,
 			length = elems.length,
 			bulk = key == null;
-
 		// Sets many values
 		if ( jQuery.type( key ) === "object" ) {
 			chainable = true;
@@ -983,32 +990,45 @@ jQuery.extend({
 		// Sets one value
 		} else if ( value !== undefined ) {
 			chainable = true;
-
+			// value不是函数即为要设置的属性的情况下，raw设置为true，下面要用。
 			if ( !jQuery.isFunction( value ) ) {
 				raw = true;
 			}
-
+			// key为null时。
 			if ( bulk ) {
 				// Bulk operations run against the entire set
+				// value为要设置的属性。
+				// fn中还要对value进行其他兼容等处理。
 				if ( raw ) {
+					// $().html("")这样的。"" == value
 					fn.call( elems, value );
 					fn = null;
 
 				// ...except when executing function values
 				} else {
+					// value为函数。作为fn的参数。
+					// $().html(fn)这种情况。fn == value
 					bulk = fn;
+					// 重新赋值fn。参数 --PB-PROBLEM
 					fn = function( elem, key, value ) {
 						return bulk.call( jQuery( elem ), value );
 					};
 				}
 			}
-
+			// 存在fn则一个个遍历。
 			if ( fn ) {
 				for ( ; i < length; i++ ) {
+					// i为索引，fn( elems[i], key )为取得的值。
 					fn( elems[i], key, raw ? value : value.call( elems[i], i, fn( elems[i], key ) ) );
 				}
 			}
 		}
+		// chainable：比较复杂的一个参数。
+		// 而当作为获取属性值来使用时，key为null,value视调用者决定，此时chainable设置为false,bulk为true。
+		// 看了一下css(),attr()等，value不为null，所以chainable设置成arguments.length > 1,
+		// 而html(),text()等，有一个参数value还为空，所以chainable设置成arguments.length = 0。
+		// fn.call( elems )与fn( elems[0], key )对应html(),text()与css(name),attr(name)这两种获取属性值。
+		// emptyGet即什么都没有获取到或设置。
 		return chainable ?
 			elems :
 
