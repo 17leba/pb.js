@@ -559,6 +559,7 @@ jQuery.extend({
 			typeof obj;
 	},
 	// 判断是否为纯的object，即{}的。
+	
 	isPlainObject: function( obj ) {
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
