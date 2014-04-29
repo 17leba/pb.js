@@ -66,6 +66,7 @@ var
 	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
+	// \S:匹配任何非空白字符。
 	core_rnotwhite = /\S+/g,
 
 	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
@@ -559,15 +560,16 @@ jQuery.extend({
 			typeof obj;
 	},
 	// 判断是否为纯的object，即{}的。
-	
 	isPlainObject: function( obj ) {
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
 		// Make sure that DOM nodes and window objects don't pass through, as well
+		// 排除window：jQuery.type(window) === "object"。
+		// 排除节点：jQuery.type(node) === "object"。
 		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
 		}
-
+		// --PB_PROBLEM
 		try {
 			// Not own constructor property must be Object
 			if ( obj.constructor &&
@@ -585,14 +587,13 @@ jQuery.extend({
 
 		var key;
 		for ( key in obj ) {}
-
 		return key === undefined || core_hasOwn.call( obj, key );
 	},
 
 	isEmptyObject: function( obj ) {
 		var name;
 		// obj为空对象，则name in obj 为false，则返回true。
-		// 技能get。
+		// 技能get。√
 		for ( name in obj ) {
 			return false;
 
@@ -953,7 +954,7 @@ jQuery.extend({
 		}
 
 		// Simulated bind
-		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数。--PB-PROBLEM
+		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数。--PB_PROBLEM
 		args = core_slice.call( arguments, 2 );
 
 		proxy = function() {
@@ -966,7 +967,7 @@ jQuery.extend({
 		return proxy;
 	},
 
-	// Multifunctional method to get and set values of a collection --PB-PROBLEM
+	// Multifunctional method to get and set values of a collection --PB_PROBLEM
 	// The value/s can optionally be executed if it's a function
 	// 这个方法得结合它的用法来看。不然搞不懂其意图。太灵活多变了。
 	// 在jQuery的方法中，有一些方法没有传参数的时候，可以获取元素属性的值，而当传入了参数的时候，又可以设置元素属性的值，如
@@ -1010,7 +1011,7 @@ jQuery.extend({
 					// value为函数。作为fn的参数。
 					// $().html(fn)这种情况。fn == value
 					bulk = fn;
-					// 重新赋值fn。参数 --PB-PROBLEM
+					// 重新赋值fn。参数 --PB_PROBLEM
 					fn = function( elem, key, value ) {
 						return bulk.call( jQuery( elem ), value );
 					};
@@ -1111,7 +1112,6 @@ jQuery.each("Boolean Number String Function Array Date RegExp Object Error".spli
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
 // 判断是不是类数组。
-
 function isArraylike( obj ) {
 	var length = obj.length,
 		type = jQuery.type( obj );
@@ -1125,7 +1125,7 @@ function isArraylike( obj ) {
 	}
 	// 纯正的array，带有length属性的object且length-1也是obj的属性。
 	// 但是好像不严谨。如：{0:"2","ok":34,"length":2}这个返回false，而{1:"2","ok":34,"length":2}返回true。
-	// 究竟什么是类数组？？--PB-PROBLEM
+	// 究竟什么是类数组？？--PB_PROBLEM
 	return type === "array" || type !== "function" &&
 		( length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj );
@@ -1137,8 +1137,16 @@ rootjQuery = jQuery(document);
 var optionsCache = {};
 
 // Convert String-formatted options into Object-formatted ones and store in cache
+// 把字符串变量转换成对象变量。"once" ==> {once：true}
 function createOptions( options ) {
+	// 妙！！ PB--get。√
+	// 等同于：
+	// optionsCache[options] = {};
+	// var object = optionsCache[options];
+	// 这儿注意引用类型的理解。object 和 optionsCache[options]是复制的相同的引用，故最后返回object，也等同于返回optionsCache[options]。
+	// 注意与这的区别：http://www.17leba.com/笔记-delete-变量/
 	var object = optionsCache[ options ] = {};
+	// core_rnotwhite:/\S+/g。全局匹配非空白字符。
 	jQuery.each( options.match( core_rnotwhite ) || [], function( _, flag ) {
 		object[ flag ] = true;
 	});
@@ -1171,49 +1179,77 @@ jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
 	// (we check in cache first)
+	// 把传入的参数转换成对象形式。
+	// 参数为字符串则通过函数createOptions转换，缓存optionsCache中有的，则优先调用缓存中的。
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
 		jQuery.extend( {}, options );
 
 	var // Flag to know if list is currently firing
+		// 当前触发的回调。
 		firing,
 		// Last fire value (for non-forgettable lists)
+		// 最后触发的值。为了参数“memory”准备，取得前一次回调函数的值。
 		memory,
 		// Flag to know if list was already fired
+		// 回调列表是否已经触发。
 		fired,
 		// End of the loop when firing
+		// 回调列表的长度。
 		firingLength,
 		// Index of currently firing callback (modified by remove if needed)
+		// 当前正在触发的回调函数的下标。
 		firingIndex,
 		// First callback to fire (used internally by add and fireWith)
+		// 第一个触发的回调的下标。
 		firingStart,
 		// Actual callback list
+		// 回调列表数组。
 		list = [],
 		// Stack of fire calls for repeatable lists
+		// --PB_PROBLEM
+		// 储存的是在执行回调中又重复执行的回调的参数和作用域，即data。
+		// 但是模拟不出一个例子。？？？
+		// ajax!!!
 		stack = !options.once && [],
 		// Fire callbacks
+		// 触发回调函数。
 		fire = function( data ) {
+			// 各种变量赋值。
+			// 参数中的memory为true时，memory赋值为data。否则赋值为options.memory。
 			memory = options.memory && data;
 			fired = true;
 			firingIndex = firingStart || 0;
 			firingStart = 0;
 			firingLength = list.length;
 			firing = true;
+			// data[0]为调用者,data[1]为传入的回调函数的参数。
+			// 从第一个回调开始触发。如果有设置参数options为stopOnFalse且回调函数返回false时，立即从这个函数开始中断触发，
+			// 即list中只有最先返回false的回调函数。
+			// 并且将memory设置为false，已把list置空，参见下面代码。防止出现同时设置 memory和stopOnFalse的情况下，memory == data。
+			// 这样子的话再add多个回调函数，也会全都触发。
 			for ( ; list && firingIndex < firingLength; firingIndex++ ) {
 				if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options.stopOnFalse ) {
 					memory = false; // To prevent further calls using add
 					break;
 				}
 			}
+
+			// 触发结束标记。
 			firing = false;
+			// list不为undefined，即没有调用jQuery.Callbacks.disable或者jQuery.Callbacks.disabled。
 			if ( list ) {
+				// 没有设置once且不为false。
 				if ( stack ) {
+					// 如果stack中还有回调要触发，则继续fire。
 					if ( stack.length ) {
 						fire( stack.shift() );
 					}
 				} else if ( memory ) {
+					// 参数为"once memory"，则清空。因为只需要执行一次。
 					list = [];
 				} else {
+					// list = stack = memory = undefined;
 					self.disable();
 				}
 			}
@@ -1222,17 +1258,28 @@ jQuery.Callbacks = function( options ) {
 		self = {
 			// Add a callback or a collection of callbacks to the list
 			add: function() {
+				// 增加回调函数。
 				if ( list ) {
+					// list不为undefined。则没有调用$.Callbacks().disable()或$.Callbacks().disabled()。
 					// First, we save the current length
 					var start = list.length;
+					// 一个闭包。参数不确定。
 					(function add( args ) {
+						// 循环遍历添加的回调函数。
+						// 所以可以这样添加回调：$.Callbacks().add(fn1,fn2,fn3...)
 						jQuery.each( args, function( _, arg ) {
 							var type = jQuery.type( arg );
 							if ( type === "function" ) {
+								// 回调为函数的情况下。
+								// 没有设置 unique 参数，确保添加多少重复的就执行多少重复的。
+								// 或者这个函数不在列表list中。则添加到list中。
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
 							} else if ( arg && arg.length && type !== "string" ) {
+								// 不是函数的情况下。那是什么呢？
+								// 貌似是类数组。[fn1,fn2]
+								// 递归吧。
 								// Inspect recursively
 								add( arg );
 							}
@@ -1241,10 +1288,13 @@ jQuery.Callbacks = function( options ) {
 					// Do we need to add the callbacks to the
 					// current firing batch?
 					if ( firing ) {
+						// 如果fire的过程中继续添加回调，则更新firingLength的值。
 						firingLength = list.length;
 					// With memory, if we're not firing then
 					// we should call right away
 					} else if ( memory ) {
+						// 如果设置了memory，fire完以后再添加回调的情况下。
+						// 从list[start]开始触发。
 						firingStart = start;
 						fire( memory );
 					}
@@ -1253,12 +1303,16 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Remove a callback from the list
 			remove: function() {
+				// 和 add 好对应。
 				if ( list ) {
 					jQuery.each( arguments, function( _, arg ) {
 						var index;
+						// arg必须存在于list中。
 						while( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
+							// 移除对应的 fn。
 							list.splice( index, 1 );
 							// Handle firing indexes
+							// 修正firingLength和firingIndex。
 							if ( firing ) {
 								if ( index <= firingLength ) {
 									firingLength--;
@@ -1274,43 +1328,56 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Check if a given callback is in the list.
 			// If no argument is given, return whether or not list has callbacks attached.
+			// 回调列表中是否有fn。如果未提供参数fn，则检查list中是否有回调函数。
 			has: function( fn ) {
 				return fn ? jQuery.inArray( fn, list ) > -1 : !!( list && list.length );
 			},
 			// Remove all callbacks from the list
+			// 直接置空list。
 			empty: function() {
 				list = [];
 				return this;
 			},
 			// Have the list do nothing anymore
+			// 禁用回调列表。
 			disable: function() {
 				list = stack = memory = undefined;
 				return this;
 			},
 			// Is it disabled?
+			// 判断是否禁用了list。因list默认为[]，除非调用了disable设置为undefined。
 			disabled: function() {
 				return !list;
 			},
 			// Lock the list in its current state
+			// 锁定回调列表，不可再修改列表状态。
 			lock: function() {
 				stack = undefined;
+				// 不存在memory参数，则直接禁用掉。
 				if ( !memory ) {
 					self.disable();
 				}
 				return this;
 			},
 			// Is it locked?
+			// 判断是否锁定了。
 			locked: function() {
 				return !stack;
 			},
 			// Call all callbacks with the given context and arguments
+			// 触发给定上下文环境中的回调函数。
 			fireWith: function( context, args ) {
+				// context：上下文执行环境。
+				// args：回调函数参数。
 				args = args || [];
+				// 修正args，变成[context,args]。
 				args = [ context, args.slice ? args.slice() : args ];
 				if ( list && ( !fired || stack ) ) {
 					if ( firing ) {
+						// 中途添加回调。
 						stack.push( args );
 					} else {
+						// go
 						fire( args );
 					}
 				}
@@ -1322,11 +1389,11 @@ jQuery.Callbacks = function( options ) {
 				return this;
 			},
 			// To know if the callbacks have already been called at least once
+			// 判断是否触发过回调。即是否调用过$.Callbacks().fire()。
 			fired: function() {
 				return !!fired;
 			}
 		};
-
 	return self;
 };
 jQuery.extend({
