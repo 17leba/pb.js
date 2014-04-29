@@ -1210,6 +1210,20 @@ jQuery.Callbacks = function( options ) {
 		// --PB_PROBLEM
 		// 储存的是在执行回调中又重复执行的回调的参数和作用域，即data。
 		// 但是模拟不出一个例子。？？？
+		// 例子：
+		// var callbacks = $.Callbacks(),
+		// 	flag = true;
+		// function fn1(args){
+		// 	console.log("ok")
+		// 	if(flag){
+		// 		callbacks.fire("测试1");
+		// 		callbacks.fire("测试2");
+		// 		flag = false;
+		// 	}
+		// }
+		// callbacks.add(fn1);
+		// callbacks.fire()
+		
 		// ajax!!!
 		stack = !options.once && [],
 		// Fire callbacks
@@ -1314,9 +1328,12 @@ jQuery.Callbacks = function( options ) {
 							// Handle firing indexes
 							// 修正firingLength和firingIndex。
 							if ( firing ) {
+								// firingLength减1。
 								if ( index <= firingLength ) {
 									firingLength--;
 								}
+								// 如果index小于正在执行回调函数的下标，即index所对应的回调函数已经执行过了，
+								// 则firingIndex减1，要不然下次执行的时候就会漏掉firingIndex--对应的函数。
 								if ( index <= firingIndex ) {
 									firingIndex--;
 								}
@@ -1350,10 +1367,11 @@ jQuery.Callbacks = function( options ) {
 				return !list;
 			},
 			// Lock the list in its current state
-			// 锁定回调列表，不可再修改列表状态。
+			// 锁定回调列表，不可再次调用fire。
 			lock: function() {
 				stack = undefined;
 				// 不存在memory参数，则直接禁用掉。
+				// 防止 若lock之前没有fire，则!fired 为true ，lock以后再fire则会触发fire。
 				if ( !memory ) {
 					self.disable();
 				}
@@ -1375,6 +1393,7 @@ jQuery.Callbacks = function( options ) {
 				if ( list && ( !fired || stack ) ) {
 					if ( firing ) {
 						// 中途添加回调。
+						// 即回调函数中还有fire。
 						stack.push( args );
 					} else {
 						// go
