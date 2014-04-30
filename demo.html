@@ -9,17 +9,8 @@
 	<script>
 
 	$(function(){
-		var callbacks = $.Callbacks(),
-			flag = true;
-		function fn1(args){
-			if(flag){
-				callbacks.fire("测试1");
-				callbacks.fire("测试2");
-				flag = false;
-			}
-		}
-		callbacks.add(fn1);
-		callbacks.fire()
+			// alert($.support.doesNotIncludeMarginInBodyOffset)
+			// alert("onfocusin" in window)
 	})
 	y(function(){
 	})
@@ -40,6 +31,11 @@
 		margin:10px;
 		border-top:40px solid red;
 	}
+	.t{
+		background: #000;
+		width: 100px;
+		height: 100px;
+	}
 	.no{
 		position: relative;
 		top:10px;
@@ -55,6 +51,10 @@
 		<div class="no"></div>
 	</div>
 	<a href="" id="ab">tt</a>
+	<select name="" id="ok">
+		<option value=""></option>
+		<option value=""></option>
+	</select>
 	<script>
 	// var j = document.defaultView.getComputedStyle(dd,null).left
 	</script>

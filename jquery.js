@@ -1556,20 +1556,36 @@ jQuery.extend({
 		return deferred.promise();
 	}
 });
+// 不同浏览器对各种特性的差异表现。
+// 如：$.support.cssFloat 在标准浏览器中返回true，但是IE中是用styleFloat来获取float的值，故返回false。
+// 主要检测了 support对象中的那些值：参看下面代码中的support对象。
 jQuery.support = (function() {
-
+	// support：返回的特性差异集合。
+	// all；取得页面中所有的元素集合。
+	// a：取得div中的a元素。
+	// input：取得div用来测试的input元素。
+	// select：创建一个用来测试的select元素。
+	// fragment：创建一个文档片段。
+	// opt：创建一个用来测试的option元素。
+	// eventName：检测submit focusin change事件时的事件名。
+	// isSupported： 检测当单元格为不可见时，是否仍有offsetHeight/Width属性。
+	// div：创建一个用来测试的div元素。
 	var support, all, a,
 		input, select, fragment,
 		opt, eventName, isSupported, i,
 		div = document.createElement("div");
 
 	// Setup
+	// 设置div的一些属性。
+	// div必须有内容，才是一个div元素，才可以触发事件等。get--√
 	div.setAttribute( "className", "t" );
 	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
 
 	// Support tests won't run in some limited or non-browser environments
 	all = div.getElementsByTagName("*");
 	a = div.getElementsByTagName("a")[ 0 ];
+	// 如果没有取得任何元素（页面可能未加载等），或者没有div中没有a元素（即div未创建或为赋值innerHTML），或者all为空。
+	// 则返回空对象。
 	if ( !all || !a || !all.length ) {
 		return {};
 	}
@@ -1578,60 +1594,100 @@ jQuery.support = (function() {
 	select = document.createElement("select");
 	opt = select.appendChild( document.createElement("option") );
 	input = div.getElementsByTagName("input")[ 0 ];
-
+	// 为a设置一个cssText值用来测试。
 	a.style.cssText = "top:1px;float:left;opacity:.5";
+	// 一系列的特性列表。
+	// support里面只是不完全列表，后面还有诸如support.noCloneChecked，support.optDisabled等。
 	support = {
 		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
+		// 判断是否支持getAttribute/setAttribute。
+		// IE6/7中的setAttribute与标准中的不同。
+		// 设置的class将不会起作用，得用classname来设置，
+		// 故在IE6/7下div.className = "t",而标准浏览器中 div.className != "t"。
+		// 其实还可以设置 div.setAttribute("class","t")。然后用div.className === "t"来判断。
+		// 因IE6/7中设置class不起作用。
 		getSetAttribute: div.className !== "t",
 
 		// IE strips leading whitespace when .innerHTML is used
+		// 在使用innerHTML时，浏览器会识别最前面加入空白字符，IE6/7/8除外。
+		// 取div的第一个子节点的nodeType，等于3则为Text_Node，为空白字符，空白字符也是div的子节点的。
+		// IE6/7/8中返回nodeType = 1，则为第一个元素节点。
 		leadingWhitespace: div.firstChild.nodeType === 3,
 
 		// Make sure that tbody elements aren't automatically inserted
 		// IE will insert them into empty tables
+		// IE6/7会在table自动插入tbody。
 		tbody: !div.getElementsByTagName("tbody").length,
 
 		// Make sure that link elements get serialized correctly by innerHTML
 		// This requires a wrapper element in IE
+		// IE6/7中link标签被干掉了。这也可以从查看div.firstChild.tagName看出，IE6/7下弹出的是table，
+		// 可见把link干掉了。
 		htmlSerialize: !!div.getElementsByTagName("link").length,
 
 		// Get the style information from getAttribute
 		// (IE uses .cssText instead)
+		// 测试div中a元素的top属性来区分style和cssText。
+		// IE6/7下用getAttribute("style")取不到用cssText设置的样式。
 		style: /top/.test( a.getAttribute("style") ),
 
 		// Make sure that URLs aren't manipulated
 		// (IE normalizes it by default)
+		// IE6/7返回的是经过处理的URLs。
+		// 这和测试例子中返回的是 file:///E:/a。（我的文件在e盘）
 		hrefNormalized: a.getAttribute("href") === "/a",
 
 		// Make sure that element opacity exists
 		// (IE uses filter instead)
 		// Use a regex to work around a WebKit issue. See #5145
+		// IE不支持用opacity设置透明度，而用alpha来代替。
+		// 支持ooacity的浏览器会把a.style.opacity获得的.5转化为0.5，故会返回true。
+		// 不支持ooacity的浏览器则只会取得.5。
 		opacity: /^0.5/.test( a.style.opacity ),
 
 		// Verify style float existence
 		// (IE uses styleFloat instead of cssFloat)
+		// IE中用styleFloat来代替。
 		cssFloat: !!a.style.cssFloat,
 
 		// Check the default checkbox/radio value ("" on WebKit; "on" elsewhere)
+		// 获得checkbox/radio默认的value值。
+		// 我测试的chrome也返回了on。可能低版本的chrome会返回 ""。
+		// safari返回 ""。
 		checkOn: !!input.value,
 
 		// Make sure that a selected-by-default option has a working selected property.
 		// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
+		// option默认是否选择。
+		// 当添加多个option时，firefox等所有浏览器均返回false，并不只有ie和webkit的浏览器。
+		// 可能还是存在于低版本的非webkit浏览器中吧。
 		optSelected: opt.selected,
 
 		// Tests for enctype support on a form (#6743)
+		// enctype 属性规定在发送到服务器之前应该如何对表单数据进行编码。
+		// 测试部分手持设备document.createElement("form").enctype返回空。
 		enctype: !!document.createElement("form").enctype,
 
 		// Makes sure cloning an html5 element does not cause problems
 		// Where outerHTML is undefined, this still works
+		// IE中克隆不支持的标签时，返回形如：<:标签></:标签> 的东东。
+		// 当然，IE下的cloneNode(true)有许多问题，一般不要使用。
+		// 参见：http://yiminghe.iteye.com/blog/1157008
 		html5Clone: document.createElement("nav").cloneNode( true ).outerHTML !== "<:nav></:nav>",
 
 		// jQuery.support.boxModel DEPRECATED in 1.8 since we don't support Quirks Mode
-		boxModel: document.compatMode === "CSS1Compat",
+		// CSS1Compat 对应 strict boxModel。
+		mode: document.compatMode === "CSS1Compat",
 
 		// Will be defined later
+		// 标准浏览器下的默认返回。
+		// 判断是否可以删除对象属性。--PB_PROBLEM
 		deleteExpando: true,
+		// 克隆的时候是否会克隆事件处理函数。
+		// cloneNode(true)在IE下的问题之一，IE下会克隆事件处理函数。
 		noCloneEvent: true,
+		// 这些属性得body存在的情况下才可检测。故调用ready来加载DOMContentLoaded。
+
 		inlineBlockNeedsLayout: false,
 		shrinkWrapBlocks: false,
 		reliableMarginRight: true,
@@ -1640,15 +1696,19 @@ jQuery.support = (function() {
 	};
 
 	// Make sure checked status is properly cloned
+	// 判断input的checked值是否克隆了，终究还是IE下cloneNode(true)的问题。
+	// ie下input的个别状态不会克隆。
+	// input默认为false，设置为true，若克隆以后返回false，则没有克隆。
 	input.checked = true;
 	support.noCloneChecked = input.cloneNode( true ).checked;
-
 	// Make sure that the options inside disabled selects aren't marked as disabled
 	// (WebKit marks them as disabled)
+	// 判断被设置为disabled的select中的options是否也会被设置成disabled。
+	// 不连带的设置则返回true。
 	select.disabled = true;
 	support.optDisabled = !opt.disabled;
-
 	// Support: IE<9
+	// IE8/7/6中 delete一个未定义的属性，会报错。
 	try {
 		delete div.test;
 	} catch( e ) {
@@ -1656,16 +1716,22 @@ jQuery.support = (function() {
 	}
 
 	// Check if we can trust getAttribute("value")
+	// 判断通过getAttribute("value")是否可以取到input的value值。
+	// 经测试 IE8 下返回false。
 	input = document.createElement("input");
 	input.setAttribute( "value", "" );
 	support.input = input.getAttribute( "value" ) === "";
 
 	// Check if an input maintains its value after becoming a radio
+	// 判断input变为radio类型后是否可以取到value值。
+	// 经测试IE不可以。
 	input.value = "t";
 	input.setAttribute( "type", "radio" );
 	support.radioValue = input.value === "t";
 
-	// #11217 - WebKit loses check when the name is after the checked attribute
+	// #11217 - WebKit loses check when the name is after the checked attribute -- IE6/7也是。
+	// 好冷门。
+	// 经测试，当input加入到文档片段后才失去原来的checked值。
 	input.setAttribute( "checked", "t" );
 	input.setAttribute( "name", "t" );
 
@@ -1677,27 +1743,36 @@ jQuery.support = (function() {
 	support.appendChecked = input.checked;
 
 	// WebKit doesn't clone checked state correctly in fragments
+	// IE6/7也是。
+	// 文档片段中的input值的checked不会被复制。
 	support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
 	// Support: IE<9
 	// Opera does not clone events (and typeof div.attachEvent === undefined).
 	// IE9-10 clones events bound via attachEvent, but they don't trigger with .click()
+
+	// 对应IE下support.noCloneEvent的测试。
 	if ( div.attachEvent ) {
 		div.attachEvent( "onclick", function() {
 			support.noCloneEvent = false;
 		});
-
 		div.cloneNode( true ).click();
 	}
-
 	// Support: IE<9 (lack submit/change bubble), Firefox 17+ (lack focusin event)
 	// Beware of CSP restrictions (https://developer.mozilla.org/en/Security/CSP), test/csp.php
+	// 标准规定change、select、submit、reset等事件均支持冒泡，但是IE却不会冒泡。--PB_PROBLEM。
+	// 有些标准浏览器中没有focusin/out，故不支持冒泡，但是IE下支持事件冒泡。
+	// 参考：http://www.planabc.net/2010/01/30/how_to_use_focus_and_blur_event_in_event_delegation/
 	for ( i in { submit: true, change: true, focusin: true }) {
+		// eventName被赋值 "onsubmit/change/focusin"。
 		div.setAttribute( eventName = "on" + i, "t" );
-
+		// 这些事件不是window的属性则不会产生冒泡。
+		// 或者如focusin等，window中没有此类事件，则判断div.attributes[ eventName ].expando
+		// 不为空且等于false则这个事件在这种环境下是冒泡的。
 		support[ i + "Bubbles" ] = eventName in window || div.attributes[ eventName ].expando === false;
 	}
-
+	// 判断改变cloneNode(true)后的style，会不会影响原先的元素的style。
+	// true表示不会。
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
@@ -1707,12 +1782,12 @@ jQuery.support = (function() {
 		var container, marginDiv, tds,
 			divReset = "padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",
 			body = document.getElementsByTagName("body")[0];
-
+		// 确保body存在。
 		if ( !body ) {
 			// Return for frameset docs that don't have a body
 			return;
 		}
-
+		// 构建一个测试DOM元素。
 		container = document.createElement("div");
 		container.style.cssText = "border:0;width:0;height:0;position:absolute;top:0;left:-9999px;margin-top:1px";
 
@@ -1725,6 +1800,8 @@ jQuery.support = (function() {
 		// determining if an element has been hidden directly using
 		// display:none (it is still safe to use offsets if a parent element is
 		// hidden; don safety goggles and see bug #4512 for more information).
+		// IE中把table cells设置成display:none后，table cells的offsetWidth/Height不为0。
+		// 所以当这种情况下使用offsetHeight/width时，就会出现差异。
 		div.innerHTML = "<table><tr><td></td><td>t</td></tr></table>";
 		tds = div.getElementsByTagName("td");
 		tds[ 0 ].style.cssText = "padding:0;margin:0;border:0;display:none";
@@ -1732,15 +1809,18 @@ jQuery.support = (function() {
 
 		tds[ 0 ].style.display = "";
 		tds[ 1 ].style.display = "none";
-
 		// Support: IE8
 		// Check if empty table cells still have offsetWidth/Height
+		// IE下tds[ 0 ].offsetHeight === 1。
+		// 确保有td中内容和没有内容的都有这个差异。
 		support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
 
 		// Check box-sizing and margin behavior
 		div.innerHTML = "";
 		div.style.cssText = "box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%;";
+		// 是否支持box-sizing:border-box，padding和border被包含在定义的width和height之内。
 		support.boxSizing = ( div.offsetWidth === 4 );
+		// div设置的margin是否包含在body内。--PB_PROBLEM。
 		support.doesNotIncludeMarginInBodyOffset = ( body.offsetTop !== 1 );
 
 		// Use window.getComputedStyle because jsdom on node.js will break without it.
