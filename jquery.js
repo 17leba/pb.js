@@ -1559,6 +1559,7 @@ jQuery.extend({
 // 不同浏览器对各种特性的差异表现。
 // 如：$.support.cssFloat 在标准浏览器中返回true，但是IE中是用styleFloat来获取float的值，故返回false。
 // 主要检测了 support对象中的那些值：参看下面代码中的support对象。
+// 主要是jQuery内部处理浏览器差异性时使用。
 jQuery.support = (function() {
 	// support：返回的特性差异集合。
 	// all；取得页面中所有的元素集合。
@@ -1677,6 +1678,7 @@ jQuery.support = (function() {
 
 		// jQuery.support.boxModel DEPRECATED in 1.8 since we don't support Quirks Mode
 		// CSS1Compat 对应 strict boxModel。
+		// mode 代替 boxModel。
 		mode: document.compatMode === "CSS1Compat",
 
 		// Will be defined later
@@ -1817,41 +1819,50 @@ jQuery.support = (function() {
 
 		// Check box-sizing and margin behavior
 		div.innerHTML = "";
-		div.style.cssText = "box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%;";
+		div.style.cssText = "box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%";
 		// 是否支持box-sizing:border-box，padding和border被包含在定义的width和height之内。
 		support.boxSizing = ( div.offsetWidth === 4 );
 		// div设置的margin是否包含在body内。--PB_PROBLEM。
 		support.doesNotIncludeMarginInBodyOffset = ( body.offsetTop !== 1 );
 
 		// Use window.getComputedStyle because jsdom on node.js will break without it.
+		// 不支持getComputedStyle的为support中的默认值。
 		if ( window.getComputedStyle ) {
+			// 判断getComputedStyle获取不是px的属性最后是否返回px。--PB_PROBLEM。
 			support.pixelPosition = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
+			// 筛选除IE外的不支持box-sizing属性的浏览器。
 			support.boxSizingReliable = ( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
 
 			// Check if div with explicit width and no margin-right incorrectly
 			// gets computed margin-right based on width of container. (#3333)
 			// Fails in WebKit before Feb 2011 nightlies
 			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
+			// 注释好清楚。
 			marginDiv = div.appendChild( document.createElement("div") );
 			marginDiv.style.cssText = div.style.cssText = divReset;
 			marginDiv.style.marginRight = marginDiv.style.width = "0";
 			div.style.width = "1px";
-
+			// 大部分浏览器会parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight )
+			// 会返回 0 。
+			// 上面注释中提到的2011年2月之前的webkit中，会返回当前元素的右边框到父元素右边框的距离。
+			// 这儿应该就是1px。
+			// console.log(( window.getComputedStyle( marginDiv, null ) || {} ).marginRight)
 			support.reliableMarginRight =
 				!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight );
 		}
-
 		if ( typeof div.style.zoom !== core_strundefined ) {
 			// Support: IE<8
 			// Check if natively block-level elements act like inline-block
 			// elements when setting their display to 'inline' and giving
 			// them layout
+			// 标准浏览器中，display:inline后，元素的offsetWidth则只包括padding。--PB_PROBLEM。
 			div.innerHTML = "";
 			div.style.cssText = divReset + "width:1px;padding:1px;display:inline;zoom:1";
 			support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 );
-
 			// Support: IE6
 			// Check if elements with layout shrink-wrap their children
+			// 当子元素触发了hasLayout，且子元素宽度大于父元素宽度。
+			// 父元素被子元素撑大了，不等于原来的3了。
 			div.style.display = "block";
 			div.innerHTML = "<div></div>";
 			div.firstChild.style.width = "5px";
@@ -1864,10 +1875,11 @@ jQuery.support = (function() {
 				body.style.zoom = 1;
 			}
 		}
-
+		// 删除测试元素。
 		body.removeChild( container );
 
 		// Null elements to avoid leaks in IE
+		// 释放内寸。
 		container = div = tds = marginDiv = null;
 	});
 
