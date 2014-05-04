@@ -66,14 +66,14 @@ var
 	core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,
 
 	// Used for splitting on whitespace
-	// \S:匹配任何非空白字符。
+	// \S:匹配任何非空白字符
 	core_rnotwhite = /\S+/g,
 
 	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
-	// \s:匹配任何空白字符，等价于[\f\n\r\t\v]。都是ASCII里面的空格，但是不包括\xA0，这个是ASCII扩展集的空格。
-	// \uFEFF:ES5新增的空白符，即BOM(Byte Order Mark)。
-	// 具体参见：https://www.imququ.com/post/bom-and-javascript-trim.html。
-	// 有些浏览器实现的trim不支持过滤BOM。
+	// \s:匹配任何空白字符,等价于[\f\n\r\t\v]都是ASCII里面的空格,但是不包括\xA0,这个是ASCII扩展集的空格
+	// \uFEFF:ES5新增的空白符,即BOM(Byte Order Mark)
+	// 具体参见：https://www.imququ.com/post/bom-and-javascript-trim.html
+	// 有些浏览器实现的trim不支持过滤BOM
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
 	// A simple way to check for HTML strings
@@ -139,19 +139,19 @@ jQuery.fn = jQuery.prototype = {
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
 				// Assume that strings that start and end with <> are HTML and skip the regex check
-				// 当以 < 开头，以 > 结尾且中间至少有一个字符的html，跳过rquickExpr检测。
+				// 当以 < 开头,以 > 结尾且中间至少有一个字符的html,跳过rquickExpr检测
 				match = [ null, selector, null ];
 
 			} else {
-				// exec():如果 exec() 找到了匹配的文本，则返回一个结果数组。否则，返回 null。此数组的第 0 个元素是与正则表达式相匹配的文本，第 1 个元素是与 RegExpObject // 的第 1 个子表达式相匹配的文本（如果有的话），第 2 个元素是与 RegExpObject 的第 2 个子表达式相匹配的文本（如果有的话），以此类推。
+				// exec():如果 exec() 找到了匹配的文本,则返回一个结果数组否则,返回 null此数组的第 0 个元素是与正则表达式相匹配的文本,第 1 个元素是与 RegExpObject // 的第 1 个子表达式相匹配的文本（如果有的话）,第 2 个元素是与 RegExpObject 的第 2 个子表达式相匹配的文本（如果有的话）,以此类推
 				// match[1] 匹配 html,match[2](如果有) 匹配 id
 				match = rquickExpr.exec( selector );
 			}
 
 			// Match html or make sure no context is specified for #id
 			// match && (mathc[1] || !context) 相当于  match && match[1] || match && match[2] && !context
-			// 在match[1]存在的情况下，context是可选的！
-			// 因为不匹配 match[1]就匹配match[2]，在match不为空的情况下。
+			// 在match[1]存在的情况下,context是可选的！
+			// 因为不匹配 match[1]就匹配match[2],在match不为空的情况下
 			if ( match && (match[1] || !context) ) {
 				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
@@ -167,23 +167,23 @@ jQuery.fn = jQuery.prototype = {
 					) );
 
 					// HANDLE: $(html, props)
-					// rsingleTag:匹配空元素html标签，如：<img>,<input>,<br/>,<p></p>。
-					// 如果是空元素，则创建节点。并且设置各种属性,如：
+					// rsingleTag:匹配空元素html标签,如：<img>,<input>,<br/>,<p></p>
+					// 如果是空元素,则创建节点并且设置各种属性,如：
 					// $("<img>",{src:"1.png","class":"img"})
 					// $("<a></a>",{src:"1.png","class":"img"})
 					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
 						for ( match in context ) {
 							// Properties of context are called as methods if possible
-							// 绑定事件,添加jQuery对象中的有的方法等。如：
+							// 绑定事件,添加jQuery对象中的有的方法等如：
 							// $("<a></a>",{src:"1.png","class":"img",click:function(){},on:{keyup:function(){}}})
-							// 只能感叹太巧妙。
+							// 只能感叹太巧妙
 							if ( jQuery.isFunction( this[ match ] ) ) {
 								// 是函数类型才能执行
-								// 执行。context[ match ]为参数。
+								// 执行context[ match ]为参数
 								this[ match ]( context[ match ] );
 							// ...and otherwise set as attributes
 							} else {
-								//可以自定义属性。
+								//可以自定义属性
 								this.attr( match, context[ match ] );
 							}
 						}
@@ -194,21 +194,21 @@ jQuery.fn = jQuery.prototype = {
 
 				// HANDLE: $(#id)
 				} else {
-					// 处理id，没有context参数。
+					// 处理id,没有context参数
 					elem = document.getElementById( match[2] );
 					// Check parentNode to catch when Blackberry 4.6 returns
 					// nodes that are no longer in the document #6963
 					if ( elem && elem.parentNode ) {
 						// Handle the case where IE and Opera return items
 						// by name instead of ID
-						// 低版本IE，name值代替id值。
+						// 低版本IE,name值代替id值
 						if ( elem.id !== match[2] ) {
 							// sizzle 选择器
 							return rootjQuery.find( selector );
 						}
 
 						// Otherwise, we inject the element directly into the jQuery object
-						// 把 elem 插进jQuery对象中,一个页面中只有一个id，length为1。
+						// 把 elem 插进jQuery对象中,一个页面中只有一个id,length为1
 						this.length = 1;
 						this[0] = elem;
 					}
@@ -219,20 +219,20 @@ jQuery.fn = jQuery.prototype = {
 				}
 
 			// HANDLE: $(expr, $(...))
-			// 处理css选择表达式。
-			// 如果是支持querySelectorAll的标准浏览器，用querySelectorAll足以。但是还有可耻的IE等。
-			// 所以这儿是用了sizzle这个复杂的查询器。主要是对不支持querySelector的浏览器进行了处理。
+			// 处理css选择表达式
+			// 如果是支持querySelectorAll的标准浏览器,用querySelectorAll足以但是还有可耻的IE等
+			// 所以这儿是用了sizzle这个复杂的查询器主要是对不支持querySelector的浏览器进行了处理
 			} else if ( !context || context.jquery) {
 				//$("a",$("body"))
-				// 只要context是jQuery对象，则有jquery（版本号）属性。
-				// 所以一定进入这个分支。
+				// 只要context是jQuery对象,则有jquery（版本号）属性
+				// 所以一定进入这个分支
 				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
 			// (which is just equivalent to: $(context).find(expr)
 			} else {
-				// context 不是jQuery对象,如DOM，css选择器，“body”等。
-				// 则构造jQuery对象。
+				// context 不是jQuery对象,如DOM,css选择器,“body”等
+				// 则构造jQuery对象
 				return this.constructor( context ).find( selector );
 			}
 
@@ -270,22 +270,22 @@ jQuery.fn = jQuery.prototype = {
 	length: 0,
 
 	// The number of elements contained in the matched element set
-	// jQuery对象中元素的个数。
-	// 不过一般$(obj).length就可以，简洁明了还比size()快那么一点点，size毕竟包装成函数返回了。
+	// jQuery对象中元素的个数
+	// 不过一般$(obj).length就可以,简洁明了还比size()快那么一点点,size毕竟包装成函数返回了
 	size: function() {
 		return this.length;
 	},
-	// 把jQuery对象转换成数组，运用[].slice.call(类数组)这个技巧。只要是数组或者类数组对象即可这么用。
-	// 什么是类数组对象呢？其实就和鸭子模型差不多，只要这个对象具有length属性就行，如：var o = {0:"a",1:"b","length":2};
-	// o对象就可以调用[].slice.call(o)返回数组["a","b"]。
+	// 把jQuery对象转换成数组,运用[].slice.call(类数组)这个技巧只要是数组或者类数组对象即可这么用
+	// 什么是类数组对象呢？其实就和鸭子模型差不多,只要这个对象具有length属性就行,如：var o = {0:"a",1:"b","length":2};
+	// o对象就可以调用[].slice.call(o)返回数组["a","b"]
 	toArray: function() {
 		return core_slice.call( this );
 	},
 
 	// Get the Nth element in the matched element set OR
 	// Get the whole matched element set as a clean array
-	// 取得匹配的DOM元素。不传参数则返回一个包含全部匹配元素的数组，等同于toArray()。
-	// 参数num小于0则从末尾开始算起。
+	// 取得匹配的DOM元素不传参数则返回一个包含全部匹配元素的数组,等同于toArray()
+	// 参数num小于0则从末尾开始算起
 	// $(obj).get(num) == $(obj)[num]
 	get: function( num ) {
 		return num == null ?
@@ -300,13 +300,13 @@ jQuery.fn = jQuery.prototype = {
 
 	// Take an array of elements and push it onto the stack
 	// (returning the new matched element set)
-	// 造一个新的jQuery对象。
+	// 造一个新的jQuery对象
 	pushStack: function( elems ) {
 		// Build a new jQuery matched element set
-		// 把数组元素合并到jQuery构造对象中，产生一个新的jQuery对象
+		// 把数组元素合并到jQuery构造对象中,产生一个新的jQuery对象
 		var ret = jQuery.merge( this.constructor(), elems );
 		// Add the old object onto the stack (as a reference)
-		// 把旧的对象设置为prevObject。context也同样设置。
+		// 把旧的对象设置为prevObjectcontext也同样设置
 		ret.prevObject = this;
 		ret.context = this.context;
 		
@@ -317,7 +317,7 @@ jQuery.fn = jQuery.prototype = {
 	// Execute a callback for every element in the matched set.
 	// (You can seed the arguments with an array of args, but this is
 	// only used internally.)
-	// 遍历元素，调用工具函数jQuery.each()。
+	// 遍历元素,调用工具函数jQuery.each()
 	each: function( callback, args ) {
 		return jQuery.each( this, callback, args );
 	},
@@ -328,15 +328,15 @@ jQuery.fn = jQuery.prototype = {
 		jQuery.ready.promise().done( fn );
 		return this;
 	},
-	// 选取子集。和数组的slice方法类似。
+	// 选取子集和数组的slice方法类似
 	slice: function() {
-		// 返回新的jQuery对象。
-		// 可以看到就是在jQuery对象上调用数组的slice方法。
-		// arguments就是个类数组。所以用apply。
+		// 返回新的jQuery对象
+		// 可以看到就是在jQuery对象上调用数组的slice方法
+		// arguments就是个类数组所以用apply
 		return this.pushStack( core_slice.apply( this, arguments ) );
 	},
-	// first(),last()取得匹配的第一和最后一个元素。
-	// 都是调用eq()。
+	// first(),last()取得匹配的第一和最后一个元素
+	// 都是调用eq()
 	first: function() {
 		return this.eq( 0 );
 	},
@@ -344,23 +344,23 @@ jQuery.fn = jQuery.prototype = {
 	last: function() {
 		return this.eq( -1 );
 	},
-	// 获取第i个元素，i从0开始，i为负数时，从最后一个元素开始算起。
+	// 获取第i个元素,i从0开始,i为负数时,从最后一个元素开始算起
 	eq: function( i ) {
-		// j:对下标i进行修正。
-		// +i把i转换成Number类型，如果传入的是字符串“1”，“2”等。i < 0,则加上this长度。
+		// j:对下标i进行修正
+		// +i把i转换成Number类型,如果传入的是字符串“1”,“2”等i < 0,则加上this长度
 		var len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
-		// j必需大于0小于对象个数，否则为空。
+		// j必需大于0小于对象个数,否则为空
 		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
 	},
-	// 将一组元素转换成其他数组（不论这组元素是否是元素数组）。
-	// 调用工具函数jQuery.map()。
+	// 将一组元素转换成其他数组（不论这组元素是否是元素数组）
+	// 调用工具函数jQuery.map()
 	map: function( callback ) {
 		return this.pushStack( jQuery.map(this, function( elem, i ) {
 			return callback.call( elem, i, elem );
 		}));
 	},
-	// 返回前一个匹配元素，若没有，返回空jQuery对象。
+	// 返回前一个匹配元素,若没有,返回空jQuery对象
 	end: function() {
 		return this.prevObject || this.constructor(null);
 	},
@@ -445,10 +445,10 @@ jQuery.extend({
 	log:function(obj){
 		return window.console && console.log ? console.log(obj) : alert(obj);
 	},
-	// 避免与其他js库冲突。
-	// 若其他js程序中已有$这个变量，则用该函数让出$：$.noConflict()。
-	// 之后可用jQuery代替$，如果deep为true，则jQuery也让出。都让出了我们怎么用啊，可以对jQuery.noConflict()赋值。
-	// var pb = jQuery.noConflict()，则用pb代替了jQuery。
+	// 避免与其他js库冲突
+	// 若其他js程序中已有$这个变量,则用该函数让出$：$.noConflict()
+	// 之后可用jQuery代替$,如果deep为true,则jQuery也让出都让出了我们怎么用啊,可以对jQuery.noConflict()赋值
+	// var pb = jQuery.noConflict(),则用pb代替了jQuery
 	noConflict: function( deep ) {
 		if ( window.$ === jQuery ) {
 			window.$ = _$;
@@ -462,7 +462,7 @@ jQuery.extend({
 	},
 
 	// Is the DOM ready to be used? Set to true once it occurs.
-	// domReady 标记。
+	// domReady 标记
 	isReady: false,
 
 	// A counter to track how many items to wait for before
@@ -472,28 +472,28 @@ jQuery.extend({
 
 	// Hold (or release) the ready event
 	// 详细解释参看官网：http://api.jquery.com/jQuery.holdReady/
-	// 简单说就是延迟jQuery's ready event的触发，在ready event之前做一些事情。
-	// 在ready event已经触发后，此方法将失效。
+	// 简单说就是延迟jQuery's ready event的触发,在ready event之前做一些事情
+	// 在ready event已经触发后,此方法将失效
 	holdReady: function( hold ) {
 		if ( hold ) {
-			// 参数为true时，readyWait变量+1，而当 --jQuery.readyWait > 0 时，都会返回而不触发ready event。 
+			// 参数为true时,readyWait变量+1,而当 --jQuery.readyWait > 0 时,都会返回而不触发ready event 
 			jQuery.readyWait++;
 		} else {
-			// 当参数为假时，则jQuery.ready(true)参数为真，jQuery.readyWait 会自减，直到减为0才会触发ready event。
-			// 因此有多少个$.holdReady(true)来延迟,就得有多少个$.holdReady()来解锁延迟。这样才能触发ready event。
-			// 具体看下面的ready(wait)方法。
+			// 当参数为假时,则jQuery.ready(true)参数为真,jQuery.readyWait 会自减,直到减为0才会触发ready event
+			// 因此有多少个$.holdReady(true)来延迟,就得有多少个$.holdReady()来解锁延迟这样才能触发ready event
+			// 具体看下面的ready(wait)方法
 			jQuery.ready( true );
 		}
 	},
 
 	// Handle when the DOM is ready
-	// 用于判断jQuery.readyWait是否为0，即没有延迟。并用jQuery.isReady确保触发一次ready event。
-	// 如果jQuery.readyWait <= 0 && !wait，则触发ready event。
-	// 精华还是在readyList。
+	// 用于判断jQuery.readyWait是否为0,即没有延迟并用jQuery.isReady确保触发一次ready event
+	// 如果jQuery.readyWait <= 0 && !wait,则触发ready event
+	// 精华还是在readyList
 	ready: function( wait ) {
 		// Abort if there are pending holds or we're already ready
-		// 对应上面的holdReady()，确保没有$.holdReady(true)的延迟即jQuery.readyWait <= 0，则往下执行。
-		// 或者根本就没出现过$.holdReady(true)，则也往下执行。因为jQuery.isReady默认为false。
+		// 对应上面的holdReady(),确保没有$.holdReady(true)的延迟即jQuery.readyWait <= 0,则往下执行
+		// 或者根本就没出现过$.holdReady(true),则也往下执行因为jQuery.isReady默认为false
 		if ( wait === true ? --jQuery.readyWait : jQuery.isReady ) {
 			return;
 		}
@@ -504,13 +504,13 @@ jQuery.extend({
 		}
 
 		// Remember that the DOM is ready
-		// 设置标记。
+		// 设置标记
 		jQuery.isReady = true;
 
 		// If a normal DOM Ready event fired, decrement, and wait if need be
-		// 开始一直没想明白这个判断有什么用，在我看来上面的判断已经够严谨了。
-		// 后来经过仔细观察才明白这个判断的妙用，它的目的就是为了防止在程序中重新给$.readyWait赋值。
-		// 如果在dom ready event触发之前加一个$.readyWait = 2，那么即使readyWait不为0，也继续往下执行了。
+		// 开始一直没想明白这个判断有什么用,在我看来上面的判断已经够严谨了
+		// 后来经过仔细观察才明白这个判断的妙用,它的目的就是为了防止在程序中重新给$.readyWait赋值
+		// 如果在dom ready event触发之前加一个$.readyWait = 2,那么即使readyWait不为0,也继续往下执行了
 		if ( wait !== true && --jQuery.readyWait > 0 ) {
 			return;
 		}
@@ -519,7 +519,7 @@ jQuery.extend({
 		readyList.resolveWith( document, [ jQuery ] );
 
 		// Trigger any bound ready events
-		// 有trigger!!!则执行trigeer。
+		// 有trigger!!!则执行trigeer
 		if ( jQuery.fn.trigger ) {
 			jQuery( document ).trigger("ready").off("ready");
 		}
@@ -528,9 +528,9 @@ jQuery.extend({
 	// See test/unit/core.js for details concerning isFunction.
 	// Since version 1.3, DOM methods and functions like alert
 	// aren't supported. They return false on IE (#2968).
-	// isFunction,isArray都是调用了jQuery.type来判断。
+	// isFunction,isArray都是调用了jQuery.type来判断
 	// 关于jQuery.type见：http://www.17leba.com/jquery中的数据类型判断/
-	// 注意isArray中的Array.isArray:ECMAScript5中新的判断是否为数组的原生方法。
+	// 注意isArray中的Array.isArray:ECMAScript5中新的判断是否为数组的原生方法
 	isFunction: function( obj ) {
 		return jQuery.type(obj) === "function";
 	},
@@ -538,15 +538,15 @@ jQuery.extend({
 	isArray: Array.isArray || function( obj ) {
 		return jQuery.type(obj) === "array";
 	},
-	// 判断是否为winodw。
-	// window.window == window。
+	// 判断是否为winodw
+	// window.window == window
 	isWindow: function( obj ) {
 		return obj != null && obj == obj.window;
 	},
-	// 判断是否为有限的数值类型。包括纯数值类型以及纯数字的字符串类型:123,"123"但不包括“123abc”。
-	// 这也是为什么不能用typeof来判断的原因。
+	// 判断是否为有限的数值类型包括纯数值类型以及纯数字的字符串类型:123,"123"但不包括“123abc”
+	// 这也是为什么不能用typeof来判断的原因
 	// typeof NaN === "number"
-	// isFinite:返回一个 Boolean 值,指明所提供的数字是否是有限的。
+	// isFinite:返回一个 Boolean 值,指明所提供的数字是否是有限的
 	isNumeric: function( obj ) {
 		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
@@ -559,13 +559,13 @@ jQuery.extend({
 			class2type[ core_toString.call(obj) ] || "object" :
 			typeof obj;
 	},
-	// 判断是否为纯的object，即{}的。
+	// 判断是否为纯的object,即{}的
 	isPlainObject: function( obj ) {
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
 		// Make sure that DOM nodes and window objects don't pass through, as well
-		// 排除window：jQuery.type(window) === "object"。
-		// 排除节点：jQuery.type(node) === "object"。
+		// 排除window：jQuery.type(window) === "object"
+		// 排除节点：jQuery.type(node) === "object"
 		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
 		}
@@ -592,8 +592,8 @@ jQuery.extend({
 
 	isEmptyObject: function( obj ) {
 		var name;
-		// obj为空对象，则name in obj 为false，则返回true。
-		// 技能get。√
+		// obj为空对象,则name in obj 为false,则返回true
+		// 技能get√
 		for ( name in obj ) {
 			return false;
 
@@ -707,39 +707,39 @@ jQuery.extend({
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
-	// elem.nodeName 是否等于 name。
-	// 返回true 或 false。
+	// elem.nodeName 是否等于 name
+	// 返回true 或 false
 	nodeName: function( elem, name ) {
 		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 	},
 
 	// args is for internal usage only
-	// 遍历工具函数。
-	// obj:要遍历的对象，可以为数组（包括类数组）和对象。
-	// callback:回调函数。只要某次遍历过程中返回false，则立马停止遍历。
-	// args:传给回调函数的参数，必须为数组。
-	// args只在内部使用，所以回调函数的参数一般为遍历元素的索引和本身的值，除非设置args来改变参数值。
+	// 遍历工具函数
+	// obj:要遍历的对象,可以为数组（包括类数组）和对象
+	// callback:回调函数只要某次遍历过程中返回false,则立马停止遍历
+	// args:传给回调函数的参数,必须为数组
+	// args只在内部使用,所以回调函数的参数一般为遍历元素的索引和本身的值,除非设置args来改变参数值
 	each: function( obj, callback, args ) {
 		var value,
 			i = 0,
 			length = obj.length,
-			// 是否为类数组。
+			// 是否为类数组
 			isArray = isArraylike( obj );
 
 		if ( args ) {
-			// 如果提供了参数args，args为数组。在标准浏览器下也可以为类数组（即{0:"pb","length":1},必须有length）。			
+			// 如果提供了参数args,args为数组在标准浏览器下也可以为类数组（即{0:"pb","length":1},必须有length）			
 			if ( isArray ) {
-				// obj为数组则用for循环。
+				// obj为数组则用for循环
 				for ( ; i < length; i++ ) {
-					// 用apply改变回调函数引用对象，因为args为数组且不定长。
+					// 用apply改变回调函数引用对象,因为args为数组且不定长
 					value = callback.apply( obj[ i ], args );
-					// 回调函数返回false则立即停止并跳出循环。
+					// 回调函数返回false则立即停止并跳出循环
 					if ( value === false ) {
 						break;
 					}
 				}
 			} else {
-				// obj为对象则用for in循环。
+				// obj为对象则用for in循环
 				for ( i in obj ) {
 					value = callback.apply( obj[ i ], args );
 
@@ -751,8 +751,8 @@ jQuery.extend({
 
 		// A special, fast, case for the most common use of each
 		} else {
-			// 没有提供args的是最常见的情况。外部也可以用：$.each()。
-			// 回调函数的两个参数分别是遍历元素索引和元素本身。
+			// 没有提供args的是最常见的情况外部也可以用：$.each()
+			// 回调函数的两个参数分别是遍历元素索引和元素本身
 			if ( isArray ) {
 				for ( ; i < length; i++ ) {
 					value = callback.call( obj[ i ], i, obj[ i ] );
@@ -771,14 +771,14 @@ jQuery.extend({
 				}
 			}
 		}
-		// 返回对象本身。
+		// 返回对象本身
 		return obj;
 	},
 
 	// Use native String.trim function wherever possible
-	// 过滤两端空格。
-	// 支持原生trim且trim能够过滤BOM，即用原生的trim。因有些浏览器实现的trim不能过滤trim。
-	// 否则（IE等）用rtrim（/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g）过滤。
+	// 过滤两端空格
+	// 支持原生trim且trim能够过滤BOM,即用原生的trim因有些浏览器实现的trim不能过滤trim
+	// 否则（IE等）用rtrim（/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g）过滤
 	trim: core_trim && !core_trim.call("\uFEFF\xA0") ?
 		function( text ) {
 			return text == null ?
@@ -790,54 +790,54 @@ jQuery.extend({
 		function( text ) {
 			return text == null ?
 				"" :
-				// text + "":变成字符串。
+				// text + "":变成字符串
 				( text + "" ).replace( rtrim, "" );
 		},
 
 	// results is for internal usage only
 	// selector this
-	// 把类数组对象转换成真正的js数组。
-	// arr：要转换的类数组对象。results：可选数组参数，有则合并到这个数组里面。
+	// 把类数组对象转换成真正的js数组
+	// arr：要转换的类数组对象results：可选数组参数,有则合并到这个数组里面
 	makeArray: function( arr, results ) {
-		// ret：最后要返回的数组。
+		// ret：最后要返回的数组
 		var ret = results || [];
-		// 确保arr不为空。
+		// 确保arr不为空
 		if ( arr != null ) {
 			if ( isArraylike( arr ) ) {
-				// 确保为类数组对象。
-				// 好吧，合并数组。把arr为string的情况也考虑了。
+				// 确保为类数组对象
+				// 好吧,合并数组把arr为string的情况也考虑了
 				jQuery.merge( ret,
 					typeof arr === "string" ?
 					[ arr ] : arr
 				);
 			} else {
-				// 不是类数组，可能为对象，函数等。
-				// 直接push进去。
+				// 不是类数组,可能为对象,函数等
+				// 直接push进去
 				core_push.call( ret, arr );
 			}
 		}
 		return ret;
 	},
-	// 判断元素elem是否在数组arr内，在则返回在数组中的位置，不在则返回-1。
-	// i为开始寻找的位置。
+	// 判断元素elem是否在数组arr内,在则返回在数组中的位置,不在则返回-1
+	// i为开始寻找的位置
 	inArray: function( elem, arr, i ) {
 		var len;
 		if ( arr ) {
-			// 原生的indexOf。
-			// indexOf原本是判断String的，但是ES5中加入了Array支持。旧版IE不支持。
-			// 所以会发现在标准浏览器中用这个函数判断stirng也可以，但是IE会报错，因为下面用到了in操作符。
-			// 所以这只能判断数组。切不可判断其他。
+			// 原生的indexOf
+			// indexOf原本是判断String的,但是ES5中加入了Array支持旧版IE不支持
+			// 所以会发现在标准浏览器中用这个函数判断stirng也可以,但是IE会报错,因为下面用到了in操作符
+			// 所以这只能判断数组切不可判断其他
 			// if ( core_indexOf ) {
 			// 	return core_indexOf.call( arr, elem, i );
 			// }
 
 			len = arr.length;
-			// 修正i。主要是解决i为负数的情况。
+			// 修正i主要是解决i为负数的情况
 			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
 
 			for ( ; i < len; i++ ) {
 				// Skip accessing in sparse arrays
-				// 确保i在arr中，不在则没有判断arr[i] === elem的必要。
+				// 确保i在arr中,不在则没有判断arr[i] === elem的必要
 				// 如没有i in arr这个判断：
 				// var arr = {0:2,1:2,"ok":3,"length":3};$.inArray(undefined,o);
 				// 会返回2
@@ -847,11 +847,11 @@ jQuery.extend({
 			}
 		}
 
-		// 不存在arr或者找不到则返回-1。
+		// 不存在arr或者找不到则返回-1
 		return -1;
 	},
-	// 合并两个数组到第一个数组中，返回合并后的第一个数组。
-	// 第二个参数也可以为对象。
+	// 合并两个数组到第一个数组中,返回合并后的第一个数组
+	// 第二个参数也可以为对象
 	merge: function( first, second ) {
 		var l = second.length,
 			i = first.length,
@@ -862,17 +862,17 @@ jQuery.extend({
 				first[ i++ ] = second[ j ];
 			}
 		} else {
-			// second为普通对象，没有length。
+			// second为普通对象,没有length
 			while ( second[j] !== undefined ) {
 				first[ i++ ] = second[ j++ ];
 			}
 		}
-		// 重新赋值first的length值。
+		// 重新赋值first的length值
 		first.length = i;
 
 		return first;
 	},
-	// 过滤数组元素。
+	// 过滤数组元素
 	grep: function( elems, callback, inv ) {
 		var retVal,
 			ret = [],
@@ -883,8 +883,8 @@ jQuery.extend({
 		// Go through the array, only saving the items
 		// that pass the validator function
 		// 大妙！！！
-		// 运用inv与retVal的比较，push各自情况下的元素。
-		// 设置inv为true，则返回回调函数中被过滤掉的元素。
+		// 运用inv与retVal的比较,push各自情况下的元素
+		// 设置inv为true,则返回回调函数中被过滤掉的元素
 		for ( ; i < length; i++ ) {
 			retVal = !!callback( elems[ i ], i );
 			if ( inv !== retVal ) {
@@ -895,7 +895,7 @@ jQuery.extend({
 	},
 
 	// arg is for internal usage only
-	// 对数组或者对象元素进行加工处理最后以数组形式返回，注意与grep的区别。
+	// 对数组或者对象元素进行加工处理最后以数组形式返回,注意与grep的区别
 	map: function( elems, callback, arg ) {
 		var value,
 			i = 0,
@@ -904,7 +904,7 @@ jQuery.extend({
 			ret = [];
 
 		// Go through the array, translating each of the items to their
-		// ret的长度在动态变化，所以用ret[ret.length] = value来代替ret.push(value)。
+		// ret的长度在动态变化,所以用ret[ret.length] = value来代替ret.push(value)
 		if ( isArray ) {
 			for ( ; i < length; i++ ) {
 				value = callback( elems[ i ], i, arg );
@@ -925,7 +925,7 @@ jQuery.extend({
 		}
 
 		// Flatten any nested arrays
-		// concat：合并两个数组，并返回新数组。
+		// concat：合并两个数组,并返回新数组
 		return core_concat.apply( [], ret );
 	},
 
@@ -934,12 +934,12 @@ jQuery.extend({
 
 	// Bind a function to a context, optionally partially applying any
 	// arguments.
-	// 返回一个指定了特定作用域的函数。
-	// 原理就是利用apply改变作用域。
-	// 第一个参数为将要改变作用域的函数，第二个参数为一个object，函数的作用域讲设置到这个object上面。
-	// 当第二个参数为string时，则认为其为将要改变作用域的函数的函数名，并且必须是context的一个属性。
+	// 返回一个指定了特定作用域的函数
+	// 原理就是利用apply改变作用域
+	// 第一个参数为将要改变作用域的函数,第二个参数为一个object,函数的作用域讲设置到这个object上面
+	// 当第二个参数为string时,则认为其为将要改变作用域的函数的函数名,并且必须是context的一个属性
 	proxy: function( fn, context ) {
-		// tmp:当第二个参数为string时，第一二参数变换的中间变量。
+		// tmp:当第二个参数为string时,第一二参数变换的中间变量
 		var args, proxy, tmp;
 		if ( typeof context === "string" ) {
 			tmp = fn[ context ];
@@ -954,7 +954,7 @@ jQuery.extend({
 		}
 
 		// Simulated bind
-		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数。--PB_PROBLEM
+		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数--PB_PROBLEM
 		args = core_slice.call( arguments, 2 );
 
 		proxy = function() {
@@ -969,15 +969,15 @@ jQuery.extend({
 
 	// Multifunctional method to get and set values of a collection --PB_PROBLEM
 	// The value/s can optionally be executed if it's a function
-	// 这个方法得结合它的用法来看。不然搞不懂其意图。太灵活多变了。
-	// 在jQuery的方法中，有一些方法没有传参数的时候，可以获取元素属性的值，而当传入了参数的时候，又可以设置元素属性的值，如
-	// html(),attr(),prop(),text(),html(),css(),data(),scrollTop/scrollLeft(),height()/width()。好吧，我把jQuery内部调用jQuery.access()
-	// 的方法都列举了。
-	// 而当key为object时，即这样的：
-	// css({width:100,height:100})。则继续遍历调用access来设置属性值。
-	// 而html(),text(),scrollTop/scrollLeft(),height()/width()和attr(),prop(),css(),data()在设置和获取属性值时的方式也不一样。
-	// 而这也是最后返回时多重三元判断的原因。
-	// value：为将要设置的属性值，为fn的参数。
+	// 这个方法得结合它的用法来看不然搞不懂其意图太灵活多变了
+	// 在jQuery的方法中,有一些方法没有传参数的时候,可以获取元素属性的值,而当传入了参数的时候,又可以设置元素属性的值,如
+	// html(),attr(),prop(),text(),html(),css(),data(),scrollTop/scrollLeft(),height()/width()好吧,我把jQuery内部调用jQuery.access()
+	// 的方法都列举了
+	// 而当key为object时,即这样的：
+	// css({width:100,height:100})则继续遍历调用access来设置属性值
+	// 而html(),text(),scrollTop/scrollLeft(),height()/width()和attr(),prop(),css(),data()在设置和获取属性值时的方式也不一样
+	// 而这也是最后返回时多重三元判断的原因
+	// value：为将要设置的属性值,为fn的参数
 	access: function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		var i = 0,
 			length = elems.length,
@@ -992,15 +992,15 @@ jQuery.extend({
 		// Sets one value
 		} else if ( value !== undefined ) {
 			chainable = true;
-			// value不是函数即为要设置的属性的情况下，raw设置为true，下面要用。
+			// value不是函数即为要设置的属性的情况下,raw设置为true,下面要用
 			if ( !jQuery.isFunction( value ) ) {
 				raw = true;
 			}
-			// key为null时。
+			// key为null时
 			if ( bulk ) {
 				// Bulk operations run against the entire set
-				// value为要设置的属性。
-				// fn中还要对value进行其他兼容等处理。
+				// value为要设置的属性
+				// fn中还要对value进行其他兼容等处理
 				if ( raw ) {
 					// $().html("")这样的。"" == value
 					fn.call( elems, value );
@@ -1008,16 +1008,16 @@ jQuery.extend({
 
 				// ...except when executing function values
 				} else {
-					// value为函数。作为fn的参数。
-					// $().html(fn)这种情况。fn == value
+					// value为函数。作为fn的参数
+					// $().html(fn)这种情况 fn == value
 					bulk = fn;
-					// 重新赋值fn。参数 --PB_PROBLEM
+					// 重新赋值fn 参数 --PB_PROBLEM
 					fn = function( elem, key, value ) {
 						return bulk.call( jQuery( elem ), value );
 					};
 				}
 			}
-			// 存在fn则一个个遍历。
+			// 存在fn则一个个遍历
 			if ( fn ) {
 				for ( ; i < length; i++ ) {
 					// i为索引，fn( elems[i], key )为取得的值。
@@ -1025,12 +1025,12 @@ jQuery.extend({
 				}
 			}
 		}
-		// chainable：比较复杂的一个参数。
-		// 而当作为获取属性值来使用时，key为null,value视调用者决定，此时chainable设置为false,bulk为true。
-		// 看了一下css(),attr()等，value不为null，所以chainable设置成arguments.length > 1,
-		// 而html(),text()等，有一个参数value还为空，所以chainable设置成arguments.length = 0。
-		// fn.call( elems )与fn( elems[0], key )对应html(),text()与css(name),attr(name)这两种获取属性值。
-		// emptyGet即什么都没有获取到或设置。
+		// chainable：比较复杂的一个参数
+		// 而当作为获取属性值来使用时,key为null,value视调用者决定,此时chainable设置为false,bulk为true
+		// 看了一下css(),attr()等,value不为null,所以chainable设置成arguments.length > 1,
+		// 而html(),text()等,有一个参数value还为空,所以chainable设置成arguments.length = 0
+		// fn.call( elems )与fn( elems[0], key )对应html(),text()与css(name),attr(name)这两种获取属性值
+		// emptyGet即什么都没有获取到或设置
 		return chainable ?
 			elems :
 
@@ -1107,11 +1107,11 @@ jQuery.ready.promise = function( obj ) {
 };
 
 // Populate the class2type map
-// jQuery.type 需要的calss2Type。
+// jQuery.type 需要的calss2Type
 jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
-// 判断是不是类数组。
+// 判断是不是类数组
 function isArraylike( obj ) {
 	var length = obj.length,
 		type = jQuery.type( obj );
@@ -1119,12 +1119,12 @@ function isArraylike( obj ) {
 	if ( jQuery.isWindow( obj ) ) {
 		return false;
 	}
-	// 元素节点。且为HTMLCollect。
+	// 元素节点且为HTMLCollect
 	if ( obj.nodeType === 1 && length ) {
 		return true;
 	}
-	// 纯正的array，带有length属性的object且length-1也是obj的属性。
-	// 但是好像不严谨。如：{0:"2","ok":34,"length":2}这个返回false，而{1:"2","ok":34,"length":2}返回true。
+	// 纯正的array,带有length属性的object且length-1也是obj的属性
+	// 但是好像不严谨如：{0:"2","ok":34,"length":2}这个返回false,而{1:"2","ok":34,"length":2}返回true
 	// 究竟什么是类数组？？--PB_PROBLEM
 	return type === "array" || type !== "function" &&
 		( length === 0 ||
@@ -1137,16 +1137,16 @@ rootjQuery = jQuery(document);
 var optionsCache = {};
 
 // Convert String-formatted options into Object-formatted ones and store in cache
-// 把字符串变量转换成对象变量。"once" ==> {once：true}
+// 把字符串变量转换成对象变量"once" ==> {once：true}
 function createOptions( options ) {
-	// 妙！！ PB--get。√
+	// 妙！！ PB--get√
 	// 等同于：
 	// optionsCache[options] = {};
 	// var object = optionsCache[options];
-	// 这儿注意引用类型的理解。object 和 optionsCache[options]是复制的相同的引用，故最后返回object，也等同于返回optionsCache[options]。
+	// 这儿注意引用类型的理解object 和 optionsCache[options]是复制的相同的引用,故最后返回object,也等同于返回optionsCache[options]
 	// 注意与这的区别：http://www.17leba.com/笔记-delete-变量/
 	var object = optionsCache[ options ] = {};
-	// core_rnotwhite:/\S+/g。全局匹配非空白字符。
+	// core_rnotwhite:/\S+/g全局匹配非空白字符
 	jQuery.each( options.match( core_rnotwhite ) || [], function( _, flag ) {
 		object[ flag ] = true;
 	});
@@ -1179,37 +1179,37 @@ jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
 	// (we check in cache first)
-	// 把传入的参数转换成对象形式。
-	// 参数为字符串则通过函数createOptions转换，缓存optionsCache中有的，则优先调用缓存中的。
+	// 把传入的参数转换成对象形式
+	// 参数为字符串则通过函数createOptions转换,缓存optionsCache中有的,则优先调用缓存中的
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
 		jQuery.extend( {}, options );
 
 	var // Flag to know if list is currently firing
-		// 当前触发的回调。
+		// 当前触发的回调
 		firing,
 		// Last fire value (for non-forgettable lists)
-		// 最后触发的值。为了参数“memory”准备，取得前一次回调函数的值。
+		// 最后触发的值为了参数“memory”准备,取得前一次回调函数的值
 		memory,
 		// Flag to know if list was already fired
-		// 回调列表是否已经触发。
+		// 回调列表是否已经触发
 		fired,
 		// End of the loop when firing
-		// 回调列表的长度。
+		// 回调列表的长度
 		firingLength,
 		// Index of currently firing callback (modified by remove if needed)
-		// 当前正在触发的回调函数的下标。
+		// 当前正在触发的回调函数的下标
 		firingIndex,
 		// First callback to fire (used internally by add and fireWith)
-		// 第一个触发的回调的下标。
+		// 第一个触发的回调的下标
 		firingStart,
 		// Actual callback list
-		// 回调列表数组。
+		// 回调列表数组
 		list = [],
 		// Stack of fire calls for repeatable lists
 		// --PB_PROBLEM
-		// 储存的是在执行回调中又重复执行的回调的参数和作用域，即data。
-		// 但是模拟不出一个例子。？？？
+		// 储存的是在执行回调中又重复执行的回调的参数和作用域,即data
+		// 但是模拟不出一个例子？？？
 		// 例子：
 		// var callbacks = $.Callbacks(),
 		// 	flag = true;
@@ -1227,21 +1227,21 @@ jQuery.Callbacks = function( options ) {
 		// ajax!!!
 		stack = !options.once && [],
 		// Fire callbacks
-		// 触发回调函数。
+		// 触发回调函数
 		fire = function( data ) {
-			// 各种变量赋值。
-			// 参数中的memory为true时，memory赋值为data。否则赋值为options.memory。
+			// 各种变量赋值
+			// 参数中的memory为true时,memory赋值为data否则赋值为options.memory
 			memory = options.memory && data;
 			fired = true;
 			firingIndex = firingStart || 0;
 			firingStart = 0;
 			firingLength = list.length;
 			firing = true;
-			// data[0]为调用者,data[1]为传入的回调函数的参数。
-			// 从第一个回调开始触发。如果有设置参数options为stopOnFalse且回调函数返回false时，立即从这个函数开始中断触发，
-			// 即list中只有最先返回false的回调函数。
-			// 并且将memory设置为false，已把list置空，参见下面代码。防止出现同时设置 memory和stopOnFalse的情况下，memory == data。
-			// 这样子的话再add多个回调函数，也会全都触发。
+			// data[0]为调用者,data[1]为传入的回调函数的参数
+			// 从第一个回调开始触发如果有设置参数options为stopOnFalse且回调函数返回false时,立即从这个函数开始中断触发,
+			// 即list中只有最先返回false的回调函数
+			// 并且将memory设置为false,已把list置空,参见下面代码防止出现同时设置 memory和stopOnFalse的情况下,memory == data
+			// 这样子的话再add多个回调函数,也会全都触发
 			for ( ; list && firingIndex < firingLength; firingIndex++ ) {
 				if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options.stopOnFalse ) {
 					memory = false; // To prevent further calls using add
@@ -1249,18 +1249,18 @@ jQuery.Callbacks = function( options ) {
 				}
 			}
 
-			// 触发结束标记。
+			// 触发结束标记
 			firing = false;
-			// list不为undefined，即没有调用jQuery.Callbacks.disable或者jQuery.Callbacks.disabled。
+			// list不为undefined,即没有调用jQuery.Callbacks.disable或者jQuery.Callbacks.disabled
 			if ( list ) {
-				// 没有设置once且不为false。
+				// 没有设置once且不为false
 				if ( stack ) {
-					// 如果stack中还有回调要触发，则继续fire。
+					// 如果stack中还有回调要触发,则继续fire
 					if ( stack.length ) {
 						fire( stack.shift() );
 					}
 				} else if ( memory ) {
-					// 参数为"once memory"，则清空。因为只需要执行一次。
+					// 参数为"once memory",则清空因为只需要执行一次
 					list = [];
 				} else {
 					// list = stack = memory = undefined;
@@ -1272,28 +1272,28 @@ jQuery.Callbacks = function( options ) {
 		self = {
 			// Add a callback or a collection of callbacks to the list
 			add: function() {
-				// 增加回调函数。
+				// 增加回调函数
 				if ( list ) {
-					// list不为undefined。则没有调用$.Callbacks().disable()或$.Callbacks().disabled()。
+					// list不为undefined则没有调用$.Callbacks().disable()或$.Callbacks().disabled()
 					// First, we save the current length
 					var start = list.length;
-					// 一个闭包。参数不确定。
+					// 一个闭包参数不确定
 					(function add( args ) {
-						// 循环遍历添加的回调函数。
+						// 循环遍历添加的回调函数
 						// 所以可以这样添加回调：$.Callbacks().add(fn1,fn2,fn3...)
 						jQuery.each( args, function( _, arg ) {
 							var type = jQuery.type( arg );
 							if ( type === "function" ) {
-								// 回调为函数的情况下。
-								// 没有设置 unique 参数，确保添加多少重复的就执行多少重复的。
-								// 或者这个函数不在列表list中。则添加到list中。
+								// 回调为函数的情况下
+								// 没有设置 unique 参数,确保添加多少重复的就执行多少重复的
+								// 或者这个函数不在列表list中则添加到list中
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
 							} else if ( arg && arg.length && type !== "string" ) {
-								// 不是函数的情况下。那是什么呢？
-								// 貌似是类数组。[fn1,fn2]
-								// 递归吧。
+								// 不是函数的情况下那是什么呢？
+								// 貌似是类数组[fn1,fn2]
+								// 递归吧
 								// Inspect recursively
 								add( arg );
 							}
@@ -1302,13 +1302,13 @@ jQuery.Callbacks = function( options ) {
 					// Do we need to add the callbacks to the
 					// current firing batch?
 					if ( firing ) {
-						// 如果fire的过程中继续添加回调，则更新firingLength的值。
+						// 如果fire的过程中继续添加回调,则更新firingLength的值
 						firingLength = list.length;
 					// With memory, if we're not firing then
 					// we should call right away
 					} else if ( memory ) {
-						// 如果设置了memory，fire完以后再添加回调的情况下。
-						// 从list[start]开始触发。
+						// 如果设置了memory,fire完以后再添加回调的情况下
+						// 从list[start]开始触发
 						firingStart = start;
 						fire( memory );
 					}
@@ -1317,23 +1317,23 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Remove a callback from the list
 			remove: function() {
-				// 和 add 好对应。
+				// 和 add 好对应
 				if ( list ) {
 					jQuery.each( arguments, function( _, arg ) {
 						var index;
-						// arg必须存在于list中。
+						// arg必须存在于list中
 						while( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
-							// 移除对应的 fn。
+							// 移除对应的 fn
 							list.splice( index, 1 );
 							// Handle firing indexes
-							// 修正firingLength和firingIndex。
+							// 修正firingLength和firingIndex
 							if ( firing ) {
-								// firingLength减1。
+								// firingLength减1
 								if ( index <= firingLength ) {
 									firingLength--;
 								}
-								// 如果index小于正在执行回调函数的下标，即index所对应的回调函数已经执行过了，
-								// 则firingIndex减1，要不然下次执行的时候就会漏掉firingIndex--对应的函数。
+								// 如果index小于正在执行回调函数的下标,即index所对应的回调函数已经执行过了,
+								// 则firingIndex减1,要不然下次执行的时候就会漏掉firingIndex--对应的函数
 								if ( index <= firingIndex ) {
 									firingIndex--;
 								}
@@ -1345,55 +1345,55 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Check if a given callback is in the list.
 			// If no argument is given, return whether or not list has callbacks attached.
-			// 回调列表中是否有fn。如果未提供参数fn，则检查list中是否有回调函数。
+			// 回调列表中是否有fn如果未提供参数fn,则检查list中是否有回调函数
 			has: function( fn ) {
 				return fn ? jQuery.inArray( fn, list ) > -1 : !!( list && list.length );
 			},
 			// Remove all callbacks from the list
-			// 直接置空list。
+			// 直接置空list
 			empty: function() {
 				list = [];
 				return this;
 			},
 			// Have the list do nothing anymore
-			// 禁用回调列表。
+			// 禁用回调列表
 			disable: function() {
 				list = stack = memory = undefined;
 				return this;
 			},
 			// Is it disabled?
-			// 判断是否禁用了list。因list默认为[]，除非调用了disable设置为undefined。
+			// 判断是否禁用了list因list默认为[],除非调用了disable设置为undefined
 			disabled: function() {
 				return !list;
 			},
 			// Lock the list in its current state
-			// 锁定回调列表，不可再次调用fire。
+			// 锁定回调列表,不可再次调用fire
 			lock: function() {
 				stack = undefined;
-				// 不存在memory参数，则直接禁用掉。
-				// 防止 若lock之前没有fire，则!fired 为true ，lock以后再fire则会触发fire。
+				// 不存在memory参数,则直接禁用掉
+				// 防止 若lock之前没有fire,则!fired 为true ,lock以后再fire则会触发fire
 				if ( !memory ) {
 					self.disable();
 				}
 				return this;
 			},
 			// Is it locked?
-			// 判断是否锁定了。
+			// 判断是否锁定了
 			locked: function() {
 				return !stack;
 			},
 			// Call all callbacks with the given context and arguments
-			// 触发给定上下文环境中的回调函数。
+			// 触发给定上下文环境中的回调函数
 			fireWith: function( context, args ) {
-				// context：上下文执行环境。
-				// args：回调函数参数。
+				// context：上下文执行环境
+				// args：回调函数参数
 				args = args || [];
-				// 修正args，变成[context,args]。
+				// 修正args,变成[context,args]
 				args = [ context, args.slice ? args.slice() : args ];
 				if ( list && ( !fired || stack ) ) {
 					if ( firing ) {
-						// 中途添加回调。
-						// 即回调函数中还有fire。
+						// 中途添加回调
+						// 即回调函数中还有fire
 						stack.push( args );
 					} else {
 						// go
@@ -1408,7 +1408,7 @@ jQuery.Callbacks = function( options ) {
 				return this;
 			},
 			// To know if the callbacks have already been called at least once
-			// 判断是否触发过回调。即是否调用过$.Callbacks().fire()。
+			// 判断是否触发过回调即是否调用过$.Callbacks().fire()
 			fired: function() {
 				return !!fired;
 			}
@@ -1556,37 +1556,37 @@ jQuery.extend({
 		return deferred.promise();
 	}
 });
-// 不同浏览器对各种特性的差异表现。
-// 如：$.support.cssFloat 在标准浏览器中返回true，但是IE中是用styleFloat来获取float的值，故返回false。
-// 主要检测了support对象中的那些值：参看下面代码中的support对象。
-// 主要是jQuery内部处理浏览器差异性时使用。
+// 不同浏览器对各种特性的差异表现
+// 如：$.support.cssFloat 在标准浏览器中返回true,但是IE中是用styleFloat来获取float的值,故返回false
+// 主要检测了support对象中的那些值：参看下面代码中的support对象
+// 主要是jQuery内部处理浏览器差异性时使用
 jQuery.support = (function() {
-	// support：返回的特性差异集合。
-	// all；取得页面中所有的元素集合。
-	// a：取得div中的a元素。
-	// input：取得div用来测试的input元素。
-	// select：创建一个用来测试的select元素。
-	// fragment：创建一个文档片段。
-	// opt：创建一个用来测试的option元素。
-	// eventName：检测submit focusin change事件时的事件名。
-	// isSupported： 检测当单元格为不可见时，是否仍有offsetHeight/Width属性。
-	// div：创建一个用来测试的div元素。
+	// support：返回的特性差异集合
+	// all；取得页面中所有的元素集合
+	// a：取得div中的a元素
+	// input：取得div用来测试的input元素
+	// select：创建一个用来测试的select元素
+	// fragment：创建一个文档片段
+	// opt：创建一个用来测试的option元素
+	// eventName：检测submit focusin change事件时的事件名
+	// isSupported： 检测当单元格为不可见时,是否仍有offsetHeight/Width属性
+	// div：创建一个用来测试的div元素
 	var support, all, a,
 		input, select, fragment,
 		opt, eventName, isSupported, i,
 		div = document.createElement("div");
 
 	// Setup
-	// 设置div的一些属性。
-	// div必须有内容，才是一个div元素，才可以触发事件等。get--√
+	// 设置div的一些属性
+	// div必须有内容,才是一个div元素,才可以触发事件等get--√
 	div.setAttribute( "className", "t" );
 	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
 
 	// Support tests won't run in some limited or non-browser environments
 	all = div.getElementsByTagName("*");
 	a = div.getElementsByTagName("a")[ 0 ];
-	// 如果没有取得任何元素（页面可能未加载等），或者没有div中没有a元素（即div未创建或为赋值innerHTML），或者all为空。
-	// 则返回空对象。
+	// 如果没有取得任何元素（页面可能未加载等）,或者没有div中没有a元素（即div未创建或为赋值innerHTML）,或者all为空
+	// 则返回空对象
 	if ( !all || !a || !all.length ) {
 		return {};
 	}
@@ -1595,100 +1595,100 @@ jQuery.support = (function() {
 	select = document.createElement("select");
 	opt = select.appendChild( document.createElement("option") );
 	input = div.getElementsByTagName("input")[ 0 ];
-	// 为a设置一个cssText值用来测试。
+	// 为a设置一个cssText值用来测试
 	a.style.cssText = "top:1px;float:left;opacity:.5";
-	// 一系列的特性列表。
-	// support里面只是不完全列表，后面还有诸如support.noCloneChecked，support.optDisabled等。
+	// 一系列的特性列表
+	// support里面只是不完全列表,后面还有诸如support.noCloneChecked,support.optDisabled等
 	support = {
 		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
-		// 判断是否支持getAttribute/setAttribute。
-		// IE6/7中的setAttribute与标准中的不同。
-		// 设置的class将不会起作用，得用classname来设置，
-		// 故在IE6/7下div.className = "t",而标准浏览器中 div.className != "t"。
-		// 其实还可以设置 div.setAttribute("class","t")。然后用div.className === "t"来判断。
-		// 因IE6/7中设置class不起作用。
+		// 判断是否支持getAttribute/setAttribute
+		// IE6/7中的setAttribute与标准中的不同
+		// 设置的class将不会起作用,得用classname来设置,
+		// 故在IE6/7下div.className = "t",而标准浏览器中 div.className != "t"
+		// 其实还可以设置 div.setAttribute("class","t")然后用div.className === "t"来判断
+		// 因IE6/7中设置class不起作用
 		getSetAttribute: div.className !== "t",
 
 		// IE strips leading whitespace when .innerHTML is used
-		// 在使用innerHTML时，浏览器会识别最前面加入空白字符，IE6/7/8除外。
-		// 取div的第一个子节点的nodeType，等于3则为Text_Node，为空白字符，空白字符也是div的子节点的。
-		// IE6/7/8中返回nodeType = 1，则为第一个元素节点。
+		// 在使用innerHTML时,浏览器会识别最前面加入空白字符,IE6/7/8除外
+		// 取div的第一个子节点的nodeType,等于3则为Text_Node,为空白字符,空白字符也是div的子节点的
+		// IE6/7/8中返回nodeType = 1,则为第一个元素节点
 		leadingWhitespace: div.firstChild.nodeType === 3,
 
 		// Make sure that tbody elements aren't automatically inserted
 		// IE will insert them into empty tables
-		// IE6/7会在table自动插入tbody。
+		// IE6/7会在table自动插入tbody
 		tbody: !div.getElementsByTagName("tbody").length,
 
 		// Make sure that link elements get serialized correctly by innerHTML
 		// This requires a wrapper element in IE
-		// IE6/7中link标签被干掉了。这也可以从查看div.firstChild.tagName看出，IE6/7下弹出的是table，
-		// 可见把link干掉了。
+		// IE6/7中link标签被干掉了这也可以从查看div.firstChild.tagName看出,IE6/7下弹出的是table,
+		// 可见把link干掉了
 		htmlSerialize: !!div.getElementsByTagName("link").length,
 
 		// Get the style information from getAttribute
 		// (IE uses .cssText instead)
-		// 测试div中a元素的top属性来区分style和cssText。
-		// IE6/7下用getAttribute("style")取不到用cssText设置的样式。
+		// 测试div中a元素的top属性来区分style和cssText
+		// IE6/7下用getAttribute("style")取不到用cssText设置的样式
 		style: /top/.test( a.getAttribute("style") ),
 
 		// Make sure that URLs aren't manipulated
 		// (IE normalizes it by default)
-		// IE6/7返回的是经过处理的URLs。
-		// 这和测试例子中返回的是 file:///E:/a。（我的文件在e盘）
+		// IE6/7返回的是经过处理的URLs
+		// 这和测试例子中返回的是 file:///E:/a（我的文件在e盘）
 		hrefNormalized: a.getAttribute("href") === "/a",
 
 		// Make sure that element opacity exists
 		// (IE uses filter instead)
 		// Use a regex to work around a WebKit issue. See #5145
-		// IE不支持用opacity设置透明度，而用alpha来代替。
-		// 支持ooacity的浏览器会把a.style.opacity获得的.5转化为0.5，故会返回true。
-		// 不支持ooacity的浏览器则只会取得.5。
+		// IE不支持用opacity设置透明度,而用alpha来代替
+		// 支持ooacity的浏览器会把a.style.opacity获得的.5转化为0.5,故会返回true
+		// 不支持ooacity的浏览器则只会取得.5
 		opacity: /^0.5/.test( a.style.opacity ),
 
 		// Verify style float existence
 		// (IE uses styleFloat instead of cssFloat)
-		// IE中用styleFloat来代替。
+		// IE中用styleFloat来代替
 		cssFloat: !!a.style.cssFloat,
 
 		// Check the default checkbox/radio value ("" on WebKit; "on" elsewhere)
-		// 获得checkbox/radio默认的value值。
-		// 我测试的chrome也返回了on。可能低版本的chrome会返回 ""。
-		// safari返回 ""。
+		// 获得checkbox/radio默认的value值
+		// 我测试的chrome也返回了on可能低版本的chrome会返回 ""
+		// safari返回 ""
 		checkOn: !!input.value,
 
 		// Make sure that a selected-by-default option has a working selected property.
 		// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
-		// option默认是否选择。
-		// 当添加多个option时，firefox等所有浏览器均返回false，并不只有ie和webkit的浏览器。
-		// 可能还是存在于低版本的非webkit浏览器中吧。
+		// option默认是否选择
+		// 当添加多个option时,firefox等所有浏览器均返回false,并不只有ie和webkit的浏览器
+		// 可能还是存在于低版本的非webkit浏览器中吧
 		optSelected: opt.selected,
 
 		// Tests for enctype support on a form (#6743)
-		// enctype 属性规定在发送到服务器之前应该如何对表单数据进行编码。
-		// 测试部分手持设备document.createElement("form").enctype返回空。
+		// enctype 属性规定在发送到服务器之前应该如何对表单数据进行编码
+		// 测试部分手持设备document.createElement("form").enctype返回空
 		enctype: !!document.createElement("form").enctype,
 
 		// Makes sure cloning an html5 element does not cause problems
 		// Where outerHTML is undefined, this still works
-		// IE中克隆不支持的标签时，返回形如：<:标签></:标签> 的东东。
-		// 当然，IE下的cloneNode(true)有许多问题，一般不要使用。
+		// IE中克隆不支持的标签时,返回形如：<:标签></:标签> 的东东
+		// 当然,IE下的cloneNode(true)有许多问题,一般不要使用
 		// 参见：http://yiminghe.iteye.com/blog/1157008
 		html5Clone: document.createElement("nav").cloneNode( true ).outerHTML !== "<:nav></:nav>",
 
 		// jQuery.support.boxModel DEPRECATED in 1.8 since we don't support Quirks Mode
-		// CSS1Compat 对应 strict boxModel。
-		// mode 代替 boxModel。
+		// CSS1Compat 对应 strict boxModel
+		// mode 代替 boxModel
 		mode: document.compatMode === "CSS1Compat",
 
 		// Will be defined later
-		// 标准浏览器下的默认返回。
-		// 判断是否可以删除对象属性。--PB_PROBLEM
+		// 标准浏览器下的默认返回
+		// 判断是否可以删除对象属性--PB_PROBLEM
 		deleteExpando: true,
-		// 克隆的时候是否会克隆事件处理函数。
-		// cloneNode(true)在IE下的问题之一，IE下会克隆事件处理函数。
+		// 克隆的时候是否会克隆事件处理函数
+		// cloneNode(true)在IE下的问题之一,IE下会克隆事件处理函数
 		noCloneEvent: true,
-		// 这些属性得body存在的情况下才可检测。故调用ready来加载DOMContentLoaded。
+		// 这些属性得body存在的情况下才可检测故调用ready来加载DOMContentLoaded
 
 		inlineBlockNeedsLayout: false,
 		shrinkWrapBlocks: false,
@@ -1698,19 +1698,19 @@ jQuery.support = (function() {
 	};
 
 	// Make sure checked status is properly cloned
-	// 判断input的checked值是否克隆了，终究还是IE下cloneNode(true)的问题。
-	// ie下input的个别状态不会克隆。
-	// input默认为false，设置为true，若克隆以后返回false，则没有克隆。
+	// 判断input的checked值是否克隆了,终究还是IE下cloneNode(true)的问题
+	// ie下input的个别状态不会克隆
+	// input默认为false,设置为true,若克隆以后返回false,则没有克隆
 	input.checked = true;
 	support.noCloneChecked = input.cloneNode( true ).checked;
 	// Make sure that the options inside disabled selects aren't marked as disabled
 	// (WebKit marks them as disabled)
-	// 判断被设置为disabled的select中的options是否也会被设置成disabled。
-	// 不连带的设置则返回true。
+	// 判断被设置为disabled的select中的options是否也会被设置成disabled
+	// 不连带的设置则返回true
 	select.disabled = true;
 	support.optDisabled = !opt.disabled;
 	// Support: IE<9
-	// IE8/7/6中 delete一个未定义的属性，会报错。
+	// IE8/7/6中 delete一个未定义的属性,会报错
 	try {
 		delete div.test;
 	} catch( e ) {
@@ -1718,22 +1718,22 @@ jQuery.support = (function() {
 	}
 
 	// Check if we can trust getAttribute("value")
-	// 判断通过getAttribute("value")是否可以取到input的value值。
-	// 经测试 IE8 下返回false。
+	// 判断通过getAttribute("value")是否可以取到input的value值
+	// 经测试 IE8 下返回false
 	input = document.createElement("input");
 	input.setAttribute( "value", "" );
 	support.input = input.getAttribute( "value" ) === "";
 
 	// Check if an input maintains its value after becoming a radio
-	// 判断input变为radio类型后是否可以取到value值。
-	// 经测试IE不可以。
+	// 判断type由input变为radio类型后是否还是原来的value值
+	// 经测试IE不可以
 	input.value = "t";
 	input.setAttribute( "type", "radio" );
 	support.radioValue = input.value === "t";
 
-	// #11217 - WebKit loses check when the name is after the checked attribute -- IE6/7也是。
-	// 好冷门。
-	// 经测试，当input加入到文档片段后才失去原来的checked值。
+	// #11217 - WebKit loses check when the name is after the checked attribute -- IE6/7也是
+	// 好冷门
+	// 经测试,当input加入到文档片段后才失去原来的checked值
 	input.setAttribute( "checked", "t" );
 	input.setAttribute( "name", "t" );
 
@@ -1745,15 +1745,15 @@ jQuery.support = (function() {
 	support.appendChecked = input.checked;
 
 	// WebKit doesn't clone checked state correctly in fragments
-	// IE6/7也是。
-	// 文档片段中的input值的checked不会被复制。
+	// IE6/7也是
+	// 文档片段中的input值的checked不会被复制
 	support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
 	// Support: IE<9
 	// Opera does not clone events (and typeof div.attachEvent === undefined).
 	// IE9-10 clones events bound via attachEvent, but they don't trigger with .click()
 
-	// 对应IE下support.noCloneEvent的测试。
+	// 对应IE下support.noCloneEvent的测试
 	if ( div.attachEvent ) {
 		div.attachEvent( "onclick", function() {
 			support.noCloneEvent = false;
@@ -1762,19 +1762,19 @@ jQuery.support = (function() {
 	}
 	// Support: IE<9 (lack submit/change bubble), Firefox 17+ (lack focusin event)
 	// Beware of CSP restrictions (https://developer.mozilla.org/en/Security/CSP), test/csp.php
-	// 标准规定change、select、submit、reset等事件均支持冒泡，但是IE却不会冒泡。--PB_PROBLEM。
-	// 有些标准浏览器中没有focusin/out，故不支持冒泡，但是IE下支持事件冒泡。
+	// 标准规定change、select、submit、reset等事件均支持冒泡,但是IE却不会冒泡--PB_PROBLEM
+	// 有些标准浏览器中没有focusin/out,故不支持冒泡,但是IE下支持事件冒泡
 	// 参考：http://www.planabc.net/2010/01/30/how_to_use_focus_and_blur_event_in_event_delegation/
 	for ( i in { submit: true, change: true, focusin: true }) {
-		// eventName被赋值 "onsubmit/change/focusin"。
+		// eventName被赋值 "onsubmit/change/focusin"
 		div.setAttribute( eventName = "on" + i, "t" );
-		// 这些事件不是window的属性则不会产生冒泡。
-		// 或者如focusin等，window中没有此类事件，则判断div.attributes[ eventName ].expando
-		// 不为空且等于false则这个事件在这种环境下是冒泡的。
+		// 这些事件不是window的属性则不会产生冒泡
+		// 或者如focusin等,window中没有此类事件,则判断div.attributes[ eventName ].expando
+		// 不为空且等于false则这个事件在这种环境下是冒泡的
 		support[ i + "Bubbles" ] = eventName in window || div.attributes[ eventName ].expando === false;
 	}
-	// 判断改变cloneNode(true)后的style，会不会影响原先的元素的style。
-	// true表示不会。
+	// 判断改变cloneNode(true)后的style,会不会影响原先的元素的style
+	// true表示不会
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
@@ -1784,12 +1784,12 @@ jQuery.support = (function() {
 		var container, marginDiv, tds,
 			divReset = "padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",
 			body = document.getElementsByTagName("body")[0];
-		// 确保body存在。
+		// 确保body存在
 		if ( !body ) {
 			// Return for frameset docs that don't have a body
 			return;
 		}
-		// 构建一个测试DOM元素。
+		// 构建一个测试DOM元素
 		container = document.createElement("div");
 		container.style.cssText = "border:0;width:0;height:0;position:absolute;top:0;left:-9999px;margin-top:1px";
 
@@ -1802,8 +1802,8 @@ jQuery.support = (function() {
 		// determining if an element has been hidden directly using
 		// display:none (it is still safe to use offsets if a parent element is
 		// hidden; don safety goggles and see bug #4512 for more information).
-		// IE中把table cells设置成display:none后，table cells的offsetWidth/Height不为0。
-		// 所以当这种情况下使用offsetHeight/width时，就会出现差异。
+		// IE中把table cells设置成display:none后,table cells的offsetWidth/Height不为0
+		// 所以当这种情况下使用offsetHeight/width时,就会出现差异
 		div.innerHTML = "<table><tr><td></td><td>t</td></tr></table>";
 		tds = div.getElementsByTagName("td");
 		tds[ 0 ].style.cssText = "padding:0;margin:0;border:0;display:none";
@@ -1813,39 +1813,39 @@ jQuery.support = (function() {
 		tds[ 1 ].style.display = "none";
 		// Support: IE8
 		// Check if empty table cells still have offsetWidth/Height
-		// IE下tds[ 0 ].offsetHeight === 1。
-		// 确保有td中内容和没有内容的都有这个差异。
+		// IE下tds[ 0 ].offsetHeight === 1
+		// 确保有td中内容和没有内容的都有这个差异
 		support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
 
 		// Check box-sizing and margin behavior
 		div.innerHTML = "";
 		div.style.cssText = "box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%";
-		// 是否支持box-sizing:border-box，padding和border被包含在定义的width和height之内。
+		// 是否支持box-sizing:border-box,padding和border被包含在定义的width和height之内
 		support.boxSizing = ( div.offsetWidth === 4 );
-		// div设置的margin是否包含在body内。--PB_PROBLEM。
+		// div设置的margin是否包含在body内--PB_PROBLEM
 		support.doesNotIncludeMarginInBodyOffset = ( body.offsetTop !== 1 );
 
 		// Use window.getComputedStyle because jsdom on node.js will break without it.
-		// 不支持getComputedStyle的为support中的默认值。
+		// 不支持getComputedStyle的为support中的默认值
 		if ( window.getComputedStyle ) {
-			// 判断getComputedStyle获取不是px的属性最后是否返回px。--PB_PROBLEM。
+			// 判断getComputedStyle获取不是px的属性最后是否返回px--PB_PROBLEM
 			support.pixelPosition = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
-			// 筛选除IE外的不支持box-sizing属性的浏览器。
+			// 筛选除IE外的不支持box-sizing属性的浏览器
 			support.boxSizingReliable = ( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
 
 			// Check if div with explicit width and no margin-right incorrectly
 			// gets computed margin-right based on width of container. (#3333)
 			// Fails in WebKit before Feb 2011 nightlies
 			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
-			// 注释好清楚。
+			// 注释好清楚
 			marginDiv = div.appendChild( document.createElement("div") );
 			marginDiv.style.cssText = div.style.cssText = divReset;
 			marginDiv.style.marginRight = marginDiv.style.width = "0";
 			div.style.width = "1px";
 			// 大部分浏览器会parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight )
-			// 会返回 0 。
-			// 上面注释中提到的2011年2月之前的webkit中，会返回当前元素的右边框到父元素右边框的距离。
-			// 这儿应该就是1px。
+			// 会返回 0 
+			// 上面注释中提到的2011年2月之前的webkit中,会返回当前元素的右边框到父元素右边框的距离
+			// 这儿应该就是1px
 			// console.log(( window.getComputedStyle( marginDiv, null ) || {} ).marginRight)
 			support.reliableMarginRight =
 				!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight );
@@ -1855,14 +1855,14 @@ jQuery.support = (function() {
 			// Check if natively block-level elements act like inline-block
 			// elements when setting their display to 'inline' and giving
 			// them layout
-			// 标准浏览器中，display:inline后，元素的offsetWidth则只包括padding。--PB_PROBLEM。
+			// 标准浏览器中,display:inline后,元素的offsetWidth则只包括padding--PB_PROBLEM
 			div.innerHTML = "";
 			div.style.cssText = divReset + "width:1px;padding:1px;display:inline;zoom:1";
 			support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 );
 			// Support: IE6
 			// Check if elements with layout shrink-wrap their children
-			// 当子元素触发了hasLayout，且子元素宽度大于父元素宽度。
-			// 父元素被子元素撑大了，不等于原来的3了。
+			// 当子元素触发了hasLayout,且子元素宽度大于父元素宽度
+			// 父元素被子元素撑大了,不等于原来的3了
 			div.style.display = "block";
 			div.innerHTML = "<div></div>";
 			div.firstChild.style.width = "5px";
@@ -1875,11 +1875,11 @@ jQuery.support = (function() {
 				body.style.zoom = 1;
 			}
 		}
-		// 删除测试元素。
+		// 删除测试元素
 		body.removeChild( container );
 
 		// Null elements to avoid leaks in IE
-		// 释放内寸。
+		// 释放内存
 		container = div = tds = marginDiv = null;
 	});
 
@@ -2117,7 +2117,6 @@ jQuery.extend({
 		if ( elem.nodeType && elem.nodeType !== 1 && elem.nodeType !== 9 ) {
 			return false;
 		}
-
 		var noData = elem.nodeName && jQuery.noData[ elem.nodeName.toLowerCase() ];
 
 		// nodes accept data unless otherwise specified; rejection can be conditional
@@ -2377,7 +2376,6 @@ jQuery.fn.extend({
 	}
 });
 var nodeHook, boolHook,
-	// 
 	rclass = /[\t\r\n]/g,
 	rreturn = /\r/g,
 	rfocusable = /^(?:input|select|textarea|button|object)$/i,
@@ -2388,8 +2386,8 @@ var nodeHook, boolHook,
 	getSetInput = jQuery.support.input;
 
 jQuery.fn.extend({
-	// 参见access的分析。
-	// jQuery.attr为处理函数。
+	// 参见access的分析
+	// jQuery.attr为处理函数
 	attr: function( name, value ) {
 		return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
 	},
@@ -2420,9 +2418,9 @@ jQuery.fn.extend({
 			i = 0,
 			len = this.length,
 			proceed = typeof value === "string" && value;
-		// value为处理函数。
-		// 两个参数，第一个为对象索引，第二个为此对象原先的className。
-		// 返回值为处理后得到的类名。
+		// value为处理函数
+		// 两个参数,第一个为对象索引,第二个为此对象原先的className
+		// 返回值为处理后得到的类名
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
 				jQuery( this ).addClass( value.call( this, j, this.className ) );
@@ -2431,31 +2429,31 @@ jQuery.fn.extend({
 
 		if ( proceed ) {
 			// The disjunction here is for better compressibility (see removeClass)
-			// 把value转换成数组。
+			// 把value转换成数组
 			// ("class1 class2") ==> ["class1","class2"]
 			classes = ( value || "" ).match( core_rnotwhite ) || [];
-			// 为每个DOM元素添加class。
-			// 这儿咋不用jQuery的each呢？其实也可以。
+			// 为每个DOM元素添加class
+			// 这儿咋不用jQuery的each呢？其实也可以
 			for ( ; i < len; i++ ) {
 				elem = this[ i ];
-				// 必须为DOM元素。
-				// cur被赋值为当前元素的类名，当然得去除一些特殊字符。
-				// 如果元素期初没有定义类，则定义为" ",注意" " != false。
+				// 必须为DOM元素
+				// cur被赋值为当前元素的类名,当然得去除一些特殊字符
+				// 如果元素期初没有定义类,则定义为" ",注意" " != false
 				cur = elem.nodeType === 1 && ( elem.className ?
 					( " " + elem.className + " " ).replace( rclass, " " ) :
 					" "
 				);
 				if ( cur ) {
 					j = 0;
-					// class[j++]不为空，则赋值给clazz。
+					// class[j++]不为空,则赋值给clazz
 					while ( (clazz = classes[j++]) ) {
-						// cur中没有clazz，则添加进去，为避免重复添加类。
-						// indexOf是字符串方法。
+						// cur中没有clazz,则添加进去,为避免重复添加类
+						// indexOf是字符串方法
 						if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
 							cur += clazz + " ";
 						}
 					}
-					// 去空格后赋值elem类名。
+					// 去空格后赋值elem类名
 					elem.className = jQuery.trim( cur );
 
 				}
@@ -2464,17 +2462,17 @@ jQuery.fn.extend({
 
 		return this;
 	},
-	// 和addClass的代码重合度很高。
-	// 最大不同之处在于参数为空时的处理，addClass参数为空时，直接返回this，
-	// removeClass参数为空时则删除全部原有class。
-	// 当然一个是增加class，一个是删除class。
+	// 和addClass的代码重合度很高
+	// 最大不同之处在于参数为空时的处理,addClass参数为空时,直接返回this,
+	// removeClass参数为空时则删除全部原有class
+	// 当然一个是增加class,一个是删除class
 	removeClass: function( value ) {
 		var classes, elem, cur, clazz, j,
 			i = 0,
 			len = this.length,
-			// 没有传入参数的情况下，proceed也返回true。
+			// 没有传入参数的情况下,proceed也返回true
 			proceed = arguments.length === 0 || typeof value === "string" && value;
-		// 参数value为函数。
+		// 参数value为函数
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
 				jQuery( this ).removeClass( value.call( this, j, this.className ) );
@@ -2495,13 +2493,13 @@ jQuery.fn.extend({
 					j = 0;
 					while ( (clazz = classes[j++]) ) {
 						// Remove *all* instances
-						// 注意这儿的indexOf的返回值变成大于等于0的判断了。
-						// 参数中存在原有class中有的class，则替换为空。
+						// 注意这儿的indexOf的返回值变成大于等于0的判断了
+						// 参数中存在原有class中有的class,则替换为空
 						while ( cur.indexOf( " " + clazz + " " ) >= 0 ) {
 							cur = cur.replace( " " + clazz + " ", " " );
 						}
 					}
-					// 当然value为空时，则直接置空className。
+					// 当然value为空时,则直接置空className
 					elem.className = value ? jQuery.trim( cur ) : "";
 				}
 			}
@@ -2512,8 +2510,8 @@ jQuery.fn.extend({
 
 	toggleClass: function( value, stateVal ) {
 		var type = typeof value,
-			// 判断第二个参数是不是布尔值。
-			// 是的话把值赋值给state。 
+			// 判断第二个参数是不是布尔值
+			// 是的话把值赋值给state 
 			isBool = typeof stateVal === "boolean";
 
 		if ( jQuery.isFunction( value ) ) {
@@ -2533,9 +2531,9 @@ jQuery.fn.extend({
 
 				while ( (className = classNames[ i++ ]) ) {
 					// check each className given, space separated list
-					// 第二个参数没提供或者不为布尔值时，state表示对应元素是否没有className。
-					// 若第二个参数为布尔值，state等于第二个参数。
-					// state为true则addClass，反之removeClass。
+					// 第二个参数没提供或者不为布尔值时,state表示对应元素是否没有className
+					// 若第二个参数为布尔值,state等于第二个参数
+					// state为true则addClass,反之removeClass
 					state = isBool ? state : !self.hasClass( className );
 					self[ state ? "addClass" : "removeClass" ]( className );
 				}
@@ -2556,8 +2554,8 @@ jQuery.fn.extend({
 			}
 		});
 	},
-	// 判断当前元素时候有所提供的class。
-	// indexOf。
+	// 判断当前元素时候有所提供的class
+	// indexOf
 	hasClass: function( selector ) {
 		var className = " " + selector + " ",
 			i = 0,
@@ -2694,35 +2692,45 @@ jQuery.extend({
 			}
 		}
 	},
-
+	// jQuery.attr()是内部调用函数,
+	// 作为jQuery.fn.attr()中access的第二个参数,
+	// jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 )
+	// 分析access代码可知：
+	// jQuery.fn.attr()只有一个参数name时,jQuery.attr()的参数为elems[0]和name
+	// jQuery.fn.attr()有两个参数时,jQuery.attr()的参数为elems[i],name,value
 	attr: function( elem, name, value ) {
 		var hooks, notxml, ret,
 			nType = elem.nodeType;
 
 		// don't get/set attributes on text, comment and attribute nodes
+		// 文本注释属性节点不能设置属性
 		if ( !elem || nType === 3 || nType === 8 || nType === 2 ) {
 			return;
 		}
 
 		// Fallback to prop when attributes are not supported
+		// 不支持getAttribute的用jQuery.prop()
 		if ( typeof elem.getAttribute === core_strundefined ) {
 			return jQuery.prop( elem, name, value );
 		}
-
+		// 不为元素节点的都不会为XML
+		// 是元素节点的用isXMLDoc来判断
 		notxml = nType !== 1 || !jQuery.isXMLDoc( elem );
-
 		// All attributes are lowercase
 		// Grab necessary hook if one is defined
 		if ( notxml ) {
 			name = name.toLowerCase();
+			// 这儿的jQuery.attrHooks用来处理一些获取设置属性值时的兼容性
+			// 如设置type,获取设置value值时
+			// 可以查看下面的attrHooks的代码
+			// 共有type,value,contenteditable,width/height,href/src,style这几个
 			hooks = jQuery.attrHooks[ name ] || ( rboolean.test( name ) ? boolHook : nodeHook );
 		}
-
 		if ( value !== undefined ) {
-
+			// $.fn.attr(name,null)
 			if ( value === null ) {
 				jQuery.removeAttr( elem, name );
-
+			// jQuery.attrHooks中的set,具体看attrHooks的分析.
 			} else if ( hooks && notxml && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
 				return ret;
 
@@ -2731,7 +2739,7 @@ jQuery.extend({
 				return value;
 			}
 
-		} else if ( hooks && notxml && "get" in hooks && (ret = hooks.get( elem, name )) !== null ) {
+		} else if ( hooks && notxml && 	"get" in hooks && (ret = hooks.get( elem, name )) !== null ) {
 			return ret;
 
 		} else {
@@ -2778,10 +2786,12 @@ jQuery.extend({
 			}
 		}
 	},
-
+	// 
 	attrHooks: {
 		type: {
 			set: function( elem, value ) {
+				// fix IE下type由input变为radio后，value值变化了。
+				// 这儿在设置完type后重新设置一下value值。
 				if ( !jQuery.support.radioValue && value === "radio" && jQuery.nodeName(elem, "input") ) {
 					// Setting the type on a radio button after the value resets the value in IE6-9
 					// Reset value to default in case type is set after value during creation
@@ -6210,7 +6220,7 @@ var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figca
 	rnoshimcache = new RegExp("<(?:" + nodeNames + ")[\\s/>]", "i"),
 	rleadingWhitespace = /^\s+/,
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
-	// \w:匹配包括下划线在内的任何单词字符 等价于[A-Za-z0-9_]。
+	// \w:匹配包括下划线在内的任何单词字符 等价于[A-Za-z0-9_]
 	// 
 	rtagName = /<([\w:]+)/,
 	rtbody = /<tbody/i,
@@ -9734,17 +9744,17 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 	};
 }
 
-// .offset(options):获取或者设置jQuery对象在当前文档窗口的位置偏移。
-// 注意是文档窗口，而不是浏览器窗口,即出现滚动条其值也不会变。
-// options为可选参数。有参数则设置新的偏移值，没有则获取当前偏移值。
-// 主要是通过大部分浏览器都支持的getBoundingClientRect方法来实现的，不支持这个方法的直接设置为{top:0,left:0}。
-// 而关于getBoundingClientRect，它返回的是一个相对于可视窗口左上角的坐标偏移，left、right、top、bottom都有。
-// 返回的东西在不同浏览器下可能不一样，比如在chrome和firefox下会返回元素的高度和宽度，但是都会返回left、right、top、bottom。
-// 以前的jQuery版本会用很冗长麻烦的代码来处理不支持getBoundingClientRect的情况。
+// .offset(options):获取或者设置jQuery对象在当前文档窗口的位置偏移
+// 注意是文档窗口,而不是浏览器窗口,即出现滚动条其值也不会变
+// options为可选参数有参数则设置新的偏移值,没有则获取当前偏移值
+// 主要是通过大部分浏览器都支持的getBoundingClientRect方法来实现的,不支持这个方法的直接设置为{top:0,left:0}
+// 而关于getBoundingClientRect,它返回的是一个相对于可视窗口左上角的坐标偏移,left、right、top、bottom都有
+// 返回的东西在不同浏览器下可能不一样,比如在chrome和firefox下会返回元素的高度和宽度,但是都会返回left、right、top、bottom
+// 以前的jQuery版本会用很冗长麻烦的代码来处理不支持getBoundingClientRect的情况
 jQuery.fn.offset = function( options ) {
-	// 如果存在参数，则为设置jQuery对象的偏移值
+	// 如果存在参数,则为设置jQuery对象的偏移值
 	if ( arguments.length ) {
-		// 参数未定义则返回对象本身，否则遍历设置对象新的位置偏移。
+		// 参数未定义则返回对象本身,否则遍历设置对象新的位置偏移
 		return options === undefined ?
 			this :
 			this.each(function( i ) {
@@ -9752,14 +9762,14 @@ jQuery.fn.offset = function( options ) {
 			});
 	}
 
-	// docElem：文档对象根节点。win：当前视窗window。
-	// box：对于不支持getBoundingClientRect的浏览器归为{top:0,left:0}。
-	// elem：第一个DOM对象。doc：(ownerDocument)当前节点所在的文档。排除iframe，通过ajax加载的xml文档等情况。
+	// docElem：文档对象根节点win：当前视窗window
+	// box：对于不支持getBoundingClientRect的浏览器归为{top:0,left:0}
+	// elem：第一个DOM对象doc：(ownerDocument)当前节点所在的文档排除iframe,通过ajax加载的xml文档等情况
 	var docElem, win,
 		box = { top: 0, left: 0 },
 		elem = this[ 0 ],
 		doc = elem && elem.ownerDocument;
-	// 不存在DOM元素或者元素不属于当前文档则返回。
+	// 不存在DOM元素或者元素不属于当前文档则返回
 	if ( !doc ) {
 		return;
 	}
@@ -9767,24 +9777,24 @@ jQuery.fn.offset = function( options ) {
 	docElem = doc.documentElement;
 
 	// Make sure it's not a disconnected DOM node
-	// 不属于当前文档，则返回box。比如iframe等。
+	// 不属于当前文档,则返回box比如iframe等
 	if ( !jQuery.contains( docElem, elem ) ) {
 		return box;
 	}
 
 	// If we don't have gBCR, just use 0,0 rather than error
 	// BlackBerry 5, iOS 3 (original iPhone)
-	// 对于支持getBoundingClientRect的设备的处理。直接进行赋值。
+	// 对于支持getBoundingClientRect的设备的处理直接进行赋值
 	if ( typeof elem.getBoundingClientRect !== core_strundefined ) {
 		box = elem.getBoundingClientRect();
 	}
-	// 获取当前window对象。
+	// 获取当前window对象
 	win = getWindow( doc );
-	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移。
+	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移
 	// 
-	// IE8及以下不支持pageYOffset和pageXOffset。
-	// clientTop就是指元素的上边框高度。
-	// IE的标准模式中，html元素是有border的，默认是2px。经测试：ie6/7测试都为2，ie8为0。
+	// IE8及以下不支持pageYOffset和pageXOffset
+	// clientTop就是指元素的上边框高度
+	// IE的标准模式中,html元素是有border的,默认是2px经测试：ie6/7测试都为2,ie8为0
 	// http://www.17leba.com/%E5%85%B3%E4%BA%8E%E4%BD%8E%E7%89%88%E6%9C%ACie%E4%B8%8Bscrolltop%E4%B8%80%E7%9B%B4%E4%B8%BA0/
 	return {
 		top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
@@ -9793,32 +9803,32 @@ jQuery.fn.offset = function( options ) {
 };
 
 jQuery.offset = {
-	// 设置jQuery对象的偏移（相对于文档）。
+	// 设置jQuery对象的偏移（相对于文档）
 	// 新的偏移值 = 对象本身的left/top值 + 原来偏移值的变化值（设置值 - 原来值）
 	setOffset: function( elem, options, i ) {
-		// elem:匹配DOM对象。
-		// options:设置的参数。两种合法形式：普通对象和函数。
-		// i:DOM对象的索引。
+		// elem:匹配DOM对象
+		// options:设置的参数两种合法形式：普通对象和函数
+		// i:DOM对象的索引
 
-		// 获取DOM元素本身原有的position值，若为static则设置为relative。
+		// 获取DOM元素本身原有的position值,若为static则设置为relative
 		var position = jQuery.css( elem, "position" );
 		// set position first, in-case top/left are set even on static elem
 		if ( position === "static" ) {
 			elem.style.position = "relative";
 		}
 
-		var curElem = jQuery( elem ),// DOM对象转换为jQuery对象，方便下面调用jQuery方法。
-			curOffset = curElem.offset(),// 当前相对于文档的偏移。
+		var curElem = jQuery( elem ),// DOM对象转换为jQuery对象,方便下面调用jQuery方法
+			curOffset = curElem.offset(),// 当前相对于文档的偏移
 			curCSSTop = jQuery.css( elem, "top" ),
 			curCSSLeft = jQuery.css( elem, "left" ),
-			// 判断是否为绝对定位（固定定位为绝对定位一个分支）且没有设置top或left值，没有设置即为auto。
+			// 判断是否为绝对定位（固定定位为绝对定位一个分支）且没有设置top或left值,没有设置即为auto
 			calculatePosition = ( position === "absolute" || position === "fixed" ) && jQuery.inArray("auto", [curCSSTop, curCSSLeft]) > -1,
 			props = {}, curPosition = {}, curTop, curLeft;
 
 		// need to be able to calculate position if either top or left is auto and position is either absolute or fixed
-		// 对elem当前的left/top值进行修正。
-		// 如果为绝对定位且left/top其中有一个没有设置值，则取其position（相对于父元素的偏移）。
-		// 否则取设置的值，没有设置则为0。
+		// 对elem当前的left/top值进行修正
+		// 如果为绝对定位且left/top其中有一个没有设置值,则取其position（相对于父元素的偏移）
+		// 否则取设置的值,没有设置则为0
 		if ( calculatePosition ) {
 			curPosition = curElem.position();
 			curTop = curPosition.top;
@@ -9827,8 +9837,8 @@ jQuery.offset = {
 			curTop = parseFloat( curCSSTop ) || 0;
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
-		// options 为函数的情况。
-		// 重新计算options的值。
+		// options 为函数的情况
+		// 重新计算options的值
 		// Example：
 		// curElem.offset(function(i,cur){
 		//	var left = cur.left * 10,
@@ -9838,8 +9848,8 @@ jQuery.offset = {
 		if ( jQuery.isFunction( options ) ) {
 			options = options.call( elem, i, curOffset );
 		}
-		// 计算最终的left/top值。
-		// 确保left/top不为空。
+		// 计算最终的left/top值
+		// 确保left/top不为空
 		if ( options.top != null ) {
 			props.top = ( options.top - curOffset.top ) + curTop;
 		}
@@ -9847,8 +9857,8 @@ jQuery.offset = {
 			props.left = ( options.left - curOffset.left ) + curLeft;
 		}
 		// using:?
-		// using 为一个回调函数,设置完options后可以调用该函数。
-		// 可以传一个参数为最终设置的css值（top/left）。
+		// using 为一个回调函数,设置完options后可以调用该函数
+		// 可以传一个参数为最终设置的css值（top/left）
 		if ( "using" in options ) {
 			options.using.call( elem, props );
 		} else {
@@ -9859,10 +9869,10 @@ jQuery.offset = {
 
 
 jQuery.fn.extend({
-	// position():不接受参数。获取匹配元素相对于父元素的偏移。
-	// 原理是：元素的offset() - (第一个匹配的可用于定位的父元素的offset()+父元素的borderWidth) - 元素的margin值。
+	// position():不接受参数获取匹配元素相对于父元素的偏移
+	// 原理是：元素的offset() - (第一个匹配的可用于定位的父元素的offset()+父元素的borderWidth) - 元素的margin值
 	position: function() {
-		// 不存在匹配DOM元素则返回。
+		// 不存在匹配DOM元素则返回
 		if ( !this[ 0 ] ) {
 			return;
 		}
@@ -9873,22 +9883,22 @@ jQuery.fn.extend({
 		// fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is it's only offset parent
 		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 			// we assume that getBoundingClientRect is available when computed position is fixed
-			// 如果元素是固定定位，则直接调用getBoundingClientRect()返回元素到视窗的偏移。此偏移 - margin值则为元素相对于body偏移。
+			// 如果元素是固定定位,则直接调用getBoundingClientRect()返回元素到视窗的偏移此偏移 - margin值则为元素相对于body偏移
 			offset = elem.getBoundingClientRect();
 		} else {
 			// Get *real* offsetParent
-			// 获取可用于元素定位的父元素，即设置了非static的祖先元素。
+			// 获取可用于元素定位的父元素,即设置了非static的祖先元素
 			offsetParent = this.offsetParent();
 
 			// Get correct offsets
 			offset = this.offset();
-			// 如果匹配的父元素不是html根元素，则获取其偏移值。否则为{top: 0, left: 0}。
+			// 如果匹配的父元素不是html根元素,则获取其偏移值否则为{top: 0, left: 0}
 			if ( !jQuery.nodeName( offsetParent[ 0 ], "html" ) ) {
 				parentOffset = offsetParent.offset();
 			}
 
 			// Add offsetParent borders
-			// 父元素的偏移必须加上父元素的borderWidth。
+			// 父元素的偏移必须加上父元素的borderWidth
 			parentOffset.top  += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
 			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
@@ -9896,25 +9906,25 @@ jQuery.fn.extend({
 		// Subtract parent offsets and element margins
 		// note: when an element has margin: auto the offsetLeft and marginLeft
 		// are the same in Safari causing offset.left to incorrectly be 0
-		// 排除了margin/border的干扰，完全获取left/top值。
+		// 排除了margin/border的干扰,完全获取left/top值
 		return {
 			top:  offset.top  - parentOffset.top - jQuery.css( elem, "marginTop", true ),
 			left: offset.left - parentOffset.left - jQuery.css( elem, "marginLeft", true)
 		};
 	},
 
-	// 获取第一个可用于子元素定位参照的父元素。
+	// 获取第一个可用于子元素定位参照的父元素
 	offsetParent: function() {
 		return this.map(function() {
-		// offsetParent属性返回一个对象的引用，这个对象是距离调用offsetParent的元素最近的（在包含层次中最靠近的），并且是已进行过CSS定位的容器元素。
-		// 如果这个容器元素未进行CSS定位, 则offsetParent属性的取值为根元素(在标准兼容模式下为html元素；在怪异呈现模式下为body元素)的引用。
-		// 当容器元素的style.display 被设置为 "none"时（译注：IE和Opera除外），offsetParent属性 返回 null。	所以只对可见元素有效。
+		// offsetParent属性返回一个对象的引用,这个对象是距离调用offsetParent的元素最近的（在包含层次中最靠近的）,并且是已进行过CSS定位的容器元素
+		// 如果这个容器元素未进行CSS定位, 则offsetParent属性的取值为根元素(在标准兼容模式下为html元素；在怪异呈现模式下为body元素)的引用
+		// 当容器元素的style.display 被设置为 "none"时（译注：IE和Opera除外）,offsetParent属性 返回 null	所以只对可见元素有效
 			var offsetParent = this.offsetParent || document.documentElement;
-			// 如果存在offsetParent并且不为根元素且其position为static，则继续往上找符合的祖先元素。
+			// 如果存在offsetParent并且不为根元素且其position为static,则继续往上找符合的祖先元素
 			while ( offsetParent && ( !jQuery.nodeName( offsetParent, "html" ) && jQuery.css( offsetParent, "position") === "static" ) ) {
 				offsetParent = offsetParent.offsetParent;
 			}
-			// 没有则返回根元素。
+			// 没有则返回根元素
 			return offsetParent || document.documentElement;
 		});
 	}
@@ -9947,12 +9957,12 @@ jQuery.each( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( me
 	};
 });
 
-// 返回window对象。
+// 返回window对象
 function getWindow( elem ) {
-	// 是window对象则直接返回，否则是document则调用
-	// defaultView或者parentWindow返回。
-	//（在浏览器中，defaultView返回当前 document 对象所关联的 window 对象，如果没有，会返回 null。IE9以下不支持，用defaultView）。
-	// 要是其他元素，返回false。
+	// 是window对象则直接返回,否则是document则调用
+	// defaultView或者parentWindow返回
+	//（在浏览器中,defaultView返回当前 document 对象所关联的 window 对象,如果没有,会返回 nullIE9以下不支持,用defaultView）
+	// 要是其他元素,返回false
 	return jQuery.isWindow( elem ) ?
 		elem :
 		elem.nodeType === 9 ?
