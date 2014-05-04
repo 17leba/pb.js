@@ -1558,7 +1558,7 @@ jQuery.extend({
 });
 // 不同浏览器对各种特性的差异表现。
 // 如：$.support.cssFloat 在标准浏览器中返回true，但是IE中是用styleFloat来获取float的值，故返回false。
-// 主要检测了 support对象中的那些值：参看下面代码中的support对象。
+// 主要检测了support对象中的那些值：参看下面代码中的support对象。
 // 主要是jQuery内部处理浏览器差异性时使用。
 jQuery.support = (function() {
 	// support：返回的特性差异集合。
@@ -2377,6 +2377,7 @@ jQuery.fn.extend({
 	}
 });
 var nodeHook, boolHook,
+	// 
 	rclass = /[\t\r\n]/g,
 	rreturn = /\r/g,
 	rfocusable = /^(?:input|select|textarea|button|object)$/i,
@@ -2387,6 +2388,8 @@ var nodeHook, boolHook,
 	getSetInput = jQuery.support.input;
 
 jQuery.fn.extend({
+	// 参见access的分析。
+	// jQuery.attr为处理函数。
 	attr: function( name, value ) {
 		return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
 	},
@@ -2417,7 +2420,9 @@ jQuery.fn.extend({
 			i = 0,
 			len = this.length,
 			proceed = typeof value === "string" && value;
-
+		// value为处理函数。
+		// 两个参数，第一个为对象索引，第二个为此对象原先的className。
+		// 返回值为处理后得到的类名。
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
 				jQuery( this ).addClass( value.call( this, j, this.className ) );
@@ -2426,22 +2431,31 @@ jQuery.fn.extend({
 
 		if ( proceed ) {
 			// The disjunction here is for better compressibility (see removeClass)
+			// 把value转换成数组。
+			// ("class1 class2") ==> ["class1","class2"]
 			classes = ( value || "" ).match( core_rnotwhite ) || [];
-
+			// 为每个DOM元素添加class。
+			// 这儿咋不用jQuery的each呢？其实也可以。
 			for ( ; i < len; i++ ) {
 				elem = this[ i ];
+				// 必须为DOM元素。
+				// cur被赋值为当前元素的类名，当然得去除一些特殊字符。
+				// 如果元素期初没有定义类，则定义为" ",注意" " != false。
 				cur = elem.nodeType === 1 && ( elem.className ?
 					( " " + elem.className + " " ).replace( rclass, " " ) :
 					" "
 				);
-
 				if ( cur ) {
 					j = 0;
+					// class[j++]不为空，则赋值给clazz。
 					while ( (clazz = classes[j++]) ) {
+						// cur中没有clazz，则添加进去，为避免重复添加类。
+						// indexOf是字符串方法。
 						if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
 							cur += clazz + " ";
 						}
 					}
+					// 去空格后赋值elem类名。
 					elem.className = jQuery.trim( cur );
 
 				}
@@ -2450,13 +2464,17 @@ jQuery.fn.extend({
 
 		return this;
 	},
-
+	// 和addClass的代码重合度很高。
+	// 最大不同之处在于参数为空时的处理，addClass参数为空时，直接返回this，
+	// removeClass参数为空时则删除全部原有class。
+	// 当然一个是增加class，一个是删除class。
 	removeClass: function( value ) {
 		var classes, elem, cur, clazz, j,
 			i = 0,
 			len = this.length,
+			// 没有传入参数的情况下，proceed也返回true。
 			proceed = arguments.length === 0 || typeof value === "string" && value;
-
+		// 参数value为函数。
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
 				jQuery( this ).removeClass( value.call( this, j, this.className ) );
@@ -2477,10 +2495,13 @@ jQuery.fn.extend({
 					j = 0;
 					while ( (clazz = classes[j++]) ) {
 						// Remove *all* instances
+						// 注意这儿的indexOf的返回值变成大于等于0的判断了。
+						// 参数中存在原有class中有的class，则替换为空。
 						while ( cur.indexOf( " " + clazz + " " ) >= 0 ) {
 							cur = cur.replace( " " + clazz + " ", " " );
 						}
 					}
+					// 当然value为空时，则直接置空className。
 					elem.className = value ? jQuery.trim( cur ) : "";
 				}
 			}
@@ -2491,6 +2512,8 @@ jQuery.fn.extend({
 
 	toggleClass: function( value, stateVal ) {
 		var type = typeof value,
+			// 判断第二个参数是不是布尔值。
+			// 是的话把值赋值给state。 
 			isBool = typeof stateVal === "boolean";
 
 		if ( jQuery.isFunction( value ) ) {
@@ -2510,11 +2533,15 @@ jQuery.fn.extend({
 
 				while ( (className = classNames[ i++ ]) ) {
 					// check each className given, space separated list
+					// 第二个参数没提供或者不为布尔值时，state表示对应元素是否没有className。
+					// 若第二个参数为布尔值，state等于第二个参数。
+					// state为true则addClass，反之removeClass。
 					state = isBool ? state : !self.hasClass( className );
 					self[ state ? "addClass" : "removeClass" ]( className );
 				}
 
 			// Toggle whole class name
+			// --PB_PROBLEM
 			} else if ( type === core_strundefined || type === "boolean" ) {
 				if ( this.className ) {
 					// store className if set
@@ -2529,7 +2556,8 @@ jQuery.fn.extend({
 			}
 		});
 	},
-
+	// 判断当前元素时候有所提供的class。
+	// indexOf。
 	hasClass: function( selector ) {
 		var className = " " + selector + " ",
 			i = 0,
