@@ -8,10 +8,12 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		var su = $.support.boxSizingReliable;
-		// alert(su)
-		// $("#ab").addClass("ok no")
-		$("body").attr("value","")
+		var i = $.support.input;
+		// alert(i)
+		var t = $("#ok").removeAttr("checkeds ok")
+		// alert(t)
+		var rr= document.getElementById("ok");
+		alert(rr)
 	})
 	y(function(){
 	})
@@ -29,8 +31,6 @@
 		padding:0
 	}
 	.ok{
-		/
-		/*top:0px;*/
 		margin:10px;
 		border-top:40px solid red;
 	}
@@ -54,12 +54,10 @@
 	<div class="ok">
 		<div class="no oo"></div>
 	</div>
-	<a href="" id="ab">tt\</a>
-	<select name="" id="ok">
-		<option value=""></option>
-		<option value=""></option>
-	</select>
-	<script>
+	<p id="p" readonly></p>
+	<a href="" id="ab" autofocus readonly async=0>tt\</a>
+	<input type="radio" disabled id="ok" readonly>
+	<script id="script" async autofocus>
 	</script>
 </body>
 </html>

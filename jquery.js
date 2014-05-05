@@ -1603,10 +1603,13 @@ jQuery.support = (function() {
 		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
 		// 判断是否支持getAttribute/setAttribute
 		// IE6/7中的setAttribute与标准中的不同
-		// 设置的class将不会起作用,得用classname来设置,
-		// 故在IE6/7下div.className = "t",而标准浏览器中 div.className != "t"
-		// 其实还可以设置 div.setAttribute("class","t")然后用div.className === "t"来判断
-		// 因IE6/7中设置class不起作用
+		// 标准中,setAttribute设置的属性值用getAttribute均可以获取到,不论是内置的还是自定义的.
+		// 而setAttribute设置的属性,用div.attr这种方式来获取,就会出现不一样的地方.
+		// 标准中，setAttribute设置的内置属性如id,class等,用div.attr都可以获取到.而设置的
+		// 自定义属性取不到,但是IE下可以取到.
+		// 当然有一个特例class,IE下会把setAttribute("className","t")自动设置为 class="t",而标准中
+		// 则设置为classname="t".
+		// 用这个说明get/setAttribute存在兼容问题吧.
 		getSetAttribute: div.className !== "t",
 
 		// IE strips leading whitespace when .innerHTML is used
@@ -1653,8 +1656,8 @@ jQuery.support = (function() {
 
 		// Check the default checkbox/radio value ("" on WebKit; "on" elsewhere)
 		// 获得checkbox/radio默认的value值
-		// 我测试的chrome也返回了on可能低版本的chrome会返回 ""
-		// safari返回 ""
+		// 我测试的chrome也返回了on可能低版本的chrome会返回""
+		// safari返回""
 		checkOn: !!input.value,
 
 		// Make sure that a selected-by-default option has a working selected property.
@@ -1719,7 +1722,7 @@ jQuery.support = (function() {
 
 	// Check if we can trust getAttribute("value")
 	// 判断通过getAttribute("value")是否可以取到input的value值
-	// 经测试 IE8 下返回false
+	// 经测试 IE8 下input.getAttribute("value") === null,故support.input返回false.
 	input = document.createElement("input");
 	input.setAttribute( "value", "" );
 	support.input = input.getAttribute( "value" ) === "";
@@ -2380,9 +2383,14 @@ var nodeHook, boolHook,
 	rreturn = /\r/g,
 	rfocusable = /^(?:input|select|textarea|button|object)$/i,
 	rclickable = /^(?:a|area)$/i,
+	// 一些值为true/false的属性.
+	// (?:pattern):非获取匹配.y(?:pb|pbs)等同于ypb|ypbs,但是比后者更简洁.
+	// 所以rboolean等同于/^checked$|^selected$|.../i
 	rboolean = /^(?:checked|selected|autofocus|autoplay|async|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped)$/i,
+	// 同上.
 	ruseDefault = /^(?:checked|selected)$/i,
 	getSetAttribute = jQuery.support.getSetAttribute,
+	// 是否可以通过getAttribute取到input的value值。
 	getSetInput = jQuery.support.input;
 
 jQuery.fn.extend({
@@ -2724,33 +2732,42 @@ jQuery.extend({
 			// 如设置type,获取设置value值时
 			// 可以查看下面的attrHooks的代码
 			// 共有type,value,contenteditable,width/height,href/src,style这几个
+			// 属性值不是上面的几个,则判断是否是rboolean中的那些属性,是则用boolHook处理,否则用nodeHook处理.
+			// boolHook与nodeHook见下面的代码.
 			hooks = jQuery.attrHooks[ name ] || ( rboolean.test( name ) ? boolHook : nodeHook );
 		}
+		// value有值则设置.
 		if ( value !== undefined ) {
 			// $.fn.attr(name,null)
 			if ( value === null ) {
 				jQuery.removeAttr( elem, name );
 			// jQuery.attrHooks中的set,具体看attrHooks的分析.
+			// 判断中直接赋值ret.
 			} else if ( hooks && notxml && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
 				return ret;
 
 			} else {
+				// 这才是正统设置属性的方法.
+				// value + "":变成字符串.
 				elem.setAttribute( name, value + "" );
 				return value;
 			}
 
 		} else if ( hooks && notxml && 	"get" in hooks && (ret = hooks.get( elem, name )) !== null ) {
+			// hooks中取得值.
 			return ret;
 
 		} else {
 
 			// In IE9+, Flash objects don't have .getAttribute (#12945)
 			// Support: IE9+
+			// 到这儿了还有不支持getAttribute的.Flash objects? 
 			if ( typeof elem.getAttribute !== core_strundefined ) {
 				ret =  elem.getAttribute( name );
 			}
 
 			// Non-existent attributes return null, we normalize to undefined
+			// 不支持getAttribute的则返回null.
 			return ret == null ?
 				undefined :
 				ret;
@@ -2760,17 +2777,21 @@ jQuery.extend({
 	removeAttr: function( elem, value ) {
 		var name, propName,
 			i = 0,
+			// 和addClass中差不,可以删除用空格隔开的属性组.
+			// attrNames为转换后的数组. 
 			attrNames = value && value.match( core_rnotwhite );
-
+		// 必须为元素节点.
 		if ( attrNames && elem.nodeType === 1 ) {
 			while ( (name = attrNames[i++]) ) {
 				propName = jQuery.propFix[ name ] || name;
 
 				// Boolean attributes get special treatment (#10870)
+				// 一些值为布尔值的属性.
 				if ( rboolean.test( name ) ) {
 					// Set corresponding property to false for boolean attributes
 					// Also clear defaultChecked/defaultSelected (if appropriate) for IE<8
 					if ( !getSetAttribute && ruseDefault.test( name ) ) {
+						// IE6/7下的checked/selected,则用defaultChecked/selected.
 						elem[ jQuery.camelCase( "default-" + name ) ] =
 							elem[ propName ] = false;
 					} else {
@@ -2779,14 +2800,14 @@ jQuery.extend({
 
 				// See #9699 for explanation of this approach (setting first, then removal)
 				} else {
+					// 属性值设置为空.
 					jQuery.attr( elem, name, "" );
 				}
-
+				// 最后删除掉.
 				elem.removeAttribute( getSetAttribute ? name : propName );
 			}
 		}
 	},
-	// 
 	attrHooks: {
 		type: {
 			set: function( elem, value ) {
@@ -2820,7 +2841,11 @@ jQuery.extend({
 		frameborder: "frameBorder",
 		contenteditable: "contentEditable"
 	},
-
+	// 和attr相似,但是对于某些元素的某些属性而言,可以获得其正确的值.
+	// 如元素的checked值,attr一般会返回checked,而prop会返回true/false.
+	// 代码结构和attr的类似.
+	// prop用elem[name]这种方式直接获取或设置属性值.--get √
+	// 最主要是jQuery.propHooks的处理.
 	prop: function( elem, name, value ) {
 		var ret, hooks, notxml,
 			nType = elem.nodeType;
@@ -2874,27 +2899,39 @@ jQuery.extend({
 });
 
 // Hook for boolean attributes
+// 获取设置内置的属性,这些属性的值默认(prop)为布尔值.
 boolHook = {
 	get: function( elem, name ) {
 		var
 			// Use .prop to determine if this attribute is understood as boolean
+			// 提供的属性必须是与元素相匹配的才能返回值.否则返回undefined.
+			// 获取默认的属性值,如:<input type="checkbox" checked/>.
+			// 看看是不是布尔值.
 			prop = jQuery.prop( elem, name ),
-
 			// Fetch it accordingly
+			// prop为布尔值,说明是对应元素的属性,支持getAttribute的获取属性值赋值给attr.
 			attr = typeof prop === "boolean" && elem.getAttribute( name ),
+			// detail --PB_PROBLEM
 			detail = typeof prop === "boolean" ?
-
+				// IE6/7/8一起搂了。
 				getSetInput && getSetAttribute ?
 					attr != null :
 					// oldIE fabricates an empty string for missing boolean attributes
 					// and conflates checked/selected into attroperties
+					// 是IE6/7/8下的checked/selected,则
+					// elem[ jQuery.camelCase( "default-" + name ) ]
+					// --defaultChecked/Selected 属性可返回 checked/selected 属性的默认值。
+					// 不是checked/selected则判断!!attr,若elem.getAttribute( name )取不到值则
+					// detail返回false.detail为false则最后返回undefined.
 					ruseDefault.test( name ) ?
 						elem[ jQuery.camelCase( "default-" + name ) ] :
 						!!attr :
 
 				// fetch an attribute node for properties not recognized as boolean
 				elem.getAttributeNode( name );
-
+		// 若detail为true且detail.value不为false,则直接返回name值.
+		// 所以从这儿可以看到attr取rboolean中的值大多数情况下只会取到name,要想取到真的值就得
+		// 用prop.
 		return detail && detail.value !== false ?
 			name.toLowerCase() :
 			undefined;
@@ -2902,13 +2939,23 @@ boolHook = {
 	set: function( elem, value, name ) {
 		if ( value === false ) {
 			// Remove boolean attributes when set to false
+			// 若设置为false.则直接删除这个属性.
+			// 因为如果不为这些属性设置值,则默认设置为true,而设置为false,
+			// 则相当于没有这个属性值.
 			jQuery.removeAttr( elem, name );
 		} else if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 			// IE<8 needs the *property* name
+			// 两种情况:
+			// 一种是非IE6/7/8的浏览器和IE6/7下的非checked/selected:则设置为name值.
+			// 如 attr("checked",""),attr("checked","ok")统统设置为checked = "checked".
+			// 另一种是IE8下的非checked/selected,则只可能是jQuery.propFix对象中的这些属性.
+			// 也是设置为其name值.
 			elem.setAttribute( !getSetAttribute && jQuery.propFix[ name ] || name, name );
 
 		// Use defaultChecked and defaultSelected for oldIE
 		} else {
+			// 只剩下IE6/7/8下的checked/selected.
+			// 设置为true.
 			elem[ jQuery.camelCase( "default-" + name ) ] = elem[ name ] = true;
 		}
 
@@ -2948,6 +2995,7 @@ if ( !getSetAttribute ) {
 	nodeHook = jQuery.valHooks.button = {
 		get: function( elem, name ) {
 			var ret = elem.getAttributeNode( name );
+			// 除了id name coords这三个，都是自定义的.
 			return ret && ( name === "id" || name === "name" || name === "coords" ? ret.value !== "" : ret.specified ) ?
 				ret.value :
 				undefined;
@@ -2955,15 +3003,17 @@ if ( !getSetAttribute ) {
 		set: function( elem, value, name ) {
 			// Set the existing or create a new attribute node
 			var ret = elem.getAttributeNode( name );
+			// 原来不存在属性,则设置属性节点,并赋值给ret.以便下面设置value值.
 			if ( !ret ) {
 				elem.setAttributeNode(
 					(ret = elem.ownerDocument.createAttribute( name ))
 				);
 			}
-
 			ret.value = value += "";
-
 			// Break association with cloned elements by also using setAttribute (#9646)
+			// name 为 value,则直接返回value.
+			// 或者不存在属性而设置的属性节点,则用getAttribute获取值判断是否等于value,最后返回
+			// value.
 			return name === "value" || value === elem.getAttribute( name ) ?
 				value :
 				undefined;
