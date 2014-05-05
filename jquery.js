@@ -2416,7 +2416,7 @@ jQuery.fn.extend({
 		// 真删啊.而remvoeAttr只是用removeAttribute删除属性节点.
 		return this.each(function() {
 			// try/catch handles cases where IE balks (such as removing a property on window)
-			// delete参见:
+			// delete参见:http://www.17leba.com/理解delete操作符/
 			try {
 				this[ name ] = undefined;
 				delete this[ name ];
