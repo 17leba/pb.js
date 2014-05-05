@@ -3010,7 +3010,8 @@ if ( !getSetAttribute ) {
 	nodeHook = jQuery.valHooks.button = {
 		get: function( elem, name ) {
 			var ret = elem.getAttributeNode( name );
-			// 除了id name coords这三个，都是自定义的.
+			// specified是IE中特有的,如果默认属性被赋值了,这个值为true,否则为false.
+			// 而自定义属性则一直显示为true,不管赋值与否.
 			return ret && ( name === "id" || name === "name" || name === "coords" ? ret.value !== "" : ret.specified ) ?
 				ret.value :
 				undefined;

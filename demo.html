@@ -11,6 +11,8 @@
 		var i = $.support.input;
 		// alert(i)
 		var t = $("#ok").val(["ok"]);
+		var tt = document.getElementById("ok");
+		alert(tt.getAttributeNode("pb").specified)
 	})
 	y(function(){
 	})
@@ -53,7 +55,7 @@
 	</div>
 	<p id="p" readonly></p>
 	<a href="" id="ab" autofocus readonly async=0>tt\</a>
-	<input type="radio" disabled id="ok" readonly>
+	<input type="radio" disabled id="ok" readonly pb name>
 	<script id="script" async autofocus>
 	</script>
 </body>
