@@ -2412,8 +2412,10 @@ jQuery.fn.extend({
 
 	removeProp: function( name ) {
 		name = jQuery.propFix[ name ] || name;
+		// 真删啊.而remvoeAttr只是用removeAttribute删除属性节点.
 		return this.each(function() {
 			// try/catch handles cases where IE balks (such as removing a property on window)
+			// delete参见:
 			try {
 				this[ name ] = undefined;
 				delete this[ name ];
@@ -2803,7 +2805,7 @@ jQuery.extend({
 					// 属性值设置为空.
 					jQuery.attr( elem, name, "" );
 				}
-				// 最后删除掉.
+				// 最后删除掉属性节点.
 				elem.removeAttribute( getSetAttribute ? name : propName );
 			}
 		}
