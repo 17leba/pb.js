@@ -2380,6 +2380,7 @@ jQuery.fn.extend({
 });
 var nodeHook, boolHook,
 	rclass = /[\t\r\n]/g,
+	// 全局匹配回车符.
 	rreturn = /\r/g,
 	rfocusable = /^(?:input|select|textarea|button|object)$/i,
 	rclickable = /^(?:a|area)$/i,
@@ -2582,24 +2583,26 @@ jQuery.fn.extend({
 	val: function( value ) {
 		var ret, hooks, isFunction,
 			elem = this[0];
-
+		// 没有参数则获取value值.
 		if ( !arguments.length ) {
 			if ( elem ) {
+				// 又是一大堆兼容性代码来袭.
+				// elem.type:IE6/7下的button,低版本浏览器(非IE)中radio/checkbox.
+				// elem.nodeName:option/selected/button.
 				hooks = jQuery.valHooks[ elem.type ] || jQuery.valHooks[ elem.nodeName.toLowerCase() ];
 
 				if ( hooks && "get" in hooks && (ret = hooks.get( elem, "value" )) !== undefined ) {
 					return ret;
 				}
-
+				// 用value取得.
 				ret = elem.value;
-
 				return typeof ret === "string" ?
 					// handle most common string cases
 					ret.replace(rreturn, "") :
 					// handle cases where value is null/undef or number
 					ret == null ? "" : ret;
 			}
-
+			// 不存在elem则返回.
 			return;
 		}
 
@@ -2608,11 +2611,11 @@ jQuery.fn.extend({
 		return this.each(function( i ) {
 			var val,
 				self = jQuery(this);
-
+			// 不是元素节点则返回.
 			if ( this.nodeType !== 1 ) {
 				return;
 			}
-
+			// value是函数则进一步处理,返回值为最终要设置的值.
 			if ( isFunction ) {
 				val = value.call( this, i, self.val() );
 			} else {
@@ -2620,19 +2623,29 @@ jQuery.fn.extend({
 			}
 
 			// Treat null/undefined as ""; convert numbers to string
+			// val == null ===> val == null && val == undefined.
 			if ( val == null ) {
 				val = "";
 			} else if ( typeof val === "number" ) {
+				// 是number则转换成string.
 				val += "";
 			} else if ( jQuery.isArray( val ) ) {
+				// 是类数组则批量处理成string.
 				val = jQuery.map(val, function ( value ) {
 					return value == null ? "" : value + "";
 				});
 			}
-
+			// 又是一堆兼容性代码.
 			hooks = jQuery.valHooks[ this.type ] || jQuery.valHooks[ this.nodeName.toLowerCase() ];
 
 			// If set returns undefined, fall back to normal setting
+			// 
+			// console.log(hooks.set( this, val, "value" ))
+			// 什么情况下设置值呢?三种情况.
+			// 1.不存在hooks,即不是特殊情况的.
+			// 2.存在hooks但是hooks中没有set的,即仍不是特殊情况的,可能只是存在get等.
+			// 3.存在hooks,也存在set,但是返回的值是undefined的.
+			// this.value = val这样设置.
 			if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
 				this.value = val;
 			}
