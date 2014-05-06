@@ -1954,7 +1954,6 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 			cache[ id ].toJSON = jQuery.noop;
 		}	
 	}
-
 	// An object can be passed to jQuery.data instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
 	if ( typeof name === "object" || typeof name === "function" ) {
@@ -2105,9 +2104,11 @@ jQuery.extend({
 		"object": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",
 		"applet": true
 	},
-
+	// 判断对象上面是否有缓存的data.
 	hasData: function( elem ) {
+		// 分DOM对象和js对象.
 		elem = elem.nodeType ? jQuery.cache[ elem[jQuery.expando] ] : elem[ jQuery.expando ];
+		// elem不是空的数据对象.
 		return !!elem && !isEmptyDataObject( elem );
 	},
 
@@ -2236,6 +2237,7 @@ function dataAttr( elem, key, data ) {
 }
 
 // checks a cache object for emptiness
+// 判断缓存对象是否为空.
 function isEmptyDataObject( obj ) {
 	var name;
 	for ( name in obj ) {
