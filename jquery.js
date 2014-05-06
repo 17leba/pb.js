@@ -1894,8 +1894,11 @@ jQuery.support = (function() {
 
 var rbrace = /(?:\{[\s\S]*\}|\[[\s\S]*\])$/,
 	rmultiDash = /([A-Z])/g;
-
+// pvt是内部参数,用来判断是否是内部使用.
+// pvt为true时,数据被储存在cache[id]中,否则被存储在cache[id].data中.
+// 这样做是为了避免内部数据与用户自定义的数据冲突.
 function internalData( elem, name, data, pvt /* Internal Use Only */ ){
+	// 不可以设置data则返回.
 	if ( !jQuery.acceptData( elem ) ) {
 		return;
 	}
@@ -1906,40 +1909,50 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 
 		// We have to handle DOM nodes and JS objects differently because IE6-7
 		// can't GC object references properly across the DOM-JS boundary
+		// 判断是否是DOM节点.
+		// DOM节点和js对象的处理方式是不同的.
+		// 因为IE6/7下DOM节点不可以自动垃圾回收,而js对象可以.
 		isNode = elem.nodeType,
 
 		// Only DOM nodes need the global jQuery cache; JS object data is
 		// attached directly to the object so GC can occur automatically
+		// jQuery.cache用来缓存DOM节点的id,不是DOM节点则赋值给js对象本身.
 		cache = isNode ? jQuery.cache : elem,
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
+		// 对id的赋值.
 		id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
-
 	// Avoid doing any more work than we need to when trying to get data on an
 	// object that has no data at all
+	// 以下几种情况返回undefined.
+	// name为string且data没有设置的情况下:没有id,没有cache[id]或者没有设置pvt且不存在cache[id].data.
+	// 当data没有设置时,只要有缓存的也可以往下走.--PB_PROBLEM.
 	if ( (!id || !cache[id] || (!pvt && !cache[id].data)) && getByName && data === undefined ) {
 		return;
 	}
-
+	// 没有id则设置id.
 	if ( !id ) {
 		// Only DOM nodes need a new unique ID for each element since their data
 		// ends up in the global cache
 		if ( isNode ) {
+			// 是DOM节点时,id为guid自增.当然,core_deletedIds中有缓存的id的话,先pop出id.
 			elem[ internalKey ] = id = core_deletedIds.pop() || jQuery.guid++;
 		} else {
+			// js对象则直接是jQuery.expando.
 			id = internalKey;
 		}
 	}
-
+	// 没有cache[id]则变为空对象.
 	if ( !cache[ id ] ) {
 		cache[ id ] = {};
 
 		// Avoids exposing jQuery metadata on plain JS objects when the object
 		// is serialized using JSON.stringify
+		// 如果是js对象,把toJSON变为空函数.
 		if ( !isNode ) {
 			cache[ id ].toJSON = jQuery.noop;
-		}
+		}	
 	}
 
 	// An object can be passed to jQuery.data instead of a key/value pair; this gets
@@ -1957,6 +1970,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 	// jQuery data() is stored in a separate object inside the object's internal data
 	// cache in order to avoid key collisions between internal data and user-defined
 	// data.
+	// 默认情况下(!pvt)data储存在cache[id].data中.
 	if ( !pvt ) {
 		if ( !thisCache.data ) {
 			thisCache.data = {};
@@ -1964,18 +1978,18 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 
 		thisCache = thisCache.data;
 	}
-
+	// data不为undefined时,添加到缓存中.
 	if ( data !== undefined ) {
 		thisCache[ jQuery.camelCase( name ) ] = data;
 	}
 
 	// Check for both converted-to-camel and non-converted data property names
 	// If a data property was specified
+	// 确定最后的返回值.
 	if ( getByName ) {
 
 		// First Try to find as-is property data
 		ret = thisCache[ name ];
-
 		// Test for null|undefined property data
 		if ( ret == null ) {
 
@@ -1983,9 +1997,9 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 			ret = thisCache[ jQuery.camelCase( name ) ];
 		}
 	} else {
+		// getByName不是字符串则返回全部.
 		ret = thisCache;
 	}
-
 	return ret;
 }
 
@@ -2115,14 +2129,20 @@ jQuery.extend({
 	},
 
 	// A method for determining if a DOM node can handle the data expando
+	// 判断DOM节点是否是可以处理 data 的节点。
+	// 三种类型的不可以:jQuery.noData对象中的 embed object applet.
+	// 而object中的Flash排除在外,Flash的属性classid都为"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000".
 	acceptData: function( elem ) {
 		// Do not set data on non-element because it will not be cleared (#8335).
+		// 处理对象必须是元素节点,Document节点,js对象(非DOM节点).
 		if ( elem.nodeType && elem.nodeType !== 1 && elem.nodeType !== 9 ) {
 			return false;
 		}
+		// 找出jQuery.noData中的哪三种节点类型.
 		var noData = elem.nodeName && jQuery.noData[ elem.nodeName.toLowerCase() ];
 
 		// nodes accept data unless otherwise specified; rejection can be conditional
+		// !noData表示js对象和不是那三种的DOM节点,后半部分则表示Flash.
 		return !noData || noData !== true && elem.getAttribute("classid") === noData;
 	}
 });
