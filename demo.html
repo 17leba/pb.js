@@ -8,14 +8,43 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		var data = {
-			a:"A"
-		}
-		$.data($("body"),"pb","wn")
-		// $("body").data("pb","wn")
-		// console.log($("body"))
-		// $.hasData($("body"))
-		// console.log($("body"))
+		// var pb = {
+		// 	a:"A",
+		// 	toJSON:function(){
+		// 		for(var i in this){
+		// 			if($.type(this[i]) === "object"){
+		// 				for(var j in this[i]){
+		// 					console.log(j,this[i][j])
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// // $.data(pb,"public-two",2);
+		// // var r = $.data(pb,"public-one","ok");
+		// // console.log(r)
+		// // $._data(pb,"private-th",3);
+		// // JSON.stringify(pb);
+		// // data[$.expando].toJSON = null;
+		// // console.log("data:"+JSON.stringify(data,null,4))
+		$.data($("body")[0],"public-one","1");
+		$.data($("body")[0],"public-two","2");
+		$._data($("body")[0],"private-th","3");
+		$("body").data()
+		// $.removeData($("body")[0],["private-th","public-two"]);
+		// // console.log($.cache,"$.cache:"+JSON.stringify($.cache,null,4))
+		// // $.data($("body"),"public-one","1");
+		// // $.data($("body"),"public-two","2");
+		// // $._data($("body"),"private-th","3");
+	// 	// // $("body").data("private-th",40)
+	// 	var a = {};
+	// $(a).data('a-a', 1);
+	// $(a).data('b_b', 2); // add data to cache
+	// $(a).data()
+	// $(a).removeData(['a-a','b_b']); // it dosen't work
+	// console.log($(a).data("b_b"))
+	// $(a).removeData('a-a b-b'); // it works
+		
 	})
 	y(function(){
 	})
@@ -51,7 +80,7 @@
 	}
 	</style>
 </head>
-<body>
+<body data-ok-pk="ok" title="no">
 	<ht id="ht"></ht>
 	<div class="ok">
 		<div class="no oo"></div>
