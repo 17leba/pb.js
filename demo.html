@@ -8,6 +8,8 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
+		$("body").toggleClass(true);
+		// alert(pb)
 		// var pb = {
 		// 	a:"A",
 		// 	toJSON:function(){
@@ -27,10 +29,10 @@
 		// // JSON.stringify(pb);
 		// // data[$.expando].toJSON = null;
 		// // console.log("data:"+JSON.stringify(data,null,4))
-		$.data($("body")[0],"public-one","1");
-		$.data($("body")[0],"public-two","2");
-		$._data($("body")[0],"private-th","3");
-		$("body").data()
+		// $.data($("body")[0],"public-one","1");
+		// $.data($("body")[0],"public-two","2");
+		// $._data($("body")[0],"private-th","3");
+		// $("body").data()
 		// $.removeData($("body")[0],["private-th","public-two"]);
 		// // console.log($.cache,"$.cache:"+JSON.stringify($.cache,null,4))
 		// // $.data($("body"),"public-one","1");
@@ -80,7 +82,7 @@
 	}
 	</style>
 </head>
-<body data-ok-pk="ok" title="no">
+<body data-ok-pk="ok" title="no" class="pb">
 	<ht id="ht"></ht>
 	<div class="ok">
 		<div class="no oo"></div>
