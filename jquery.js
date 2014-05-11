@@ -1910,7 +1910,7 @@ jQuery.support = (function() {
 
 	return support;
 })();
-
+// 判断各种{} [] ,即判断是不是可以解析成JSON类型的数据. 
 var rbrace = /(?:\{[\s\S]*\}|\[[\s\S]*\])$/,
 	// 匹配A-Z范围内的任意字符.
 	rmultiDash = /([A-Z])/g;
@@ -2224,10 +2224,13 @@ jQuery.extend({
 
 	// Unique for each copy of jQuery on the page
 	// Non-digits removed to match rinlinejQuery
+	// jQuery中每个jQuery副本的唯一标识.
+    // 由jQuery+版本号+随机数，并且去掉非数字字符，这儿主要是 . 
 	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
 
 	// The following elements throw uncatchable exceptions if you
 	// attempt to add expando properties to them.
+	// 不可以添加数据的三种对象类型.
 	noData: {
 		"embed": true,
 		// Ban all objects except for Flash (which handle expandos)
@@ -2235,6 +2238,7 @@ jQuery.extend({
 		"object": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",
 		"applet": true
 	},
+
 	// 判断对象上面是否有缓存的data.
 	hasData: function( elem ) {
 		// 分DOM对象和js对象.
@@ -2243,19 +2247,22 @@ jQuery.extend({
 		return !!elem && !isEmptyDataObject( elem );
 	},
 
+	// 设置读取自定义数据.
 	data: function( elem, name, data ) {
 		return internalData( elem, name, data );
 	},
-
+	// 移除指定或者全部自定义数据.
 	removeData: function( elem, name ) {
 		return internalRemoveData( elem, name );
 	},
 
 	// For internal use only.
+	// 设置读取内部数据.
 	_data: function( elem, name, data ) {
 		return internalData( elem, name, data, true );
 	},
 
+	// 移除指定或者全部内部数据.
 	_removeData: function( elem, name ) {
 		return internalRemoveData( elem, name, true );
 	},
@@ -2280,6 +2287,7 @@ jQuery.extend({
 });
 
 jQuery.fn.extend({
+	// 设置读取自定义数据,包括对HTML5属性data-*的处理.
 	data: function( key, value ) {
 		var attrs, name,
 			elem = this[0],
@@ -2319,7 +2327,7 @@ jQuery.fn.extend({
 				jQuery.data( this, key );
 			});
 		}
-
+		// 
 		return jQuery.access( this, function( value ) {
 
 			if ( value === undefined ) {
@@ -2340,6 +2348,7 @@ jQuery.fn.extend({
 	}
 });
 
+// HTML5中data-*属性的处理.
 function dataAttr( elem, key, data ) {
 	// If nothing was found internally, try to fetch any
 	// data from the HTML5 data-* attribute
