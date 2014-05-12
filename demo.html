@@ -8,9 +8,16 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		var d = $.Deferred(ok);
-		console.log(d.state())
-		d.then(function(){},function(){})
+		var url ="http://nao.com",
+			url2 = "http:dads.com"
+		var request = $.ajax( url, { dataType: "json" } ),
+		  chained = request.then(function(){},function( data ) {
+		    return $.ajax( url2, { data: { user: data.userId } } );
+		  });
+		 
+		chained.done(function( data ) {
+		  // data retrieved from url2 as provided by the first request
+		});
 // 		$.ajax("http://hiwifi.com/pb.php").then( function(){ alert("$.get succeeded"); },
 //     function(){ alert("$.get failed!"); }
 // )

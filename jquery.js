@@ -1483,6 +1483,7 @@ jQuery.extend({
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
 							deferred[ tuple[1] ](function() {
 								var returned = fn && fn.apply( this, arguments );
+								console.log(returned.promise());
 								if ( returned && jQuery.isFunction( returned.promise ) ) {
 									returned.promise()
 										.done( newDefer.resolve )
@@ -1527,6 +1528,11 @@ jQuery.extend({
 					state = stateString;
 
 				// [ reject_list | resolve_list ].disable; progress_list.lock
+				// 按位异或(XOR)
+				// 20 ^ 32:
+				// 20 = 0000 0000 0000 0000 0000 0000 0001 0100
+				// 32 = 0000 0000 0000 0000 0000 0000 0010 0000 
+				// 52 = 0000 0000 0000 0000 0000 0000 0011 0100
 				}, tuples[ i ^ 1 ][ 2 ].disable, tuples[ 2 ][ 2 ].lock );
 			}
 
