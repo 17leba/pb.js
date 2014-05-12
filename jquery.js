@@ -1226,9 +1226,7 @@ jQuery.Callbacks = function( options ) {
 		// 回调列表数组
 		list = [],
 		// Stack of fire calls for repeatable lists
-		// --PB_PROBLEM
 		// 储存的是在执行回调中又重复执行的回调的参数和作用域,即data
-		// 但是模拟不出一个例子？？？
 		// 例子:
 		// var callbacks = $.Callbacks(),
 		// 	flag = true;
@@ -1243,7 +1241,6 @@ jQuery.Callbacks = function( options ) {
 		// callbacks.add(fn1);
 		// callbacks.fire()
 		
-		// ajax!!!
 		stack = !options.once && [],
 		// Fire callbacks
 		// 触发回调函数
@@ -1257,9 +1254,10 @@ jQuery.Callbacks = function( options ) {
 			firingLength = list.length;
 			firing = true;
 			// data[0]为调用者,data[1]为传入的回调函数的参数
-			// 从第一个回调开始触发如果有设置参数options为stopOnFalse且回调函数返回false时,立即从这个函数开始中断触发,
-			// 即list中只有最先返回false的回调函数
-			// 并且将memory设置为false,已把list置空,参见下面代码防止出现同时设置 memory和stopOnFalse的情况下,memory == data
+			// 从第一个回调开始触发如果有设置参数options为stopOnFalse且回调函数返回false时,
+			// 立即从这个函数开始中断触发,即list中只有最先返回false的回调函数,
+			// 并且将memory设置为false,已把list置空,
+			// 参见下面代码防止出现同时设置 memory和stopOnFalse的情况下,memory == data
 			// 这样子的话再add多个回调函数,也会全都触发
 			for ( ; list && firingIndex < firingLength; firingIndex++ ) {
 				if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options.stopOnFalse ) {
@@ -1705,7 +1703,7 @@ jQuery.support = (function() {
 
 		// Will be defined later
 		// 标准浏览器下的默认返回
-		// 判断是否可以删除对象属性--PB_PROBLEM
+		// 判断是否可以删除对象属性
 		deleteExpando: true,
 		// 克隆的时候是否会克隆事件处理函数
 		// cloneNode(true)在IE下的问题之一,IE下会克隆事件处理函数
@@ -1786,7 +1784,8 @@ jQuery.support = (function() {
 	// Beware of CSP restrictions (https://developer.mozilla.org/en/Security/CSP), test/csp.php
 	// 标准规定change、select、submit、reset等事件均支持冒泡,但是IE却不会冒泡--PB_PROBLEM
 	// 有些标准浏览器中没有focusin/out,故不支持冒泡,但是IE下支持事件冒泡
-	// 参考:http://www.planabc.net/2010/01/30/how_to_use_focus_and_blur_event_in_event_delegation/
+	// 参考:
+	// http://www.planabc.net/2010/01/30/how_to_use_focus_and_blur_event_in_event_delegation/
 	for ( i in { submit: true, change: true, focusin: true }) {
 		// eventName被赋值 "onsubmit/change/focusin"
 		div.setAttribute( eventName = "on" + i, "t" );
@@ -1997,7 +1996,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ){
 		// the code to shortcut on the same path as a DOM node with no cache
 		// 对id的赋值.
 		// 有缓存则赋值缓存值,否则为undefined.
-		// DOM节点通过elem[internalKey]和数据连接起来.--PB_PROBLEM
+		// DOM节点通过elem[internalKey]和数据连接起来.
 		id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
 	// Avoid doing any more work than we need to when trying to get data on an
 	// object that has no data at all
