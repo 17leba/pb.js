@@ -1294,7 +1294,8 @@ jQuery.Callbacks = function( options ) {
 					// list不为undefined则没有调用$.Callbacks().disable()或$.Callbacks().disabled()
 					// First, we save the current length
 					var start = list.length;
-					// 一个闭包参数不确定
+					// 一个闭包.
+					// 参数不确定
 					(function add( args ) {
 						// 循环遍历添加的回调函数
 						// 所以可以这样添加回调:$.Callbacks().add(fn1,fn2,fn3...)
@@ -1432,27 +1433,50 @@ jQuery.Callbacks = function( options ) {
 		};
 	return self;
 };
+// 延迟对象.
+// 返回一个包含多种回调函数的的延迟对象,回调函数队列中包括触发函数,任何同/异步
+// 返回的失败/成功状态函数.
+// 一个延迟对象最开始的状态是"pending",任何通过deferred.then(),deferred.always(),
+// deferred.done(),deferred.fail()添加到对象的回调函数都会按照队列顺序稍后执行.
+// 调用deferred.resolve()和deferred.resolveWith()可以转变状态为"resolved"并且立刻
+// 执行 doneCallbacks 参数中设置的回调函数.
+// 而调用deferred.reject()和deferred.rejectWith()可以转变状态为"rejected"并且立刻
+// 执行 failCallbacks 参数中设置的回调函数.
+// 一旦对象变为"resolved"和"rejected"这两种状态,回调函数可以继续添加到resolved和rejected
+// 延迟队列中,它们将立刻执行.
 jQuery.extend({
 
 	Deferred: function( func ) {
+		// 一个二维数组.
+		// 储存了三个子元素,分别对应延迟的三种状态:
+		// 完成解决(resolved),rejected(失败拒绝),pending(进行中).
+		// 而每个状态中包括对应的四种操作步骤 ==> 执行,增加监听函数,监听列表,最后的状态.
 		var tuples = [
 				// action, add listener, listener list, final state
 				[ "resolve", "done", jQuery.Callbacks("once memory"), "resolved" ],
 				[ "reject", "fail", jQuery.Callbacks("once memory"), "rejected" ],
 				[ "notify", "progress", jQuery.Callbacks("memory") ]
 			],
+			// 初始的状态.
 			state = "pending",
+			// 模拟JS的异步编程Promise.
 			promise = {
+				// 当前状态.
 				state: function() {
 					return state;
 				},
+				// 不论状态是resoved还是rejected都添加执行程序.
 				always: function() {
 					deferred.done( arguments ).fail( arguments );
 					return this;
 				},
+				// 等同于:
+				// $.Deferred().done().fail().progress().
 				then: function( /* fnDone, fnFail, fnProgress */ ) {
 					var fns = arguments;
 					return jQuery.Deferred(function( newDefer ) {
+						// 如果Deferred存在为函数的参数,则把此函数指向Deferred本身,
+						// 参数为Deferred.
 						jQuery.each( tuples, function( i, tuple ) {
 							var action = tuple[ 0 ],
 								fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
@@ -1478,20 +1502,25 @@ jQuery.extend({
 					return obj != null ? jQuery.extend( obj, promise ) : promise;
 				}
 			},
+			// 最后返回的延迟对象.
 			deferred = {};
 
 		// Keep pipe for back-compat
 		promise.pipe = promise.then;
-
 		// Add list-specific methods
 		jQuery.each( tuples, function( i, tuple ) {
+			// list对应$.Callbacks().
+			// stateString对应"resolved"|"rejected"|""
 			var list = tuple[ 2 ],
 				stateString = tuple[ 3 ];
 
 			// promise[ done | fail | progress ] = list.add
+			// promise[done | fail | progress]全变为回调列表中的add方法.
 			promise[ tuple[1] ] = list.add;
 
 			// Handle state
+			// 处理resolved|rejected两种状态.
+			// 只有这两种状态下才可以添加回调函数.
 			if ( stateString ) {
 				list.add(function() {
 					// state = [ resolved | rejected ]
@@ -1502,10 +1531,12 @@ jQuery.extend({
 			}
 
 			// deferred[ resolve | reject | notify ]
+			// resolve --> resolveWith,reject --> rejectWith,notify-->notifyWith.
 			deferred[ tuple[0] ] = function() {
 				deferred[ tuple[0] + "With" ]( this === deferred ? promise : this, arguments );
 				return this;
 			};
+			// 执行deferred[ resolve | reject | notify ],对应fireWith.
 			deferred[ tuple[0] + "With" ] = list.fireWith;
 		});
 
