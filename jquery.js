@@ -1479,17 +1479,37 @@ jQuery.extend({
 						// 参数为Deferred.
 						jQuery.each( tuples, function( i, tuple ) {
 							var action = tuple[ 0 ],
+								// 传递给then的参数是函数则把此函数赋值给fn. 
 								fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
 							deferred[ tuple[1] ](function() {
 								var returned = fn && fn.apply( this, arguments );
-								console.log(returned.promise());
+								// 当returned存在且fn返回值为deferred时,则继续触发回调.
+								// 主要用在ajax请求中.
+								// 即第二次的请求需要用到第一次请求返回的data.
+								// 如:
+								/*
+								 *	var url1 ="http://A.com",
+								 *		url2 = "http://B.com";
+								 *	$.ajax(url1).then(
+								 *		function(){
+								 *			return $.ajax(url2).done(function(){
+								 *				console.log("ok")
+								 *			})
+								 *		},
+								 *		function(){
+								 *			return $.ajax(url2).fail(function(){
+								 *				console.log("no")
+								 *			})
+								 *		})
+								 */
 								if ( returned && jQuery.isFunction( returned.promise ) ) {
 									returned.promise()
 										.done( newDefer.resolve )
 										.fail( newDefer.reject )
 										.progress( newDefer.notify );
 								} else {
+									// 触发相应的回调.
 									newDefer[ action + "With" ]( this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
 								}
 							});
@@ -1542,7 +1562,8 @@ jQuery.extend({
 				deferred[ tuple[0] + "With" ]( this === deferred ? promise : this, arguments );
 				return this;
 			};
-			// 执行deferred[ resolve | reject | notify ],对应fireWith.
+			// 执行
+			// deferred[ resolve | reject | notify ],对应fireWith.
 			deferred[ tuple[0] + "With" ] = list.fireWith;
 		});
 
@@ -1559,18 +1580,30 @@ jQuery.extend({
 	},
 
 	// Deferred helper
+	// 另外一种执行延迟对象的方法,这儿的对象可以是一个或多个,多用于异步.
+	// 举几个例子:
+	// EX1:$.when({a:"A"},{b:"B"}).done(function(x,y){console.log(x.a,y.b)});// A B
+	// 自动触发回调,不需要再调用resolve().
+	// EX2:$.when($.ajax(url1),$.ajax(url2))
+	// 		.then(function(){console.log("success")},function(){console.log("error")});
+	// 必须两个请求都有所返回才触发第一个函数,有一个出现错误则触发第二个函数.
 	when: function( subordinate /* , ..., subordinateN */ ) {
 		var i = 0,
+			// 参数转换为数组形式.
 			resolveValues = core_slice.call( arguments ),
 			length = resolveValues.length,
 
 			// the count of uncompleted subordinates
+			// 一个记录没有完成的延迟对象的计数器.
 			remaining = length !== 1 || ( subordinate && jQuery.isFunction( subordinate.promise ) ) ? length : 0,
 
 			// the master Deferred. If resolveValues consist of only a single Deferred, just use that.
+			// 只有一个参数且就是延迟对象,则把此延迟对象赋值给deferred,最后直接返回
+			// deferred.promise().
 			deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
 			// Update function for both resolve and progress values
+			// 
 			updateFunc = function( i, contexts, values ) {
 				return function( value ) {
 					contexts[ i ] = this;
@@ -1584,25 +1617,28 @@ jQuery.extend({
 			},
 
 			progressValues, progressContexts, resolveContexts;
-
 		// add listeners to Deferred subordinates; treat others as resolved
 		if ( length > 1 ) {
 			progressValues = new Array( length );
 			progressContexts = new Array( length );
 			resolveContexts = new Array( length );
 			for ( ; i < length; i++ ) {
+				// 参数为延迟对象.
 				if ( resolveValues[ i ] && jQuery.isFunction( resolveValues[ i ].promise ) ) {
+					// --PB_PROBLEM.
 					resolveValues[ i ].promise()
 						.done( updateFunc( i, resolveContexts, resolveValues ) )
 						.fail( deferred.reject )
 						.progress( updateFunc( i, progressContexts, progressValues ) );
 				} else {
+					// 参数不是延迟对象,remaining减1.
 					--remaining;
 				}
 			}
 		}
-
 		// if we're not waiting on anything, resolve the master
+		// 参数为空或者参数中有不是延迟对象的,则立即执行回调.
+		// EX1或者$.when($.ajax(),{a:"A"}).then().
 		if ( !remaining ) {
 			deferred.resolveWith( resolveContexts, resolveValues );
 		}

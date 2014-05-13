@@ -8,16 +8,42 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		var url ="http://nao.com",
-			url2 = "http:dads.com"
-		var request = $.ajax( url, { dataType: "json" } ),
-		  chained = request.then(function(){},function( data ) {
-		    return $.ajax( url2, { data: { user: data.userId } } );
-		  });
+		var url1 ="http://A.com",
+			url2 = "http://B.com";
+		$.when($.ajax(url1),$.ajax(url2)).then(
+			function(){return 1},function(){return 2}
+		)
+// $.when({a:"A"},{b:"B"}).then(function(x,y){console.log(x.a,y.b)},function(){console.log(23)})
+		/*var d = $.Deferred();
+		d.then(function(){},function(){})
+		d.resolve();
+		var a = {
+			a:1
+		};
+		var b = {
+			a:1
+		};
+		a = b
+		console.log(a == b)*/
+		// $.ajax(url1).then(
+		// 	function(){
+		// 		return $.ajax(url2).done(function(){
+		// 			console.log("ok")
+		// 		})
+		// 	},
+		// 	function(){
+		// 		return $.ajax(url2).fail(function(){
+		// 			console.log("no")
+		// 		})
+		// 	})
+		// var request = $.ajax( url, { dataType: "json" } ),
+		//   chained = request.then(function(){},function( data ) {
+		//     return $.ajax( url2, { data: { user: data.userId } } );
+		//   });
 		 
-		chained.done(function( data ) {
-		  // data retrieved from url2 as provided by the first request
-		});
+		// chained.done(function( data ) {
+		//   // data retrieved from url2 as provided by the first request
+		// });
 // 		$.ajax("http://hiwifi.com/pb.php").then( function(){ alert("$.get succeeded"); },
 //     function(){ alert("$.get failed!"); }
 // )
