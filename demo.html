@@ -8,12 +8,44 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		var url1 ="http://A.com",
-			url2 = "http://B.com";
-		$.when($.ajax(url1),$.ajax(url2)).then(
-			function(){return 1},function(){return 2}
+		var url1 ="http://map.baidu.com/?word=%E4%B8%AD%E5%85%B3%E6%9D%91&ft=tab",
+			url2 = "http://my.wholeport.com/cart/add.json";
+		$.when($.ajax({
+			url:url1,
+			type:"get",
+			dataType:"jsonp",
+			data:{
+				newmap:1,
+				reqflag:"pcmap",
+				biz:1,
+				from:"webmap",
+				qt:"s",
+				da_src:"pcmappg.searchBox.button",
+				wd:"中关村",
+				c:"131",
+				src:0,
+				sug:0,
+				l:12,
+				tn:"B_NORMAL_MAP",
+				nn:0,
+				ie:"utf-8",
+				t:1400039219004
+			}
+		}),$.ajax({
+			url:url2,
+			type:"get",
+			dataType:"jsonp",
+			data:{
+				sku_id:14091,
+				qty:1
+			}
+		})).then(
+			function(data1,data2){console.log(data1)
+				console.log(data2)},function(){console.log(1)}
 		)
-// $.when({a:"A"},{b:"B"}).then(function(x,y){console.log(x.a,y.b)},function(){console.log(23)})
+		// $.when({a:"A"},{b:"B"}).then(
+		// 	function(x,y){console.log(x.a,y.b)},
+		// 	function(){console.log(23)})
 		/*var d = $.Deferred();
 		d.then(function(){},function(){})
 		d.resolve();
@@ -44,7 +76,7 @@
 		// chained.done(function( data ) {
 		//   // data retrieved from url2 as provided by the first request
 		// });
-// 		$.ajax("http://hiwifi.com/pb.php").then( function(){ alert("$.get succeeded"); },
+	// 		$.ajax("http://hiwifi.com/pb.php").then( function(){ alert("$.get succeeded"); },
 //     function(){ alert("$.get failed!"); }
 // )
 		// d.done(function(){
@@ -55,6 +87,12 @@
 		// d.resolve().done(function(){
 		// 	console.log(3)
 		// })
+		// console.log(q.list)
+		function a(fn){
+			fn.call(this,123)
+		}
+		a(function(ab){
+		})
 	})
 	y(function(){
 	})

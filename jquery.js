@@ -1433,10 +1433,10 @@ jQuery.Callbacks = function( options ) {
 		};
 	return self;
 };
-// 延迟对象.
-// 返回一个包含多种回调函数的的延迟对象,回调函数队列中包括触发函数,任何同/异步
+// 异步队列.
+// 返回一个包含多种回调函数的的异步队列,回调函数队列中包括触发函数,任何同/异步
 // 返回的失败/成功状态函数.
-// 一个延迟对象最开始的状态是"pending",任何通过deferred.then(),deferred.always(),
+// 一个异步队列最开始的状态是"pending",任何通过deferred.then(),deferred.always(),
 // deferred.done(),deferred.fail()添加到对象的回调函数都会按照队列顺序稍后执行.
 // 调用deferred.resolve()和deferred.resolveWith()可以转变状态为"resolved"并且立刻
 // 执行 doneCallbacks 参数中设置的回调函数.
@@ -1479,13 +1479,14 @@ jQuery.extend({
 						// 参数为Deferred.
 						jQuery.each( tuples, function( i, tuple ) {
 							var action = tuple[ 0 ],
-								// 传递给then的参数是函数则把此函数赋值给fn. 
+								// 传递给then的参数是函数,则把此函数赋值给fn. 
 								fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
 							deferred[ tuple[1] ](function() {
 								var returned = fn && fn.apply( this, arguments );
-								// 当returned存在且fn返回值为deferred时,则继续触发回调.
-								// 主要用在ajax请求中.
+								// returned为参数fn中的返回.
+								// 当returned存在且为新的异步队列时,则继续触发回调.
+								// 主要运用在ajax请求中.
 								// 即第二次的请求需要用到第一次请求返回的data.
 								// 如:
 								/*
@@ -1510,6 +1511,7 @@ jQuery.extend({
 										.progress( newDefer.notify );
 								} else {
 									// 触发相应的回调.
+									// 参数为returned(fn为函数时)的数组形式.
 									newDefer[ action + "With" ]( this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
 								}
 							});
@@ -1523,7 +1525,7 @@ jQuery.extend({
 					return obj != null ? jQuery.extend( obj, promise ) : promise;
 				}
 			},
-			// 最后返回的延迟对象.
+			// 最后返回的异步队列.
 			deferred = {};
 
 		// Keep pipe for back-compat
@@ -1580,7 +1582,7 @@ jQuery.extend({
 	},
 
 	// Deferred helper
-	// 另外一种执行延迟对象的方法,这儿的对象可以是一个或多个,多用于异步.
+	// 另外一种执行异步队列的方法,这儿的对象可以是一个或多个,多用于异步.
 	// 举几个例子:
 	// EX1:$.when({a:"A"},{b:"B"}).done(function(x,y){console.log(x.a,y.b)});// A B
 	// 自动触发回调,不需要再调用resolve().
@@ -1594,23 +1596,24 @@ jQuery.extend({
 			length = resolveValues.length,
 
 			// the count of uncompleted subordinates
-			// 一个记录没有完成的延迟对象的计数器.
+			// 一个记录没有完成的异步队列的计数器.
 			remaining = length !== 1 || ( subordinate && jQuery.isFunction( subordinate.promise ) ) ? length : 0,
 
 			// the master Deferred. If resolveValues consist of only a single Deferred, just use that.
-			// 只有一个参数且就是延迟对象,则把此延迟对象赋值给deferred,最后直接返回
+			// 只有一个参数且就是异步队列,则把此异步队列赋值给deferred,最后直接返回
 			// deferred.promise().
 			deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
 			// Update function for both resolve and progress values
-			// 
 			updateFunc = function( i, contexts, values ) {
+				// 一个闭包,为了保持i的传值,防止变化.
 				return function( value ) {
 					contexts[ i ] = this;
 					values[ i ] = arguments.length > 1 ? core_slice.call( arguments ) : value;
 					if( values === progressValues ) {
 						deferred.notifyWith( contexts, values );
 					} else if ( !( --remaining ) ) {
+						// 不是progress则remaining减1,减到0则触发.
 						deferred.resolveWith( contexts, values );
 					}
 				};
@@ -1623,21 +1626,20 @@ jQuery.extend({
 			progressContexts = new Array( length );
 			resolveContexts = new Array( length );
 			for ( ; i < length; i++ ) {
-				// 参数为延迟对象.
+				// 参数为异步队列.
 				if ( resolveValues[ i ] && jQuery.isFunction( resolveValues[ i ].promise ) ) {
-					// --PB_PROBLEM.
 					resolveValues[ i ].promise()
 						.done( updateFunc( i, resolveContexts, resolveValues ) )
 						.fail( deferred.reject )
 						.progress( updateFunc( i, progressContexts, progressValues ) );
 				} else {
-					// 参数不是延迟对象,remaining减1.
+					// 参数不是异步队列,remaining减1.
 					--remaining;
 				}
 			}
 		}
 		// if we're not waiting on anything, resolve the master
-		// 参数为空或者参数中有不是延迟对象的,则立即执行回调.
+		// 参数为空或者参数中有不是异步队列的,则立即执行回调.
 		// EX1或者$.when($.ajax(),{a:"A"}).then().
 		if ( !remaining ) {
 			deferred.resolveWith( resolveContexts, resolveValues );
