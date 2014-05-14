@@ -271,14 +271,46 @@
 		},
 		log:function(obj){
 			return window.console && console.log ? console.log(obj) : alert(obj);
-		}
-
+		},
+		noop:function(){}
 	})
 
 	pb.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 		class2type[ "[object " + name + "]" ] = name.toLowerCase();
 	})
 
+	pb.Queue = function(){
+		var queues = {
+			arr:[],
+			add:function(fn){
+				this.arr.push(fn);
+				return this;
+			},
+			wait:function(time){
+				if(time && typeof time === "number"){
+					this.arr.push(time);
+				}
+				return this;
+			},
+			fire:function(){
+				var fn = this.arr.shift() || pb.noop,
+					that = this;
+				if(typeof fn === "number"){
+					setTimeout(function(){
+						that.fire()
+					},fn);
+				}else if(typeof fn === "function"){
+					fn.call(this);
+					if(this.arr.length){
+						this.fire()
+					}
+				}
+				return this;
+			}
+		};
+		return queues;
+	}
+		
 	pb.event = {
 		addHandler:function(elem,type,fn){
 			if(elem.addEventListener){
