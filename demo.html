@@ -8,6 +8,17 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
+        var a = $.css($(".ok")[0],"margin","","")
+        // console.log(a)
+        // if(document.documentElement.currentStyle){
+        //     alert(10)
+        // }else{
+        //    var s =  window.getComputedStyle($(".ok")[0],null)
+        //    // console.log(s["marginTop"])
+        // }
+        // var t = $.contains($(".ok")[0],$("#p")[0]);
+        // console.log(t)
+        // console.log(t,$("body")[0].ownerDocument)
 		// var url1 ="http://map.baidu.com/?word=%E4%B8%AD%E5%85%B3%E6%9D%91&ft=tab",
 		// 	url2 = "http://my.wholeport.com/cart/add.json";
 		// $.when($.ajax({
@@ -88,16 +99,17 @@
 		// 	console.log(3)
 		// })
 		// console.log(q.list)
+
 	})
 	y(function(){
-		// console.log(y.wait())
-		y.Queue().add(function(){
-			console.log(2)
-		}).add(function(){
-			console.log(3)
-		}).wait(1000).add(function(){
-			console.log(4)
-		}).wait(2000).fire()
+		// // console.log(y.wait())
+		// y.Queue().add(function(){
+		// 	console.log(2)
+		// }).add(function(){
+		// 	console.log(3)
+		// }).wait(1000).add(function(){
+		// 	console.log(4)
+		// }).wait(2000).fire()
 	})
 
 	</script>
@@ -133,7 +145,7 @@
 </head>
 <body data-ok-pk="ok" title="no" class="pb">
 	<ht id="ht"></ht>
-	<div class="ok">
+	<div class="ok" style="background-color:red">
 		<div class="no oo"></div>
 	</div>
 

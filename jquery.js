@@ -7335,7 +7335,6 @@ var iframe, getStyles, curCSS,
 
 // return a css property mapped to a potentially vendor prefixed property
 function vendorPropName( style, name ) {
-
 	// shortcut for names that are not vendor prefixed
 	if ( name in style ) {
 		return name;
@@ -7507,7 +7506,6 @@ jQuery.extend({
 			style = elem.style;
 
 		name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( style, origName ) );
-
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
 		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
@@ -7570,7 +7568,7 @@ jQuery.extend({
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
 		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
-
+		
 		// If a hook was provided get the computed value from there
 		if ( hooks && "get" in hooks ) {
 			val = hooks.get( elem, true, extra );
@@ -7580,7 +7578,6 @@ jQuery.extend({
 		if ( val === undefined ) {
 			val = curCSS( elem, name, styles );
 		}
-
 		//convert "normal" to computed value
 		if ( val === "normal" && name in cssNormalTransform ) {
 			val = cssNormalTransform[ name ];
@@ -7618,11 +7615,15 @@ jQuery.extend({
 
 // NOTE: we've included the "window" in window.getComputedStyle
 // because jsdom on node.js will break without it.
+// window.getComputedStyle(elem,null)返回一个包含DOM元素的所有css属性值的对象.
+// 这些属性值包括定义的和浏览器默认的.
+// IE不支持getComputedStyle.
+// 小tip:http://www.17leba.com/用js无法获取style样式的问题解析与解决方法/
 if ( window.getComputedStyle ) {
 	getStyles = function( elem ) {
 		return window.getComputedStyle( elem, null );
 	};
-
+	// 获取元素最终的css.
 	curCSS = function( elem, name, _computed ) {
 		var width, minWidth, maxWidth,
 			computed = _computed || getStyles( elem ),
@@ -7632,11 +7633,10 @@ if ( window.getComputedStyle ) {
 			style = elem.style;
 
 		if ( computed ) {
-
+			// ret为空且elem不属于当前文档,则调用jQuery.style.
 			if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
 				ret = jQuery.style( elem, name );
 			}
-
 			// A tribute to the "awesome hack by Dean Edwards"
 			// Chrome < 17 and Safari 5.0 uses "computed value" instead of "used value" for margin-right
 			// Safari 5.1.7 (at least) returns percentage for a larger set of values, but width seems to be reliably pixels
@@ -7658,7 +7658,6 @@ if ( window.getComputedStyle ) {
 				style.maxWidth = maxWidth;
 			}
 		}
-
 		return ret;
 	};
 } else if ( document.documentElement.currentStyle ) {
@@ -10106,11 +10105,10 @@ jQuery.fn.offset = function( options ) {
 	// 获取当前window对象
 	win = getWindow( doc );
 	// 到视窗的偏移 + 滚动条偏移 = 到文档边界的偏移
-	// 
 	// IE8及以下不支持pageYOffset和pageXOffset
 	// clientTop就是指元素的上边框高度
 	// IE的标准模式中,html元素是有border的,默认是2px经测试:ie6/7测试都为2,ie8为0
-	// http://www.17leba.com/%E5%85%B3%E4%BA%8E%E4%BD%8E%E7%89%88%E6%9C%ACie%E4%B8%8Bscrolltop%E4%B8%80%E7%9B%B4%E4%B8%BA0/
+	// http://www.17leba.com/关于低版本ie下scrolltop一直为0/
 	return {
 		top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
 		left: box.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )
