@@ -8,7 +8,16 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-        var a = $.css($(".ok")[0],"margin","","")
+		// $.cssHooks.margin = {
+  //       	get:function(){
+  //       		return 100
+  //       	},
+  //       	set:function(){
+  //       		return "10px"
+  //       	}
+  //       }
+        var a = $.css($(".ok")[0],"float",true)
+        // console.log(a)
         // console.log(a)
         // if(document.documentElement.currentStyle){
         //     alert(10)
@@ -125,7 +134,8 @@
 		padding:0
 	}
 	.ok{
-		margin:10px;
+		letter-spacing: normal;
+		margin:normal;
 		border-top:40px solid red;
 	}
 	.t{

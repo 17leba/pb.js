@@ -7336,16 +7336,25 @@ var iframe, getStyles, curCSS,
 // return a css property mapped to a potentially vendor prefixed property
 function vendorPropName( style, name ) {
 	// shortcut for names that are not vendor prefixed
+	// 处理style中就有的属性名(即当前浏览器支持的),并不一定是没有前缀的.
+	// 如：-moz-transition等属性名,style中MozAnimation和animation两个都会有.
 	if ( name in style ) {
 		return name;
 	}
-
 	// check for vendor prefixed names
+	// 前缀属性的处理:
+	// http://stackoverflow.com/questions/5411026/list-of-css-vendor-prefixes
+	// 主要给一些私有属性加前缀名,如一些css3的属性.因低版本的浏览器的style中
+	// 不一定有不带前缀名的属性名,如animation,所以得加上前缀名才可以获取或者设置
+	// 属性值.
+	// capName:首字母变为大写.msAnimation ---> MsAnimation.
 	var capName = name.charAt(0).toUpperCase() + name.slice(1),
 		origName = name,
 		i = cssPrefixes.length;
-
-	while ( i-- ) {
+	// get√
+	// while(i--)的妙用.
+	// 先判断i后减1,则while中i的值分别为3,2,1,0,恰好为cssPrefixes的下标.
+	while ( i--) {
 		name = cssPrefixes[ i ] + capName;
 		if ( name in style ) {
 			return name;
@@ -7561,15 +7570,24 @@ jQuery.extend({
 	css: function( elem, name, extra, styles ) {
 		var num, val, hooks,
 			origName = jQuery.camelCase( name );
-
 		// Make sure that we're working with the right name
+		// 确保name值是正确的name值.
+		// jQuery.cssProps相当于一个name值的缓存.
+		// 原先只有一个对于float属性名的兼容处理项,但是如果cssProps中不存在name
+		// 的话,则用vendorPropName函数处理后赋值给cssProps来缓存,下次调用的时候
+		// 直接调用cssPros中的name值即可.
 		name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
 
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
+		// jQuery.cssHooks中包含了一系列css属性的兼容性处理.
+		// 当然这也是一个工具函数,参见:
+		// http://api.jquery.com/jQuery.cssHooks/
+		// --PB_PROBLEM
 		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
-		
+
 		// If a hook was provided get the computed value from there
+		// hooks中存在则从中获取.
 		if ( hooks && "get" in hooks ) {
 			val = hooks.get( elem, true, extra );
 		}
@@ -7578,12 +7596,17 @@ jQuery.extend({
 		if ( val === undefined ) {
 			val = curCSS( elem, name, styles );
 		}
+
 		//convert "normal" to computed value
+		// 处理一些值为normal的属性为其默认值.
+		// 可以看到cssNormalTransform中只有letter-spacing和font-weight两项.
 		if ( val === "normal" && name in cssNormalTransform ) {
 			val = cssNormalTransform[ name ];
 		}
 
 		// Return, converting to number if forced or a qualifier was provided and val looks numeric
+		// extra为""时,带有数字的属性值如12px等转换为纯数字形式,left/right等不变.
+		// extra为true时,强制把属性值变为数字形式,12px的转换为12,left/right转换为0.
 		if ( extra === "" || extra ) {
 			num = parseFloat( val );
 			return extra === true || jQuery.isNumeric( num ) ? num || 0 : val;
@@ -7641,6 +7664,8 @@ if ( window.getComputedStyle ) {
 			// Chrome < 17 and Safari 5.0 uses "computed value" instead of "used value" for margin-right
 			// Safari 5.1.7 (at least) returns percentage for a larger set of values, but width seems to be reliably pixels
 			// this is against the CSSOM draft spec: http://dev.w3.org/csswg/cssom/#resolved-values
+			// bugs
+			// --PB_PROBLEM
 			if ( rnumnonpx.test( ret ) && rmargin.test( name ) ) {
 
 				// Remember the original values
@@ -7664,7 +7689,7 @@ if ( window.getComputedStyle ) {
 	getStyles = function( elem ) {
 		return elem.currentStyle;
 	};
-
+	// 先用getStyles获取,获取不到用elem.style获取.
 	curCSS = function( elem, name, _computed ) {
 		var left, rs, rsLeft,
 			computed = _computed || getStyles( elem ),
@@ -7684,6 +7709,7 @@ if ( window.getComputedStyle ) {
 		// but a number that has a weird ending, we need to convert it to pixels
 		// but not position css attributes, as those are proportional to the parent element instead
 		// and we can't measure the parent instead because it might trigger a "stacking dolls" problem
+		// bugs
 		if ( rnumnonpx.test( ret ) && !rposition.test( name ) ) {
 
 			// Remember the original values
@@ -7704,7 +7730,7 @@ if ( window.getComputedStyle ) {
 				rs.left = rsLeft;
 			}
 		}
-
+		// 返回""则转换为auto.
 		return ret === "" ? "auto" : ret;
 	};
 }
