@@ -987,13 +987,15 @@ jQuery.extend({
 
 	// Multifunctional method to get and set values of a collection --PB_PROBLEM
 	// The value/s can optionally be executed if it's a function
-	// 这个方法得结合它的用法来看不然搞不懂其意图太灵活多变了
-	// 在jQuery的方法中,有一些方法没有传参数的时候,可以获取元素属性的值,而当传入了参数的时候,又可以设置元素属性的值,如
-	// html(),attr(),prop(),text(),html(),css(),data(),scrollTop/scrollLeft(),height()/width()好吧,我把jQuery内部调用jQuery.access()
-	// 的方法都列举了
+	// 这个方法得结合它的用法来看,不然搞不懂其意图,太灵活多变了
+	// 在jQuery的方法中,有一些方法没有传参数的时候,可以获取元素属性的值,
+	// 而当传入了参数的时候,又可以设置元素属性的值,如
+	// html(),attr(),prop(),text(),html(),css(),data(),scrollTop/scrollLeft(),height()/width(),
+	// 好吧,我把jQuery内部调用jQuery.access()的方法都列举了
 	// 而当key为object时,即这样的:
 	// css({width:100,height:100})则继续遍历调用access来设置属性值
-	// 而html(),text(),scrollTop/scrollLeft(),height()/width()和attr(),prop(),css(),data()在设置和获取属性值时的方式也不一样
+	// 而html(),text(),scrollTop/scrollLeft(),height()/width()和attr(),prop(),css(),data()
+	// 在设置和获取属性值时的方式也不一样
 	// 而这也是最后返回时多重三元判断的原因
 	// value:为将要设置的属性值,为fn的参数
 	access: function( elems, fn, key, value, chainable, emptyGet, raw ) {
@@ -7371,23 +7373,28 @@ function isHidden( elem, el ) {
 	return jQuery.css( elem, "display" ) === "none" || !jQuery.contains( elem.ownerDocument, elem );
 }
 
+// .show()/.hide()
 function showHide( elements, show ) {
 	var display, elem, hidden,
+		// 原先display值的缓存数组. 
 		values = [],
 		index = 0,
 		length = elements.length;
 
 	for ( ; index < length; index++ ) {
 		elem = elements[ index ];
+		// 不存在style,跳过.
 		if ( !elem.style ) {
 			continue;
 		}
 
 		values[ index ] = jQuery._data( elem, "olddisplay" );
 		display = elem.style.display;
+		// show为true则显示.
 		if ( show ) {
 			// Reset the inline display of this element to learn if it is
 			// being hidden by cascaded rules or not
+			// values中没有缓存且display为none,则把display设置为空,使其显示.
 			if ( !values[ index ] && display === "none" ) {
 				elem.style.display = "";
 			}
@@ -7395,11 +7402,14 @@ function showHide( elements, show ) {
 			// Set elements which have been overridden with display: none
 			// in a stylesheet to whatever the default browser style is
 			// for such an element
+			// isHidden:浏览器默认的display为none或者elem不属于当前文档则返回true.
+			// css_defaultDisplay:返回为block的display.
+			// 储存原先的display为block.
 			if ( elem.style.display === "" && isHidden( elem ) ) {
 				values[ index ] = jQuery._data( elem, "olddisplay", css_defaultDisplay(elem.nodeName) );
 			}
 		} else {
-
+			// 否则隐藏.
 			if ( !values[ index ] ) {
 				hidden = isHidden( elem );
 
@@ -7412,6 +7422,7 @@ function showHide( elements, show ) {
 
 	// Set the display of most of the elements in a second loop
 	// to avoid the constant reflow
+	// 防御性措施.
 	for ( index = 0; index < length; index++ ) {
 		elem = elements[ index ];
 		if ( !elem.style ) {
@@ -7426,23 +7437,28 @@ function showHide( elements, show ) {
 }
 
 jQuery.fn.extend({
+	// 主要是access的第二个参数fn对name/value的处理.
+	// access的chainable参数(对应这儿的arguments.length > 1)决定了
+	// 方法是设置值还是取值.
 	css: function( name, value ) {
 		return jQuery.access( this, function( elem, name, value ) {
 			var len, styles,
 				map = {},
 				i = 0;
-
+			// name为数组:
+			// .css(["width","height"])
+			// 返回一个包含属性键值对对象
 			if ( jQuery.isArray( name ) ) {
+				// 可以没有这个参数,curCss中照样可以取elem的getStyles.
 				styles = getStyles( elem );
 				len = name.length;
-
 				for ( ; i < len; i++ ) {
 					map[ name[ i ] ] = jQuery.css( elem, name[ i ], false, styles );
 				}
 
 				return map;
 			}
-
+			// value为undefined则取值,否则是设置值.
 			return value !== undefined ?
 				jQuery.style( elem, name, value ) :
 				jQuery.css( elem, name );
@@ -7483,6 +7499,7 @@ jQuery.extend({
 	},
 
 	// Exclude the following css properties to add px
+	// 这些属性不需要加px.
 	cssNumber: {
 		"columnCount": true,
 		"fillOpacity": true,
@@ -7503,39 +7520,49 @@ jQuery.extend({
 	},
 
 	// Get and set the style property on a DOM Node
+	// 获取或设置DOM节点的css属性值.
 	style: function( elem, name, value, extra ) {
 		// Don't set styles on text and comment nodes
+		// 排除text/comment节点.
 		if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style ) {
 			return;
 		}
-
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
 			origName = jQuery.camelCase( name ),
 			style = elem.style;
 
+		// 见jQuery.css()
 		name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( style, origName ) );
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
 		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 
 		// Check if we're setting a value
+		// 设置值.
 		if ( value !== undefined ) {
 			type = typeof value;
 
 			// convert relative number strings (+= or -=) to relative numbers. #7345
+			// 去看bug#7345.
+			// 解决这样的bug:
+			// $(elem).css("width","+=100px").
 			if ( type === "string" && (ret = rrelNum.exec( value )) ) {
+				// ret[1]为+-符号,ret[2]为增加的绝对值.
 				value = ( ret[1] + 1 ) * ret[2] + parseFloat( jQuery.css( elem, name ) );
 				// Fixes bug #9237
 				type = "number";
 			}
 
 			// Make sure that NaN and null values aren't set. See: #7116
+			// 排除特殊情况.
+			// typeof NaN === "number"
 			if ( value == null || type === "number" && isNaN( value ) ) {
 				return;
 			}
 
 			// If a number was passed in, add 'px' to the (except for certain CSS properties)
+			// origName是不属于cssNumber中的属性.
 			if ( type === "number" && !jQuery.cssNumber[ origName ] ) {
 				value += "px";
 			}
@@ -7547,6 +7574,8 @@ jQuery.extend({
 			}
 
 			// If a hook was provided, use that value, otherwise just set the specified value
+			// 包括两种情况:
+			// 一种是name完全不是hooks中的,另一种是name为hooks中也取到了值.
 			if ( !hooks || !("set" in hooks) || (value = hooks.set( elem, value, extra )) !== undefined ) {
 
 				// Wrapped to prevent IE from throwing errors when 'invalid' values are provided
@@ -7557,16 +7586,20 @@ jQuery.extend({
 			}
 
 		} else {
+			// 取值.
 			// If a hook was provided get the non-computed value from there
 			if ( hooks && "get" in hooks && (ret = hooks.get( elem, false, extra )) !== undefined ) {
 				return ret;
 			}
 
 			// Otherwise just get the value from the style object
+			// 用elem.style[name]来取.
 			return style[ name ];
 		}
 	},
 
+	// 只读的,不可以设置css属性值.
+	// 因getComputedStyle是只读的.
 	css: function( elem, name, extra, styles ) {
 		var num, val, hooks,
 			origName = jQuery.camelCase( name );
@@ -7620,14 +7653,18 @@ jQuery.extend({
 			old = {};
 
 		// Remember the old values, and insert the new ones
+		// 还是为了下面的回调函数中的elem参数.
 		for ( name in options ) {
+			// 储存一下,方便后面还原.
 			old[ name ] = elem.style[ name ];
+			// 改变属性值.
 			elem.style[ name ] = options[ name ];
 		}
 
 		ret = callback.apply( elem, args || [] );
 
 		// Revert the old values
+		// 还原.
 		for ( name in options ) {
 			elem.style[ name ] = old[ name ];
 		}
@@ -7829,11 +7866,12 @@ function getWidthOrHeight( elem, name, extra ) {
 function css_defaultDisplay( nodeName ) {
 	var doc = document,
 		display = elemdisplay[ nodeName ];
-
+	// nodeName不是body.
 	if ( !display ) {
 		display = actualDisplay( nodeName, doc );
 
 		// If the simple way fails, read from inside an iframe
+		// PB_PROBLEM
 		if ( display === "none" || !display ) {
 			// Use the already-created iframe if possible
 			iframe = ( iframe ||
@@ -7858,6 +7896,7 @@ function css_defaultDisplay( nodeName ) {
 }
 
 // Called ONLY from within css_defaultDisplay
+// PB_PROBLEM:这样做的目的是什么?
 function actualDisplay( name, doc ) {
 	var elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 		display = jQuery.css( elem[0], "display" );
