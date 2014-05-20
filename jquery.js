@@ -1127,7 +1127,7 @@ jQuery.ready.promise = function( obj ) {
 };
 
 // Populate the class2type map
-// jQuery.type 需要的calss2Type
+// jQuery.type 需要的class2Type
 jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
@@ -2480,25 +2480,43 @@ function isEmptyDataObject( obj ) {
 	return true;
 }
 jQuery.extend({
+	// 显示或者操作在匹配元素上面执行的函数队列.
+	// 主要是运用jQuery._data来获取或者存储缓存队列.
+	// elem:附加队列的DOM元素.
+	// type:包含队列名称的字符串,默认为"fx".
+	// data:可缺省,或为替换当前队列的数组,或为要添加进队列的新函数.
+	// 用法参见:http://api.jquery.com/jQuery.queue/
 	queue: function( elem, type, data ) {
 		var queue;
 
 		if ( elem ) {
 			type = ( type || "fx" ) + "queue";
+			// 获取存储在elem上面的函数队列,可能是animate/hide/show上面存储的.
 			queue = jQuery._data( elem, type );
 
 			// Speed up dequeue by getting out quickly if this is just a lookup
 			if ( data ) {
+				// elem上面没有存储的函数队列或有存储的函数队列且data为要替换的队列数组.
+				// 则替换名为type的数据缓存.
 				if ( !queue || jQuery.isArray(data) ) {
 					queue = jQuery._data( elem, type, jQuery.makeArray(data) );
 				} else {
+					// 有缓存数据且data不为数组.
 					queue.push( data );
 				}
 			}
 			return queue || [];
 		}
 	},
-
+	// 执行匹配元素的下一个函数队列.
+	// 一直执行到最后一个队列.
+	//Example:
+	/* $(".pb").animate({top:0},500).queue(function(){
+	 * 	$.dequeue(this)
+	 * }).animate({top:"10px"},500)
+	 */
+	// 没有$.dequeue(),则只会执行第一个animate,调用$.dequeue()后,queue()后面的
+	// animate也会被执行.
 	dequeue: function( elem, type ) {
 		type = type || "fx";
 
@@ -2509,13 +2527,15 @@ jQuery.extend({
 			next = function() {
 				jQuery.dequeue( elem, type );
 			};
-
+		// PB_PROBLEM:inprogress
 		// If the fx queue is dequeued, always remove the progress sentinel
+		// "inprogress"是一个标记,代表队列是下一个将要执行的.并删除标记.
 		if ( fn === "inprogress" ) {
+			// fn:这个才是真正的执行函数队列.
 			fn = queue.shift();
 			startLength--;
 		}
-
+		// 
 		hooks.cur = fn;
 		if ( fn ) {
 
@@ -2529,7 +2549,7 @@ jQuery.extend({
 			delete hooks.stop;
 			fn.call( elem, next, hooks );
 		}
-
+		// 删除??
 		if ( !startLength && hooks ) {
 			hooks.empty.fire();
 		}
