@@ -8,16 +8,20 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		
-		$( ".ok" )
-    		// .animate({ top: '0px' }, 600 )
-    		.queue(function() {
-      			$( this ).toggleClass( "red" );
-      			$.dequeue( this );
-    		})
-    		.animate({ left:'10px', top:'30px' }, 700 ).animate({ left:'10px', top:'30px' }, 700 ).animate({ left:'10px', top:'30px' }, 700 ).animate({ left:'10px', top:'30px' }, 700 ).animate({ left:'10px', top:'30px' }, 700 ).animate({ left:'10px', top:'30px' }, 700 );
-    		// $.dequeue($(".ok")[0])
-    	// console.log($.queue($(".ok")[0],"fx"))
+		// var normalQ = $.queue($("body")[0],"fx",function(){
+		// });
+		// // console.log(normalQ)	
+		// $("body").animate({left:0},1000).animate({left:0},1000).animate({left:100},2000)/*.queue()*/
+
+		// var normalDq = $.dequeue($("body")[0],"fx")	
+		// $.queue($("body")[0],"fx",function(){
+		// });
+		// var normalDqs = $.dequeue($("body")[0],"fx")	
+		// $("body").animate()
+		// console.log(normalDq)
+		$("body").queue("fx",function(next){
+			
+		})
 	})
 	y(function(){
 		// // console.log(y.wait())

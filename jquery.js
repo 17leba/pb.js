@@ -2481,9 +2481,10 @@ function isEmptyDataObject( obj ) {
 }
 jQuery.extend({
 	// 显示或者操作在匹配元素上面执行的函数队列.
+	// 是一个入队操作.
 	// 主要是运用jQuery._data来获取或者存储缓存队列.
 	// elem:附加队列的DOM元素.
-	// type:包含队列名称的字符串,默认为"fx".
+	// type:包含队列名称的字符串,默认为"fx"表示动画.
 	// data:可缺省,或为替换当前队列的数组,或为要添加进队列的新函数.
 	// 用法参见:http://api.jquery.com/jQuery.queue/
 	queue: function( elem, type, data ) {
@@ -2508,8 +2509,10 @@ jQuery.extend({
 			return queue || [];
 		}
 	},
-	// 执行匹配元素的下一个函数队列.
-	// 一直执行到最后一个队列.
+	// 执行匹配元素的下一个函数队列,一直执行到最后一个队列.
+	// 是一个出对操作.
+	// 如果是动画队列,则设置一个标记符inprogress并入队占位,表示下一个执行的队列
+	// 是动画队列.
 	//Example:
 	/* $(".pb").animate({top:0},500).queue(function(){
 	 * 	$.dequeue(this)
@@ -2519,7 +2522,6 @@ jQuery.extend({
 	// animate也会被执行.
 	dequeue: function( elem, type ) {
 		type = type || "fx";
-
 		var queue = jQuery.queue( elem, type ),
 			startLength = queue.length,
 			fn = queue.shift(),
@@ -2527,29 +2529,39 @@ jQuery.extend({
 			next = function() {
 				jQuery.dequeue( elem, type );
 			};
-		// PB_PROBLEM:inprogress
+
 		// If the fx queue is dequeued, always remove the progress sentinel
-		// "inprogress"是一个标记,代表队列是下一个将要执行的.并删除标记.
+		// 如果出队的是占位符,则删除后继续出队.
 		if ( fn === "inprogress" ) {
 			// fn:这个才是真正的执行函数队列.
 			fn = queue.shift();
 			startLength--;
 		}
-		// 
+		// 当前正在执行的函数队列.
 		hooks.cur = fn;
 		if ( fn ) {
 
 			// Add a progress sentinel to prevent the fx queue from being
 			// automatically dequeued
+			// 如果是动画队列,则设置标记符占位.
+			// 防止动画队列自动出队.
+			// Example:
+			// $(".pb").animate({top:0},500).animate({top:10},500)
+			// 若不设置标记,则第一个animate的500ms会失效,立刻top:0并执行第二个
+			// animate.
+			// PB_PROBLEM:inprogress.
 			if ( type === "fx" ) {
 				queue.unshift( "inprogress" );
 			}
 
 			// clear up the last queue stop function
 			delete hooks.stop;
+			// fn为queue中的第二个函数参数.
+			// 开始执行队列,fn的参数为next(下一个出队),需要手动触发,hooks(存储着一些列对
+			// 动画的操作).--PB_PROBLEM
 			fn.call( elem, next, hooks );
 		}
-		// 删除??
+		// 删除数据.
 		if ( !startLength && hooks ) {
 			hooks.empty.fire();
 		}
@@ -2569,26 +2581,39 @@ jQuery.extend({
 
 jQuery.fn.extend({
 	queue: function( type, data ) {
+		// 标记,默认参数为2个.
 		var setter = 2;
 
+		// 第一个参数不是字符串时,修正各种值.
 		if ( typeof type !== "string" ) {
 			data = type;
 			type = "fx";
 			setter--;
 		}
 
+		// 参数数量小于setter:
+		// 1.$().queue("fx") ---> setter = 2,type为string类型.
+		// 2.$().queue() ---> setter = 1,type为undefined类型.
+		// 则只是显示/获得第一个匹配元素上面的队列,因jQuery.queue()
+		// 没有第三个参数.
 		if ( arguments.length < setter ) {
 			return jQuery.queue( this[0], type );
 		}
 
+		// 参数数量大于等于setter:
+		// 1.$().queue("fx",[]) ---> setter = 2,arguments.length = 2.
+		// 2.$().queue([]) ---> setter = 1,arguments.length = 1.
+		// 3.$().queue([],[]),$().queue("fx",[],[])等.
+		// 情况2即data为undefined则返回this,否则情况1下操作队列.
 		return data === undefined ?
 			this :
 			this.each(function() {
 				var queue = jQuery.queue( this, type, data );
-
+				
 				// ensure a hooks for this queue
 				jQuery._queueHooks( this, type );
 
+				// 如果是动画队列且队列第一个元素不是占位符标记,则自动调用dequeue.
 				if ( type === "fx" && queue[0] !== "inprogress" ) {
 					jQuery.dequeue( this, type );
 				}
@@ -2601,6 +2626,7 @@ jQuery.fn.extend({
 	},
 	// Based off of the plugin by Clint Helfers, with permission.
 	// http://blindsignals.com/index.php/2009/07/jquery-delay/
+	// 延迟队列.
 	delay: function( time, type ) {
 		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 		type = type || "fx";
@@ -2612,6 +2638,7 @@ jQuery.fn.extend({
 			};
 		});
 	},
+	// 清空未执行的队列.
 	clearQueue: function( type ) {
 		return this.queue( type || "fx", [] );
 	},
