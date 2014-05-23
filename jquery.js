@@ -3013,9 +3013,11 @@ jQuery.extend({
 			}
 		}
 	},
-	// jQuery.attr()是内部调用函数,
-	// 作为jQuery.fn.attr()中access的第二个参数,
-	// jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 )
+	// jQuery.attr()是内部调用函数,获取html上面的属性值:
+	// 如<div data-1="one" id="one"></div>上面的data-1,id等,获取不到$("#one")[0]DOM元素的innerHTML,firstChild
+	// 等方法和属性.而jQuery.prop()就是用来获取这些深层次的属性的.
+	// 两者区别http://itaofe.info/再看attribute和property/
+	// 作为jQuery.fn.attr()中access的第二个参数,jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 )
 	// 分析access代码可知:
 	// jQuery.fn.attr()只有一个参数name时,jQuery.attr()的参数为elems[0]和name
 	// jQuery.fn.attr()有两个参数时,jQuery.attr()的参数为elems[i],name,value
