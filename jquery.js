@@ -10357,18 +10357,35 @@ jQuery.fn.extend({
 
 
 // Create scrollLeft and scrollTop methods
+// 获取或者设置匹配元素相对于滚动条左边/顶部的相对偏移.
+// 这个滚动条不单指浏览器窗口的滚动条,也包括元素的滚动条.
+// 因为是或者和设置值,用到access函数是可以预见的.
+// 主要是对pageXOffset/pageYOffset的兼容性处理,IE不支持pageXOffset/pageYOffset,
+// 用scrollLeft/scrollTop代替.
+// 以上方法表示文档向左/右滚动过的像素数.
 jQuery.each( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( method, prop ) {
+	// 为了区分是左还是上. 
 	var top = /Y/.test( prop );
 
 	jQuery.fn[ method ] = function( val ) {
 		return jQuery.access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
+
+			// 获取值.
 			if ( val === undefined ) {
+				// 分为window/document和普通元素.
+				// 用 prop in win 来区分IE和其他浏览器.
+				// IE下取根元素html的滚动条距离.
+				// 差异参见:http://www.w3help.org/zh-cn/causes/BX9008
+				// 若是普通元素,则直接用elem[method]来获取.
 				return win ? (prop in win) ? win[ prop ] :
 					win.document.documentElement[ method ] :
 					elem[ method ];
 			}
-
+			// 设置值.
+			// window/document用scrollTop来设置.
+			// 关于scrollTop:
+			// http://www.w3school.com.cn/jsref/met_win_scrollto.asp
 			if ( win ) {
 				win.scrollTo(
 					!top ? val : jQuery( win ).scrollLeft(),
@@ -10386,7 +10403,7 @@ jQuery.each( {scrollLeft: "pageXOffset", scrollTop: "pageYOffset"}, function( me
 function getWindow( elem ) {
 	// 是window对象则直接返回,否则是document则调用
 	// defaultView或者parentWindow返回
-	//（在浏览器中,defaultView返回当前 document 对象所关联的 window 对象,如果没有,会返回 nullIE9以下不支持,用defaultView）
+	//（在浏览器中,defaultView返回当前 document 对象所关联的 window 对象,如果没有,会返回 null,IE9以下不支持,用defaultView）
 	// 要是其他元素,返回false
 	return jQuery.isWindow( elem ) ?
 		elem :
@@ -10395,16 +10412,29 @@ function getWindow( elem ) {
 			false;
 }
 // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
+// height/width:实际高宽,不包括padding和border.
+// innerHeight/innerWidth:包括padding,不包括border.
+// outerHeight/outerWidth:包括padding和border.如果其第一个参数设置为true,则包括margin.
+// 可以看出三组方法属于包含关系,故用了双重循环来处理.
 jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 	jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
 		// margin is only for outerHeight, outerWidth
+		// margin参数设置为true时,outerHeight/outerWidth包含margin外边框.
 		jQuery.fn[ funcName ] = function( margin, value ) {
+			// chainable变量用于判断是获取值还是设置值.
+			// 有参数值且defaultExtra为""或margin参数不为布尔值,
+			// 则是height/width,innerHeight/innerWidth的设置值.
+			// extra变量用于区分四种状态:
+			// defaultExtra存在自不必说,不存在的情况下还需要判断margin参数的值.
+			// extra为margin表示包括外边距和border,无论是获取还是设置值($().outerHeight(100,true)).
+			// extra为border时表示获取/设置值时不包括外边距.
 			var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
 				extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
-
 			return jQuery.access( this, function( elem, type, value ) {
 				var doc;
-
+				// 元素为window.
+				// 直接用clientHeight/clientWidth获取.
+				// 没有所谓的设置值.
 				if ( jQuery.isWindow( elem ) ) {
 					// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
 					// isn't a whole lot we can do. See pull request at this URL for discussion:
@@ -10413,11 +10443,15 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 				}
 
 				// Get document width or height
+				// 元素为document,同样是只获取,只是需要进行兼容处理.
 				if ( elem.nodeType === 9 ) {
+					// 获取根元素.
 					doc = elem.documentElement;
 
 					// Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height], whichever is greatest
 					// unfortunately, this causes bug #3838 in IE6/8 only, but there is currently no good, small way to fix it.
+					// 标准浏览器中,scroll[Width/Height] or offset[Width/Height] or client[Width/Height]
+					// 都可以获取到准确值,但是有可恶的IE啊.
 					return Math.max(
 						elem.body[ "scroll" + name ], doc[ "scroll" + name ],
 						elem.body[ "offset" + name ], doc[ "offset" + name ],
@@ -10425,6 +10459,7 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 					);
 				}
 
+				// 还是得回归到css中的兼容性处理中.
 				return value === undefined ?
 					// Get width or height on the element, requesting but not forcing parseFloat
 					jQuery.css( elem, type, extra ) :
