@@ -30,14 +30,20 @@
 		var d = $(".ok").outerHeight(true)
 	})
 	y(function(){
-		// // console.log(y.wait())
-		// y.Queue().add(function(){
-		// 	console.log(2)
-		// }).add(function(){
-		// 	console.log(3)
-		// }).wait(1000).add(function(){
-		// 	console.log(4)
-		// }).wait(2000).fire()
+		var ok = y(".ok")[0],
+			options = {
+				"attribute":true,
+				"childList":true
+			};
+		var observer = new MutationObserver(function(m,o){
+			console.log(this)
+			// m.forEach(function(m){
+			// 	console.log(m.type,m)
+			// })
+		});
+		// console.log(observer)
+		observer.observe(ok,options);
+		ok.appendChild(document.createElement("div"))
 	})
 
 	</script>
