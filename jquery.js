@@ -6284,9 +6284,11 @@ Sizzle.attr = jQuery.attr;
 jQuery.find = Sizzle;
 jQuery.expr = Sizzle.selectors;
 jQuery.expr[":"] = jQuery.expr.pseudos;
+// 对子项都是DOM元素的数组进行排序并且去掉复制的元素.
 jQuery.unique = Sizzle.uniqueSort;
 jQuery.text = Sizzle.getText;
 jQuery.isXMLDoc = Sizzle.isXML;
+// 判断一个DOM元素是否是另一个DOM元素的后代元素.
 jQuery.contains = Sizzle.contains;
 
 
@@ -6308,10 +6310,14 @@ jQuery.fn.extend({
 		var i, ret, self,
 			len = this.length;
 
+		// selector不是字符串,可能为DOM元素或者jQuery对象.
 		if ( typeof selector !== "string" ) {
 			self = this;
+			// pushStack造一个新jQuery对象.
 			return this.pushStack( jQuery( selector ).filter(function() {
 				for ( i = 0; i < len; i++ ) {
+					// filter过滤的条件是:self[i]中包含this.
+					// jQuery.contains是sizzle中Sizzle.contains的别名.
 					if ( jQuery.contains( self[ i ], this ) ) {
 						return true;
 					}
@@ -6319,24 +6325,32 @@ jQuery.fn.extend({
 			}) );
 		}
 
+
 		ret = [];
+		// 把匹配元素装进ret数组中.
 		for ( i = 0; i < len; i++ ) {
 			jQuery.find( selector, this[ i ], ret );
 		}
 
 		// Needed because $( selector, context ) becomes $( context ).find( selector )
+		// --PB_PROBLEM
+		// ret转换成jQuery对象.
 		ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+		// 修正ret的selector.
 		ret.selector = ( this.selector ? this.selector + " " : "" ) + selector;
 		return ret;
 	},
 
+	// 匹配有指定后代的元素,target可以为一个DOM元素或者选择器字符串.
 	has: function( target ) {
 		var i,
+			// 转换成jQuery对象. 
 			targets = jQuery( target, this ),
 			len = targets.length;
-
+		// 运用filter来过滤.
 		return this.filter(function() {
 			for ( i = 0; i < len; i++ ) {
+				// targets[i]是this的后代元素则返回true.
 				if ( jQuery.contains( this, targets[i] ) ) {
 					return true;
 				}
@@ -6344,6 +6358,9 @@ jQuery.fn.extend({
 		});
 	},
 
+	// 删除与指定参数匹配的元素.
+	// 这个的selector可以为:选择器表达式,DOM元素,jQuery对象和过滤函数.
+	// 与filter对应.
 	not: function( selector ) {
 		return this.pushStack( winnow(this, selector, false) );
 	},
@@ -6352,11 +6369,15 @@ jQuery.fn.extend({
 		return this.pushStack( winnow(this, selector, true) );
 	},
 
+	// 有一个元素符合给定的selector过滤条件则返回true.  
+	// 参数selector的种类和not/filter一样.
 	is: function( selector ) {
+		// selector不是字符串则调用filter方法的length,大于0则表示有返回的匹配值.
 		return !!selector && (
 			typeof selector === "string" ?
 				// If this is a positional/relative selector, check membership in the returned set
 				// so $("p:first").is("p:last") won't return true for a doc with two "p".
+				// PB_PROBLEM
 				rneedsContext.test( selector ) ?
 					jQuery( selector, this.context ).index( this[0] ) >= 0 :
 					jQuery.filter( selector, this ).length > 0 :
@@ -6374,8 +6395,10 @@ jQuery.fn.extend({
 
 		for ( ; i < l; i++ ) {
 			cur = this[i];
-
+			// cur.ownerDocument:当cur为document时,cur.ownerDocument为null.
 			while ( cur && cur.ownerDocument && cur !== context && cur.nodeType !== 11 ) {
+				// 存在pos且pos中包含this[i],则表明closest了自身.直接push进ret,跳出循环.
+				// 否则继续寻找parentNode直到找到匹配祖先元素或者没有结果而跳出循环.
 				if ( pos ? pos.index(cur) > -1 : jQuery.find.matchesSelector(cur, selectors) ) {
 					ret.push( cur );
 					break;
@@ -6389,19 +6412,23 @@ jQuery.fn.extend({
 
 	// Determine the position of an element within
 	// the matched set of elements
+	// 搜索匹配的元素elem,返回相应的索引值.
+	// 参数为空,则返回当前集合元素中第一个元素在同辈元素中的位置.
 	index: function( elem ) {
-
 		// No argument, return index in parent
 		if ( !elem ) {
 			return ( this[0] && this[0].parentNode ) ? this.first().prevAll().length : -1;
 		}
 
 		// index in selector
+		// 若elem为字符串选择器,则判断this[0]在jQuery(elem)中的位置.
+		// 如:$(".pb").index("li").
 		if ( typeof elem === "string" ) {
 			return jQuery.inArray( this[0], jQuery( elem ) );
 		}
 
 		// Locate the position of the desired element
+		// 用elem.jquery(版本号)来区分jQuery对象和DOM元素.
 		return jQuery.inArray(
 			// If it receives a jQuery object, the first element is used
 			elem.jquery ? elem[0] : elem, this );
@@ -6533,28 +6560,35 @@ jQuery.extend({
 });
 
 // Implement the identical functionality for filter and not
+// 为not/filter两个方法提供支持的函数,返回过滤后的元素(数组形式).
+// 区别在于最后一个参数keep,为true时表示正向过滤即filter,为false时表示否定过滤即not.
+// 主要是调用grep方法来过滤.
 function winnow( elements, qualifier, keep ) {
 
 	// Can't pass null or undefined to indexOf in Firefox 4
 	// Set to 0 to skip string check
+	// get √
 	qualifier = qualifier || 0;
-
+	// 过滤条件为函数.
 	if ( jQuery.isFunction( qualifier ) ) {
+		// 用回调函数的返回值与keep比较,巧妙地区分了not和filter(下同).
 		return jQuery.grep(elements, function( elem, i ) {
 			var retVal = !!qualifier.call( elem, i, elem );
 			return retVal === keep;
 		});
-
+	// 过滤条件为DOM节点.
 	} else if ( qualifier.nodeType ) {
 		return jQuery.grep(elements, function( elem ) {
 			return ( elem === qualifier ) === keep;
 		});
-
+	// 过滤条件为字符串选择器.
 	} else if ( typeof qualifier === "string" ) {
+		// 把所有是DOM元素节点的elements装进数组.
 		var filtered = jQuery.grep(elements, function( elem ) {
 			return elem.nodeType === 1;
 		});
 
+		// --PB_PROBLEM
 		if ( isSimple.test( qualifier ) ) {
 			return jQuery.filter(qualifier, filtered, !keep);
 		} else {
@@ -6562,6 +6596,7 @@ function winnow( elements, qualifier, keep ) {
 		}
 	}
 
+	// 过滤条件为jQuer对象等.
 	return jQuery.grep(elements, function( elem ) {
 		return ( jQuery.inArray( elem, qualifier ) >= 0 ) === keep;
 	});
@@ -6587,7 +6622,6 @@ var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figca
 	rleadingWhitespace = /^\s+/,
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
 	// \w:匹配包括下划线在内的任何单词字符 等价于[A-Za-z0-9_]
-	// 
 	rtagName = /<([\w:]+)/,
 	rtbody = /<tbody/i,
 	rhtml = /<|&#?\w+;/,
@@ -6622,8 +6656,12 @@ wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.the
 wrapMap.th = wrapMap.td;
 
 jQuery.fn.extend({
+	// 取得或者设置所有匹配元素的文本内容.
+	// 获取时用sizzle选择器中的Sizzle.getText方法来获取,设置时用createTextNode创建新的文本节点
+	// 后添加到匹配元素中.
 	text: function( value ) {
 		return jQuery.access( this, function( value ) {
+			// 设置时用empty先清空.
 			return value === undefined ?
 				jQuery.text( this ) :
 				this.empty().append( ( this[0] && this[0].ownerDocument || document ).createTextNode( value ) );

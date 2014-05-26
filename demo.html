@@ -8,42 +8,14 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		// var normalQ = $.queue($("body")[0],"fx",function(){
-		// });
-		// // console.log(normalQ)	
-		// $("body").animate({left:0},1000).animate({left:0},1000).animate({left:100},2000)/*.queue()*/
-
-		// var normalDq = $.dequeue($("body")[0],"fx")	
-		// $.queue($("body")[0],"fx",function(){
-		// });
-		// var normalDqs = $.dequeue($("body")[0],"fx")	
-		// $("body").animate()
-		// console.log(normalDq)
-		// var attr = $("body")[0].removeAttribute("title");
-		// console.log(attr)
-		// var h = $(document).outerHeight(200);
-		// var d = document.body.clientWidth;
-		// console.log(d)
-		// console.log(h)
-		// console.log(window.document.documentElement)
-		// console.log(s)
-		var d = $(".ok").outerHeight(true)
+		// var text = $.text($(".ok"))
+		// // console.log(text);
+		// var texts = $(".ok").text();
+		// var t = $("body").find("div")
+		// var arr = [1,2,3,4,6,4];
+		var t = $("div").index($(".ok"))
 	})
 	y(function(){
-		var ok = y(".ok")[0],
-			options = {
-				"attribute":true,
-				"childList":true
-			};
-		var observer = new MutationObserver(function(m,o){
-			console.log(this)
-			// m.forEach(function(m){
-			// 	console.log(m.type,m)
-			// })
-		});
-		// console.log(observer)
-		observer.observe(ok,options);
-		ok.appendChild(document.createElement("div"))
 	})
 
 	</script>
@@ -83,7 +55,13 @@
 </head>
 <body data-ok-pk="ok" title="no" class="pb">
 	<div class="ok" style="background-color:red">
-		<div class="no oo"></div>
+		it is a test!
+	</div>
+	<div class="ok" style="background-color:red">
+		it is a test!
+	</div>
+	<div class="ok">
+		nonono
 	</div>
 </body>
 </html>
