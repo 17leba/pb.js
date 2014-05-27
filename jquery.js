@@ -6284,7 +6284,7 @@ Sizzle.attr = jQuery.attr;
 jQuery.find = Sizzle;
 jQuery.expr = Sizzle.selectors;
 jQuery.expr[":"] = jQuery.expr.pseudos;
-// 对子项都是DOM元素的数组进行排序并且去掉复制的元素.
+// 对数组中的DOM元素以它们在html文档中出现的顺序进行排序并且去掉复制的元素.
 jQuery.unique = Sizzle.uniqueSort;
 jQuery.text = Sizzle.getText;
 jQuery.isXMLDoc = Sizzle.isXML;
@@ -6434,15 +6434,22 @@ jQuery.fn.extend({
 			elem.jquery ? elem[0] : elem, this );
 	},
 
+	// 把selector添加到匹配的jQuery对象(this)中.
+	// 以它们在html文档中出现的顺序来排序.
 	add: function( selector, context ) {
+		// selector为字符串则转换为jQuery对象,包括字符串表达式和html片段.
+		// selector为DOM元素或者jQuery对象时,则转换为数组形式.
 		var set = typeof selector === "string" ?
 				jQuery( selector, context ) :
 				jQuery.makeArray( selector && selector.nodeType ? [ selector ] : selector ),
+			// 和原来的jQuery对象合并为DOM元素数组.
 			all = jQuery.merge( this.get(), set );
 
+		// 去重排序后构建新的jQuery对象
 		return this.pushStack( jQuery.unique(all) );
 	},
 
+	// 把之前的对象也添加到jQuery对象队列中.
 	addBack: function( selector ) {
 		return this.add( selector == null ?
 			this.prevObject : this.prevObject.filter(selector)
@@ -6450,8 +6457,11 @@ jQuery.fn.extend({
 	}
 });
 
+// andSelf作为addBack的一个别名.
 jQuery.fn.andSelf = jQuery.fn.addBack;
 
+// 为next()和prev()方法提供函数支持.
+// while中确保找到的是DOM节点元素.
 function sibling( cur, dir ) {
 	do {
 		cur = cur[ dir ];
@@ -6489,12 +6499,18 @@ jQuery.each({
 	prevUntil: function( elem, i, until ) {
 		return jQuery.dir( elem, "previousSibling", until );
 	},
+	// 参数传的妙.
 	siblings: function( elem ) {
 		return jQuery.sibling( ( elem.parentNode || {} ).firstChild, elem );
 	},
 	children: function( elem ) {
 		return jQuery.sibling( elem.firstChild );
 	},
+	// 查找匹配元素内部所有的子节点(包括文本节点),
+	// 如果元素是一个iframe,则查找文档内容.
+	// contentDocument属性返回文档对象,
+	// contentWindow:这是个只读属性,返回指定的iframe的窗口对象.
+	// 它虽然不是标准的一部分,但各个主流浏览器都支持.
 	contents: function( elem ) {
 		return jQuery.nodeName( elem, "iframe" ) ?
 			elem.contentDocument || elem.contentWindow.document :
@@ -6502,22 +6518,29 @@ jQuery.each({
 	}
 }, function( name, fn ) {
 	jQuery.fn[ name ] = function( until, selector ) {
+		// 处理元素.
 		var ret = jQuery.map( this, fn, until );
 
+		// 没有until参数,即不是nextUntil/prevUntil等,
+		// 则修正selector参数.
 		if ( !runtil.test( name ) ) {
 			selector = until;
 		}
 
+		// 过滤.
 		if ( selector && typeof selector === "string" ) {
 			ret = jQuery.filter( selector, ret );
 		}
 
+		// guaranteedUnique中包含的都是只取一个元素的方法,故用不到unique.
 		ret = this.length > 1 && !guaranteedUnique[ name ] ? jQuery.unique( ret ) : ret;
 
+		// 如果是parents/prevUntil/prevAll,则倒序排列.why?
+		// 由近及远.
+		// PB_PROBLEM
 		if ( this.length > 1 && rparentsprev.test( name ) ) {
 			ret = ret.reverse();
 		}
-
 		return this.pushStack( ret );
 	};
 });
@@ -6533,10 +6556,14 @@ jQuery.extend({
 			jQuery.find.matches(expr, elems);
 	},
 
+	// 找到elem的所有祖先/前面和后面同辈元素的支持方法.
 	dir: function( elem, dir, until ) {
 		var matched = [],
 			cur = elem[ dir ];
 
+		// 循环拿到所有符合的DOM节点元素.
+		// !jQuery(cur).is(until)用来排除until:
+		// $().nextUntil(".pb") ---> 排除了.pb
 		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery( cur ).is( until )) ) {
 			if ( cur.nodeType === 1 ) {
 				matched.push( cur );
@@ -6546,6 +6573,7 @@ jQuery.extend({
 		return matched;
 	},
 
+	// 找到elem的所有相邻元素的支持方法.
 	sibling: function( n, elem ) {
 		var r = [];
 
