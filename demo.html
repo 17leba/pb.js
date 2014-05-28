@@ -8,13 +8,8 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		// var text = $.text($(".ok"))
-		// // console.log(text);
-		// var texts = $(".ok").text();
-		// var t = $("body").find("div")
-		// var arr = [1,2,3,4,6,4];
-		var r =$(".ok").prevAll()
-		// console.log(r)
+		$(".ok").wrap($(".mm"))
+		$(".ok").unwrap()
 	})
 	y(function(){
 	})
@@ -59,14 +54,13 @@
 	<div class="ok" style="background-color:red">
 		it is a test!
 	</div>
+	<p>欧克
+	</p>
 	<div class="ok no" style="background-color:red">
 		it is a test!
 	</div>
 	
 	<div class="mm">
-		<div class="ok">
-			nonono
-		</div>
 	</div>
 	
 </body>

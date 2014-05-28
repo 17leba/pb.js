@@ -6624,7 +6624,7 @@ function winnow( elements, qualifier, keep ) {
 		}
 	}
 
-	// 过滤条件为jQuer对象等.
+	// 过滤条件为jQuery对象等.
 	return jQuery.grep(elements, function( elem ) {
 		return ( jQuery.inArray( elem, qualifier ) >= 0 ) === keep;
 	});
@@ -6633,6 +6633,7 @@ function createSafeFragment( document ) {
 	var list = nodeNames.split( "|" ),
 		safeFrag = document.createDocumentFragment();
 
+	// IE
 	if ( safeFrag.createElement ) {
 		while ( list.length ) {
 			safeFrag.createElement(
@@ -6696,21 +6697,31 @@ jQuery.fn.extend({
 		}, null, value, arguments.length );
 	},
 
+	// 将所有匹配的元素用单个元素(html)包裹起来.
+	// $(html).append(this).
 	wrapAll: function( html ) {
+		// html为函数,则html的返回值为包裹元素.
+		// 当然每一个匹配的元素都被包裹起来.
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
 				jQuery(this).wrapAll( html.call(this, i) );
 			});
 		}
 
+		// 确保存在匹配元素才可以被包裹.
 		if ( this[0] ) {
 			// The elements to wrap the target around
+			// 克隆包裹元素html.
 			var wrap = jQuery( html, this[0].ownerDocument ).eq(0).clone(true);
 
+			// 包裹元素插入到第一个匹配元素前面.
 			if ( this[0].parentNode ) {
 				wrap.insertBefore( this[0] );
 			}
 
+			// 所有匹配元素添加到包裹元素中.
+			// 如果包裹元素的存在为DOM节点的第一个元素,则包裹元素变为此元素.
+			// 没搞懂为什么要这样??PB_PROBLEM
 			wrap.map(function() {
 				var elem = this;
 
@@ -6725,37 +6736,52 @@ jQuery.fn.extend({
 		return this;
 	},
 
+	// 将每一个匹配的元素的子内容(包括文本节点)用一个html结构包裹起来,这个html也可以是函数返回的.
 	wrapInner: function( html ) {
+
+		// 同wrapAll.
 		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
 				jQuery(this).wrapInner( html.call(this, i) );
 			});
 		}
 
+		// 遍历所有匹配元素.
 		return this.each(function() {
 			var self = jQuery( this ),
+				// 获取匹配元素的所有子内容.
 				contents = self.contents();
 
+			// 存在子内容则调用wrapAll.
 			if ( contents.length ) {
 				contents.wrapAll( html );
 
 			} else {
+				// 不存在子内容则等同于append.
 				self.append( html );
 			}
 		});
 	},
 
+	// 将所有匹配的元素用html逐个包裹起来.
+	// 注意与wrapAll的区别,wrap是在每一个匹配的元素外面包裹一层包裹元素,
+	// 而wrapAll是把所有匹配的元素"集合"起来再包裹一层包裹元素.
 	wrap: function( html ) {
 		var isFunction = jQuery.isFunction( html );
 
+		// html是函数则指定函数返回可用的html结构.
 		return this.each(function(i) {
 			jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
 		});
 	},
 
+	// wrap的反方法.
+	// 用于取消wrap的效果.
+	// 用end最后返回this.
 	unwrap: function() {
 		return this.parent().each(function() {
 			if ( !jQuery.nodeName( this, "body" ) ) {
+				// 用子元素替换父元素.
 				jQuery( this ).replaceWith( this.childNodes );
 			}
 		}).end();
