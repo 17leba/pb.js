@@ -8,12 +8,15 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		$(".ok").wrap($(".mm"))
-		$(".ok").unwrap()
+		$.fx.off = 0;
+		$(".ok").animate({
+			height:"200px"
+		},34,"swing",function(){
+			return 100
+		});
 	})
 	y(function(){
 	})
-
 	</script>
 	<style>
 	body{
@@ -50,6 +53,7 @@
 	</style>
 </head>
 <body data-ok-pk="ok" title="no" class="pb">
+	<input type="text" value="搜索">
 	<a href="" class="ii"></a>
 	<div class="ok" style="background-color:red">
 		it is a test!

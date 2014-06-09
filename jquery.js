@@ -9595,6 +9595,7 @@ function createTweens( animation, props ) {
 		var collection = ( tweeners[ prop ] || [] ).concat( tweeners[ "*" ] ),
 			index = 0,
 			length = collection.length;
+
 		for ( ; index < length; index++ ) {
 			if ( collection[ index ].call( animation, prop, value ) ) {
 
@@ -10016,6 +10017,9 @@ jQuery.fn.extend({
 			.end().animate({ opacity: to }, speed, easing, callback );
 	},
 	animate: function( prop, speed, easing, callback ) {
+		// empty:要动画的属性是否为空,为空的话就没什么好说的了,直接停止动画.
+		// optall:见jQuery.speed.
+		// 
 		var empty = jQuery.isEmptyObject( prop ),
 			optall = jQuery.speed( speed, easing, callback ),
 			doAnimation = function() {
@@ -10163,22 +10167,37 @@ jQuery.each({
 	};
 });
 
+// 返回一个包含动画方法animate的各种参数的对象集合,包括:
+// duration:动画时间.
+// easing:动画方式,可以在jQuery.easing中增加其它方法.
+// queue:是否为动画的标记.
+// old:倒数第二个参数.
+// complete:一个函数. -PB_PROBLEM
 jQuery.speed = function( speed, easing, fn ) {
+	// speed:动画时间或者是最后返回的opt对象.
+	// easing:动画方式,同上.
+	// fn:animate方法的回调函数.
+	// opt:最后返回参数集合对象.
+
+	// speed为对象则合并到{}中.
 	var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
 			jQuery.isFunction( speed ) && speed,
 		duration: speed,
 		easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
 	};
-
+	// 修正动画时间.
+	// jQuery.fx.off不为false则duration赋值为0,动画时间为0,即没动画效果.
+	// duration为数字,则直接赋值.
+	// duration不为数字,则判断是否为jQuery.fx.speeds的元素"slow","fast","_default".
+	// 不是这三个值则赋值为默认的_default(400).
 	opt.duration = jQuery.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
 		opt.duration in jQuery.fx.speeds ? jQuery.fx.speeds[ opt.duration ] : jQuery.fx.speeds._default;
-
 	// normalize opt.queue - true/undefined/null -> "fx"
+	// 标记为动画标记fx.
 	if ( opt.queue == null || opt.queue === true ) {
 		opt.queue = "fx";
 	}
-
 	// Queueing
 	opt.old = opt.complete;
 
@@ -10191,7 +10210,6 @@ jQuery.speed = function( speed, easing, fn ) {
 			jQuery.dequeue( this, opt.queue );
 		}
 	};
-
 	return opt;
 };
 
