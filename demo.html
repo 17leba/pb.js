@@ -8,12 +8,15 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		$.fx.off = 0;
-		$(".ok").animate({
-			height:"200px"
-		},34,"swing",function(){
-			return 100
-		});
+		// $.fx.off = 0;
+		// $(".ok").animate({
+		// 	height:"200px"
+		// },34,"swing",function(){
+		// 	return 100
+		// });
+		// $(".ok").append("<tr></tr>")
+		// $(".input").replaceWith("<p>ookk</p>")
+		$("<div></div>").appendTo($("body"))
 	})
 	y(function(){
 	})
@@ -66,6 +69,17 @@
 	
 	<div class="mm">
 	</div>
-	
+	<span class="abc"></span>
+	<span class="abc"></span>
+	<table id="table">
+		<tbody>
+			<tr>
+			<td></td>
+		</tr>
+		</tbody>
+		
+	</table>
+	<input type="radio" checked class="input">
+	<input type="radio" checked class="input">
 </body>
 </html>

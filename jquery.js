@@ -6943,10 +6943,13 @@ jQuery.fn.extend({
 	},
 
 	domManip: function( args, table, callback ) {
-
 		// Flatten any nested arrays
-		args = core_concat.apply( [], args );
+		// args:为append等操作方法的参数,可以为html/DOM/jQuery对象等,为数组形式.
+		// table:对table进行插入操作时为true,其他操作(after/before)时为false.
+		// callback:处理函数.
 
+		// 把添加的元素转换为数组形式.
+		args = core_concat.apply( [], args );
 		var first, node, hasScripts,
 			scripts, doc, fragment,
 			i = 0,
@@ -6957,6 +6960,9 @@ jQuery.fn.extend({
 			isFunction = jQuery.isFunction( value );
 
 		// We can't cloneNode fragments that contain checked, in WebKit
+		// 注释说的很清楚:在webkit内核的浏览器中,我们克隆的html片段不会包含checked状态.
+		// jQuery.support.checkClone:为false则表示不可复制checked状态.
+		// -PB_PROBLEM
 		if ( isFunction || !( l <= 1 || typeof value !== "string" || jQuery.support.checkClone || !rchecked.test( value ) ) ) {
 			return this.each(function( index ) {
 				var self = set.eq( index );
@@ -6968,26 +6974,31 @@ jQuery.fn.extend({
 		}
 
 		if ( l ) {
+			// 构建html片段.
 			fragment = jQuery.buildFragment( args, this[ 0 ].ownerDocument, false, this );
+
 			first = fragment.firstChild;
 
+			// 修正fragment.
 			if ( fragment.childNodes.length === 1 ) {
 				fragment = first;
 			}
 
 			if ( first ) {
+				// 是否是对table的操作.
 				table = table && jQuery.nodeName( first, "tr" );
+				// 是否是对script的操作.
 				scripts = jQuery.map( getAll( fragment, "script" ), disableScript );
+				// 
 				hasScripts = scripts.length;
 
 				// Use the original fragment for the last item instead of the first because it can end up
 				// being emptied incorrectly in certain situations (#8070).
 				for ( ; i < l; i++ ) {
 					node = fragment;
-
+					// 除了最后一个都克隆.-PB_PROBLEM ---WHY?
 					if ( i !== iNoClone ) {
 						node = jQuery.clone( node, true, true );
-
 						// Keep references to cloned scripts for later restoration
 						if ( hasScripts ) {
 							jQuery.merge( scripts, getAll( node, "script" ) );
@@ -6995,6 +7006,7 @@ jQuery.fn.extend({
 					}
 
 					callback.call(
+						// findOrAppend:对table中tbody的处理.
 						table && jQuery.nodeName( this[i], "table" ) ?
 							findOrAppend( this[i], "tbody" ) :
 							this[i],
@@ -7041,6 +7053,8 @@ jQuery.fn.extend({
 	}
 });
 
+// 好吧,函数的名字已经说明了一切:发现或者插入元素.
+// elem中有tag元素则返回,没有则创建一个插入elem中.
 function findOrAppend( elem, tag ) {
 	return elem.getElementsByTagName( tag )[0] || elem.appendChild( elem.ownerDocument.createElement( tag ) );
 }
@@ -7165,6 +7179,7 @@ function fixCloneNodeIssues( src, dest ) {
 	}
 }
 
+// 用模板函数转换方法.
 jQuery.each({
 	appendTo: "append",
 	prependTo: "prepend",
@@ -7181,6 +7196,7 @@ jQuery.each({
 
 		for ( ; i <= last; i++ ) {
 			elems = i === last ? this : this.clone(true);
+			// 这是关键.
 			jQuery( insert[i] )[ original ]( elems );
 
 			// Modern browsers can apply jQuery collections as arrays, but oldIE needs a .get()
@@ -7191,6 +7207,7 @@ jQuery.each({
 	};
 });
 
+// 取得context中的所有tag元素.
 function getAll( context, tag ) {
 	var elems, elem,
 		i = 0,
