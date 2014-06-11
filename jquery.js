@@ -1566,8 +1566,8 @@ jQuery.extend({
 				deferred[ tuple[0] + "With" ]( this === deferred ? promise : this, arguments );
 				return this;
 			};
-			// 执行
 			// deferred[ resolve | reject | notify ],对应fireWith.
+			// 执行
 			deferred[ tuple[0] + "With" ] = list.fireWith;
 		});
 
@@ -9600,6 +9600,7 @@ var fxNow, timerId,
 	};
 
 // Animations created synchronously will run synchronously
+// 取得当前的时间.
 function createFxNow() {
 	setTimeout(function() {
 		fxNow = undefined;
@@ -9637,13 +9638,18 @@ function Animation( elem, properties, options ) {
 				return false;
 			}
 			var currentTime = fxNow || createFxNow(),
+				// 剩下的动画时间.
+				// 开始动画的时间 + 动画的总时间 - 当前的时间.
 				remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
 				// archaic crash bug won't allow us to use 1 - ( 0.5 || 0 ) (#12497)
+				// 供下面计算剩余动画时间百分比用.
 				temp = remaining / animation.duration || 0,
+				// 剩余动画时间百分比.
 				percent = 1 - temp,
 				index = 0,
+				// 要运用动画的属性的个数.
 				length = animation.tweens.length;
-
+			// 开始执行剩余百分比时间的动画.
 			for ( ; index < length ; index++ ) {
 				animation.tweens[ index ].run( percent );
 			}
@@ -9711,7 +9717,6 @@ function Animation( elem, properties, options ) {
 	if ( jQuery.isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
-
 	jQuery.fx.timer(
 		jQuery.extend( tick, {
 			elem: elem,
@@ -10230,6 +10235,7 @@ jQuery.speed = function( speed, easing, fn ) {
 	return opt;
 };
 
+// 动画方式.
 jQuery.easing = {
 	linear: function( p ) {
 		return p;

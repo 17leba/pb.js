@@ -8,15 +8,11 @@
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		// $.fx.off = 0;
-		// $(".ok").animate({
-		// 	height:"200px"
-		// },34,"swing",function(){
-		// 	return 100
-		// });
-		// $(".ok").append("<tr></tr>")
-		// $(".input").replaceWith("<p>ookk</p>")
-		$("<div></div>").appendTo($("body"))
+		$(".ok").animate({
+			width:"100px",
+			opacity:1,
+			height:"0"
+		},100);
 	})
 	y(function(){
 	})
@@ -52,6 +48,50 @@
 		border:1px solid blue;
 		width: 50px;
 		height: 50px;
+		/*-moz-animation-name: colorchange, sizechange;
+		-moz-animation-duration: 5s, 2s;
+		-moz-animation-timing-function: linear, ease;
+		-moz-animation-delay: 0s, 5s;
+		-moz-animation-iteration-count: infinite;
+		-moz-animation-direction: alternate;
+		-webkit-animation-name: colorchange, sizechange;
+		-webkit-animation-duration: 5s, 2s;
+		-webkit-animation-timing-function: linear, ease;
+		-webkit-animation-delay: 0s, 5s;
+		-webkit-animation-iteration-count: infinite;
+		-webkit-animation-direction: alternate;*/
+		-moz-animation:colorchange 2s ease 0s infinite alternate;
+		animation-play-state:paused;
+		
+	}
+	.no:hover{
+		animation-play-state:running;
+	}
+	@-webkit-keyframes colorchange{
+		0%   {background-color: #000}
+		10%  {background-color: #111}
+		20%  {background-color: #222}
+		30%  {background-color: #333}
+		40%  {background-color: #444}
+		50%  {background-color: #555}
+		60%  {background-color: #666}
+		70%  {background-color: #777}
+		80%  {background-color: #888}
+		90%  {background-color: #999}
+		100% {background-color: #aaa}
+	}
+	@keyframes colorchange{
+		0%   {background-color: #000}
+		10%  {background-color: #111}
+		20%  {background-color: #222}
+		30%  {background-color: #333}
+		40%  {background-color: #444}
+		50%  {background-color: #555}
+		60%  {background-color: #666}
+		70%  {background-color: #777}
+		80%  {background-color: #888}
+		90%  {background-color: #999}
+		100% {background-color: #aaa}
 	}
 	</style>
 </head>
@@ -63,22 +103,12 @@
 	</div>
 	<p>欧克
 	</p>
-	<div class="ok no" style="background-color:red">
+	<div class="no" style="background-color:red">
 		it is a test!
 	</div>
 	
 	<div class="mm">
 	</div>
-	<span class="abc"></span>
-	<span class="abc"></span>
-	<table id="table">
-		<tbody>
-			<tr>
-			<td></td>
-		</tr>
-		</tbody>
-		
-	</table>
 	<input type="radio" checked class="input">
 	<input type="radio" checked class="input">
 </body>
