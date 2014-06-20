@@ -8368,6 +8368,8 @@ var
 
 // #8138, IE may throw an exception when accessing
 // a field from window.location if document.domain has been set
+// 这种情况不多见.
+// 见了得知道是什么原因,以及解决办法.---get √
 try {
 	ajaxLocation = location.href;
 } catch( e ) {
@@ -8379,12 +8381,20 @@ try {
 }
 
 // Segment location into parts
+// 获取当前url的域名,如:
+// http://17leba.com/demo.html ---> http://17leba.com
+// 标准浏览器中location对象中有origin属性可以获取,但是IE下没有.
 ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
 
 // Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
+// 为工具函数jQuery.ajaxPrefilter(),jQuery.ajaxTransport()提供支持.
+// jQuery.ajaxPrefilter的主要作用是在每一个请求被发送之前或者这些ajax参数被$.ajax处理之前操作自定义ajax参数或修改已经存在的参数.
+// jQuery.ajaxTransport创建一个处理ajax实际数据的对象.
 function addToPrefiltersOrTransports( structure ) {
 
 	// dataTypeExpression is optional and defaults to "*"
+	// 返回一个闭包,用来处理参数.
+	// dataTypeExpression:数据类型,没有定义则默认为 "*".
 	return function( dataTypeExpression, func ) {
 
 		if ( typeof dataTypeExpression !== "string" ) {
@@ -8394,12 +8404,13 @@ function addToPrefiltersOrTransports( structure ) {
 
 		var dataType,
 			i = 0,
+			// 转换为数组形式.
 			dataTypes = dataTypeExpression.toLowerCase().match( core_rnotwhite ) || [];
-
 		if ( jQuery.isFunction( func ) ) {
 			// For each dataType in the dataTypeExpression
 			while ( (dataType = dataTypes[i++]) ) {
 				// Prepend if requested
+				// PB_PROBLEM:为什么要判断这个 +
 				if ( dataType[0] === "+" ) {
 					dataType = dataType.slice( 1 ) || "*";
 					(structure[ dataType ] = structure[ dataType ] || []).unshift( func );
@@ -8441,15 +8452,22 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 // A special extend for ajax options
 // that takes "flat" options (not to be deep extended)
 // Fixes #9887
+// 用于ajax的特殊拷贝.区别于extend的深度拷贝,后者在进行深度拷贝时有两个问题:
+// 浪费内存和会出现死循环.具体见:
+// http://bugs.jquery.com/ticket/9887
 function ajaxExtend( target, src ) {
 	var deep, key,
+		// 两个不可以深度拷贝的参数context和url.
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
 
 	for ( key in src ) {
 		if ( src[ key ] !== undefined ) {
+			// 如果有context和url两个参数中的一个,则直接返回target,不赋值deep.
 			( flatOptions[ key ] ? target : ( deep || (deep = {}) ) )[ key ] = src[ key ];
 		}
 	}
+
+	// 开始深度拷贝,已经除去context和url了.
 	if ( deep ) {
 		jQuery.extend( true, target, deep );
 	}
@@ -8457,7 +8475,10 @@ function ajaxExtend( target, src ) {
 	return target;
 }
 
+// 从服务端加载数据并将返回的html插入匹配的DOM中.
+// 默认使用 GET 方式 - 传递附加参数时自动转换为 POST 方式.
 jQuery.fn.load = function( url, params, callback ) {
+	// 事件中的load.
 	if ( typeof url !== "string" && _load ) {
 		return _load.apply( this, arguments );
 	}
@@ -8465,25 +8486,30 @@ jQuery.fn.load = function( url, params, callback ) {
 	var selector, response, type,
 		self = this,
 		off = url.indexOf(" ");
-
+	// url中存在空格,即表示加入DOM的是页面中的某个匹配元素,极selector为查询表达式.
+	// demo.html #pb ---> #pb极为selector.
 	if ( off >= 0 ) {
 		selector = url.slice( off, url.length );
 		url = url.slice( 0, off );
 	}
 
 	// If it's a function
+	// params为函数,即表明没有设置参数.
 	if ( jQuery.isFunction( params ) ) {
 
 		// We assume that it's the callback
+		// 修正callback.
 		callback = params;
 		params = undefined;
 
 	// Otherwise, build a param string
 	} else if ( params && typeof params === "object" ) {
+		// 否则设置为 POST 方式.
 		type = "POST";
 	}
 
 	// If we have elements to modify, make the request
+	// 确保有匹配的DOM元素.
 	if ( self.length > 0 ) {
 		jQuery.ajax({
 			url: url,
@@ -8493,10 +8519,10 @@ jQuery.fn.load = function( url, params, callback ) {
 			dataType: "html",
 			data: params
 		}).done(function( responseText ) {
-
 			// Save response for use in complete callback
 			response = arguments;
 
+			// 开始插入html到DOM.
 			self.html( selector ?
 
 				// If a selector was specified, locate the right elements in a dummy div
@@ -8506,6 +8532,7 @@ jQuery.fn.load = function( url, params, callback ) {
 				// Otherwise use the full result
 				responseText );
 
+		// 插入成功后的回调函数. 
 		}).complete( callback && function( jqXHR, status ) {
 			self.each( callback, response || [ jqXHR.responseText, status, jqXHR ] );
 		});
@@ -8515,15 +8542,18 @@ jQuery.fn.load = function( url, params, callback ) {
 };
 
 // Attach a bunch of functions for handling common AJAX events
+// 模板函数.
 jQuery.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ){
 	jQuery.fn[ type ] = function( fn ){
 		return this.on( type, fn );
 	};
 });
 
+// $.get $.post 
 jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 		// shift arguments if data argument was omitted
+		// 没有设置参数.
 		if ( jQuery.isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
@@ -8549,6 +8579,7 @@ jQuery.extend({
 	lastModified: {},
 	etag: {},
 
+	// 默认的一些参数.
 	ajaxSettings: {
 		url: ajaxLocation,
 		type: "GET",
@@ -8618,6 +8649,8 @@ jQuery.extend({
 	// Creates a full fledged settings object into target
 	// with both ajaxSettings and settings fields.
 	// If target is omitted, writes into ajaxSettings.
+	// target:公共请求的参数,即通过$.ajaxSetup设置的参数.
+	// settings:单个请求的参数
 	ajaxSetup: function( target, settings ) {
 		return settings ?
 

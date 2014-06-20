@@ -4,17 +4,26 @@
 
 	<meta charset="UTF-8">
 	<title>Document</title>
-	<script src="pb.js"></script>
 	<script src="jquery.js"></script>
 	<script>
 	$(function(){
-		$(".ok").animate({
-			width:"100px",
-			opacity:1,
-			height:"0"
-		},100);
-	})
-	y(function(){
+		// document.domain = "test.com";
+		// // var a = location.href;
+		// alert(location.protocol)
+		$.ajaxSetup({
+			url:"kj",
+			type:"post",
+			dataType:"json"
+		})
+		// $.ajax({
+		// 	url:"demo.php",
+		// 	// dataType:"html",
+		// 	// type:"post"
+		// })
+		// $("body").load("index.php ",{
+		// 	limit:29
+		// })
+
 	})
 	</script>
 	<style>
@@ -93,6 +102,11 @@
 		90%  {background-color: #999}
 		100% {background-color: #aaa}
 	}
+	.text{
+		text-indent:100%;
+		white-space: nowrap;
+		overflow: hidden;
+	}
 	</style>
 </head>
 <body data-ok-pk="ok" title="no" class="pb">
@@ -111,5 +125,8 @@
 	</div>
 	<input type="radio" checked class="input">
 	<input type="radio" checked class="input">
+	<div class="text">it is a test!!</div>
+	<script>
+	</script>
 </body>
 </html>
