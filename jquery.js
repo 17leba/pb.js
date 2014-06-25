@@ -543,6 +543,9 @@ jQuery.extend({
 	},
 	// 判断是否为winodw
 	// window.window == window
+	// a = window.frames[1]
+	// a == window --> false
+	// a == a.window --> true
 	isWindow: function( obj ) {
 		return obj != null && obj == obj.window;
 	},
