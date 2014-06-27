@@ -11,7 +11,6 @@
 		// // var a = location.href;
 		// alert(location.protocol)
 		$.ajaxSetup({
-			url:"kj",
 			type:"post",
 			dataType:"json"
 		})
@@ -23,7 +22,20 @@
 		// $("body").load("index.php ",{
 		// 	limit:29
 		// })
-
+		$.ajax({
+			method:"get",
+			url:"ajax.php?ok=4",
+			data:{one:"one",two:"t",_:"nono"},
+			// cache:false,
+			contentType:false,
+			// ifModified:true,
+			// crossDomain:true,
+			success:function(d){
+			},
+			fail:function(){
+				alert("")
+			}
+		})
 	})
 	</script>
 	<style>
@@ -126,11 +138,5 @@
 	<input type="radio" checked class="input">
 	<input type="radio" checked class="input">
 	<div class="text">it is a test!!</div>
-	<iframe src="http://www.w3schools.com"></iframe>
-	<script>
-	var a = {};
-a.window = a;
-console.log(a === a.window);
-	</script>
 </body>
 </html>

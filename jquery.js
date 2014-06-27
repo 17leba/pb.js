@@ -8334,13 +8334,14 @@ var
 	ajaxLocParts,
 	ajaxLocation,
 	ajax_nonce = jQuery.now(),
-
+	// 匹配 ? 
 	ajax_rquery = /\?/,
 	rhash = /#.*$/,
 	rts = /([?&])_=[^&]*/,
 	rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg, // IE leaves an \r character at EOL
 	// #7653, #8125, #8152: local protocol detection
 	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
+	// 以GET或者HEAD开头和结尾.
 	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
 	rurl = /^([\w.+-]+:)(?:\/\/([^\/?#:]*)(?::(\d+)|)|)/,
@@ -8428,6 +8429,7 @@ function addToPrefiltersOrTransports( structure ) {
 }
 
 // Base inspection function for prefilters and transports
+// PB_PROBLEM 
 function inspectPrefiltersOrTransports( structure, options, originalOptions, jqXHR ) {
 
 	var inspected = {},
@@ -8701,6 +8703,7 @@ jQuery.extend({
 			// Callbacks context
 			callbackContext = s.context || s,
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
+			// 
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
 				jQuery( callbackContext ) :
 				jQuery.event,
@@ -8795,17 +8798,32 @@ jQuery.extend({
 		// Add protocol if not provided (#5866: IE7 issue with protocol-less urls)
 		// Handle falsy url in the settings object (#10093: consistency with old signature)
 		// We also use the url parameter if available
+		// 对请求链接的处理:
+		// 首先是去除hash即window.location.href的影响,然后是排除IE7下的protocol的bug,即//17leba.com/demo.html在IE7下回报错.
+		// 而其它浏览器则会正常处理为加上http:的.
 		s.url = ( ( url || s.url || ajaxLocation ) + "" ).replace( rhash, "" ).replace( rprotocol, ajaxLocParts[ 1 ] + "//" );
 
 		// Alias method option to type as per ticket #12004
+		// 请求type的获取.
+		// 先检查参数对象里面是否设置了,两个可选名字method/type,method优先级高,没有设置则找寻默认的请求方式.
 		s.type = options.method || options.type || s.method || s.type;
 
 		// Extract dataTypes list
+		// 对预期服务器返回的数据类型的处理,转换成数组形式.为空或未定义则默认为 * .
+		// 如果不指定,jQuery 将自动根据 HTTP 包 MIME 信息来智能判断,比如XML MIME类型就被识别为XML.
 		s.dataTypes = jQuery.trim( s.dataType || "*" ).toLowerCase().match( core_rnotwhite ) || [""];
-
+		
 		// A cross-domain request is in order when we have a protocol:host:port mismatch
+		// 未设置crossDomain时则判断提供的url是不是跨域的,为跨域的则设置crossDomain为true,否则设置为false.
 		if ( s.crossDomain == null ) {
+			// 获取url的 protocol + "//" + hostname.
 			parts = rurl.exec( s.url.toLowerCase() );
+
+			// 为crossDomain赋值.
+			// parts[1]与ajaxLocParts[1]比较: http: 与 https:
+			// parts[ 2 ]ajaxLocParts[ 2 ]:hostname的比较.
+			// 最后是端口的比较.
+			// 80对应http,443对应https.
 			s.crossDomain = !!( parts &&
 				( parts[ 1 ] !== ajaxLocParts[ 1 ] || parts[ 2 ] !== ajaxLocParts[ 2 ] ||
 					( parts[ 3 ] || ( parts[ 1 ] === "http:" ? 80 : 443 ) ) !=
@@ -8814,7 +8832,12 @@ jQuery.extend({
 		}
 
 		// Convert data if not already a string
+		// s.processData默认为true,即发送的数据是可以转换成查询字符串.如果要发送诸如DOM树信息或者一些不能转换为查询字符串的信息,
+		// 则其值为false.
 		if ( s.data && s.processData && typeof s.data !== "string" ) {
+			// 转换对象为字符串.
+			// 见jQuery.param:
+			// {one:"one",two:"two"} ==> one=one&two=two
 			s.data = jQuery.param( s.data, s.traditional );
 		}
 
@@ -8827,6 +8850,7 @@ jQuery.extend({
 		}
 
 		// We can fire global events as of now if asked to
+		// global参数默认为true,即触发全局的ajax事件,为false时则阻止全局的ajax事件.
 		fireGlobals = s.global;
 
 		// Watch for a new set of requests
@@ -8838,23 +8862,29 @@ jQuery.extend({
 		s.type = s.type.toUpperCase();
 
 		// Determine if request has content
+		// 判断请求中是否会包含呈现数据.
+		// GET/HEAD不会包含呈现数据.
+		// 参考：http://changfakong.diandian.com/post/2012-02-13/15973956
 		s.hasContent = !rnoContent.test( s.type );
 
 		// Save the URL in case we're toying with the If-Modified-Since
 		// and/or If-None-Match header later on
+		// 看注释!!
 		cacheURL = s.url;
 
 		// More options handling for requests with no content
 		if ( !s.hasContent ) {
 
 			// If data is available, append data to url
+			// 一般为get方式,有data参数字符串则把其加到url后面.
 			if ( s.data ) {
+				// 判断原来的url是否有自带参数,有则添加&后继续添加s.data,没有则添加?后添加s.data.
 				cacheURL = ( s.url += ( ajax_rquery.test( cacheURL ) ? "&" : "?" ) + s.data );
 				// #9682: remove data so that it's not used in an eventual retry
 				delete s.data;
 			}
-
 			// Add anti-cache in url if needed
+			// 不缓存请求则来url后面加上时间戳.
 			if ( s.cache === false ) {
 				s.url = rts.test( cacheURL ) ?
 
@@ -8877,6 +8907,7 @@ jQuery.extend({
 		}
 
 		// Set the correct header, if data is being sent
+		// 设置发送信息至服务器时内容编码类型.
 		if ( s.data && s.hasContent && s.contentType !== false || options.contentType ) {
 			jqXHR.setRequestHeader( "Content-Type", s.contentType );
 		}
