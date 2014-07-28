@@ -8913,6 +8913,7 @@ jQuery.extend({
 		}
 
 		// Set the Accepts header for the server, depending on the dataType
+		// 设置accepts
 		jqXHR.setRequestHeader(
 			"Accept",
 			s.dataTypes[ 0 ] && s.accepts[ s.dataTypes[0] ] ?
@@ -8921,6 +8922,7 @@ jQuery.extend({
 		);
 
 		// Check for headers option
+		// 有设置的headers则遍历设置其中的值.
 		for ( i in s.headers ) {
 			jqXHR.setRequestHeader( i, s.headers[ i ] );
 		}
