@@ -122,21 +122,26 @@
 	</style>
 </head>
 <body data-ok-pk="ok" title="no" class="pb">
-	<input type="text" value="搜索">
-	<a href="" class="ii"></a>
-	<div class="ok" style="background-color:red">
-		it is a test!
-	</div>
-	<p>欧克
-	</p>
-	<div class="no" style="background-color:red">
-		it is a test!
-	</div>
-	
-	<div class="mm">
-	</div>
-	<input type="radio" checked class="input">
-	<input type="radio" checked class="input">
-	<div class="text">it is a test!!</div>
+	<form>
+  <select name="single">
+    <option>Single</option>
+    <option>Single2</option>
+  </select>
+  <select name="multiple" multiple="multiple">
+    <option selected="selected">Multiple</option>
+    <option>Multiple2</option>
+    <option selected="selected">Multiple3</option>
+  </select><br/>
+  <input type="checkbox" name="check" value="check1" checked="checked"/> check1
+  <input type="checkbox" name="check" value="check2" checked="checked"/> check2
+  <input type="radio" name="radio" value="radio1" checked="checked"/> radio1
+  <input type="radio" name="radio" value="radio2" /> radio2
+</form>
+<script>
+	var a = $("form").find("input,select");
+	$.each(a,function(i,v){
+		console.log(i,v)
+	})
+</script>
 </body>
 </html>

@@ -8926,8 +8926,11 @@ jQuery.extend({
 		for ( i in s.headers ) {
 			jqXHR.setRequestHeader( i, s.headers[ i ] );
 		}
-
+		
 		// Allow custom headers/mimetypes and early abort
+		// beforeSend:发送请求前用来修改jqXHR的函数,如添加自定义的HTTP头等,有两个参数(XHR对象和s参数集合).
+		// 返回false时则取消本次请求.
+		// state===2时也取消请求.
 		if ( s.beforeSend && ( s.beforeSend.call( callbackContext, jqXHR, s ) === false || state === 2 ) ) {
 			// Abort if not done already and return
 			return jqXHR.abort();
@@ -8943,7 +8946,7 @@ jQuery.extend({
 
 		// Get transport
 		transport = inspectPrefiltersOrTransports( transports, s, options, jqXHR );
-
+		
 		// If no transport, we auto-abort
 		if ( !transport ) {
 			done( -1, "No Transport" );
