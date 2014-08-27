@@ -1470,7 +1470,7 @@ jQuery.extend({
 				state: function() {
 					return state;
 				},
-				// 不论状态是resoved还是rejected都添加执行程序.
+				// 不论状态是resolved还是rejected都添加执行程序.
 				always: function() {
 					deferred.done( arguments ).fail( arguments );
 					return this;
@@ -8703,7 +8703,6 @@ jQuery.extend({
 			// Callbacks context
 			callbackContext = s.context || s,
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
-			// 
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
 				jQuery( callbackContext ) :
 				jQuery.event,
@@ -8768,6 +8767,7 @@ jQuery.extend({
 						if ( state < 2 ) {
 							for ( code in map ) {
 								// Lazy-add the new callback in a way that preserves old ones
+								// PB_PROBLEM
 								statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
 							}
 						} else {
@@ -8897,6 +8897,8 @@ jQuery.extend({
 		}
 
 		// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
+		// 如果设置ifModified为true,则根据服务器返回的最后修改时间设置头,
+		// 传递给服务器判断是否内容已经修改,从而返回新的内容.
 		if ( s.ifModified ) {
 			if ( jQuery.lastModified[ cacheURL ] ) {
 				jqXHR.setRequestHeader( "If-Modified-Since", jQuery.lastModified[ cacheURL ] );
@@ -8984,6 +8986,7 @@ jQuery.extend({
 				statusText = nativeStatusText;
 
 			// Called once
+			// 执行一次的标记
 			if ( state === 2 ) {
 				return;
 			}
@@ -8992,29 +8995,36 @@ jQuery.extend({
 			state = 2;
 
 			// Clear timeout if it exists
+			// 设置请求超时,则先清除
 			if ( timeoutTimer ) {
 				clearTimeout( timeoutTimer );
 			}
 
 			// Dereference transport for early garbage collection
 			// (no matter how long the jqXHR object will be used)
+			// 垃圾回收
 			transport = undefined;
 
 			// Cache response headers
+			// 缓存响应头
 			responseHeadersString = headers || "";
 
 			// Set readyState
+			// 设置http请求的状态
+			// 状态码大于0则设置为4,表示已完全响应接受,否则设置为0(初始化状态)
 			jqXHR.readyState = status > 0 ? 4 : 0;
 
 			// Get response data
+			// 处理响应的内容
 			if ( responses ) {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
-
 			// If successful, handle type chaining
+			// 由服务器返回的状态码在200-300 或者为304时.
 			if ( status >= 200 && status < 300 || status === 304 ) {
 
 				// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
+				// 设置了ifModified参数为true,根据服务器数据是否改变来决定是否获取新数据.
 				if ( s.ifModified ) {
 					modified = jqXHR.getResponseHeader("Last-Modified");
 					if ( modified ) {
@@ -9027,6 +9037,7 @@ jQuery.extend({
 				}
 
 				// if no content
+				// http状态码204表示请求成功,但是没有数据.
 				if ( status === 204 ) {
 					isSuccess = true;
 					statusText = "nocontent";
@@ -9068,6 +9079,20 @@ jQuery.extend({
 			}
 
 			// Status-dependent callbacks
+			// 根据http响应代码执行相对应的函数.
+			// 如:
+			/*
+			 *	$.ajax({
+			 *		statusCode:{
+			 *			404:function(){
+			 *				console.log(404)
+			 *			},
+			 *			200:function(){
+			 *				console.log(200)
+			 *			}
+			 *		}
+			 *	})
+			 */
 			jqXHR.statusCode( statusCode );
 			statusCode = undefined;
 
@@ -9110,7 +9135,6 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 		contents = s.contents,
 		dataTypes = s.dataTypes,
 		responseFields = s.responseFields;
-
 	// Fill responseXXX fields
 	for ( type in responseFields ) {
 		if ( type in responses ) {
