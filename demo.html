@@ -40,24 +40,11 @@
 		// 		alert("")
 		// 	}
 		// })
-		$.ajax({
-			url:"ajax.php",
-			statusCode:{
-				404:function(){
-					console.log("404")
-				},
-				200:function(){
-					console.log("200")
-				}
-			},
-			success:function(){
-			},
-			ifModified:true,
-			error:function(){
-			},
-			complete:function(){
-			}
-		})
+		function A(){
+			console.log(this)
+		}
+		A()
+		new A();
 	})
 	</script>
 	<style>
@@ -163,5 +150,8 @@
 	<form action="">
 		<input type="button" value="ok">
 	</form>
+	<script>
+	</script>
+	<div id="ok"></div>
 </body>
 </html>

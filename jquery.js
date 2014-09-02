@@ -9031,6 +9031,7 @@ jQuery.extend({
 						jQuery.lastModified[ cacheURL ] = modified;
 					}
 					modified = jqXHR.getResponseHeader("etag");
+					console.log(jqXHR)
 					if ( modified ) {
 						jQuery.etag[ cacheURL ] = modified;
 					}
