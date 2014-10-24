@@ -1,157 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-
-	<meta charset="UTF-8">
-	<title>Document</title>
-	<script src="jquery.js"></script>
-	<script>
-	// var _$ = jQuery.noConflict()
-	$(function(){
-		// document.domain = "test.com";
-		// // var a = location.href;
-		// alert(location.protocol)
-		// $.ajaxSetup({
-		// 	type:"post",
-		// 	dataType:"json"
-		// })
-		// // $.ajax({
-		// // 	url:"demo.php",
-		// // 	// dataType:"html",
-		// // 	// type:"post"
-		// // })
-		// // $("body").load("index.php ",{
-		// // 	limit:29
-		// // })
-		// _$.ajax({
-		// 	headers:{
-				
-		// 	},
-		// 	method:"get",
-		// 	url:"ajax.php?ok=4",
-		// 	data:{one:"one",two:"t",_:"nono"},
-		// 	// cache:false,
-		// 	contentType:false,
-		// 	// ifModified:true,
-		// 	// crossDomain:true,
-		// 	success:function(d){
-		// 	},
-		// 	fail:function(){
-		// 		alert("")
-		// 	}
-		// })
-		function A(){
-			console.log(this)
-		}
-		A()
-		new A();
-	})
-	</script>
-	<style>
-	body{
-		padding:0;
-		margin:100px;
-		height: 1000px;
-	}
-	#ab{
-		border-width:1px;
-		height: 900px;
-		padding:0
-	}
-	.ok{
-		letter-spacing: normal;
-		margin:10px;
-		border-top:40px solid red;
-		width: 100px;
-		height: 100px;
-		padding:10px;
-	}
-	.t{
-		background: #000;
-		width: 100px;
-		height: 100px;
-	}
-	.no{
-		position: relative;
-		top:10px;
-		margin:10px;
-		border:1px solid blue;
-		width: 50px;
-		height: 50px;
-		/*-moz-animation-name: colorchange, sizechange;
-		-moz-animation-duration: 5s, 2s;
-		-moz-animation-timing-function: linear, ease;
-		-moz-animation-delay: 0s, 5s;
-		-moz-animation-iteration-count: infinite;
-		-moz-animation-direction: alternate;
-		-webkit-animation-name: colorchange, sizechange;
-		-webkit-animation-duration: 5s, 2s;
-		-webkit-animation-timing-function: linear, ease;
-		-webkit-animation-delay: 0s, 5s;
-		-webkit-animation-iteration-count: infinite;
-		-webkit-animation-direction: alternate;*/
-		-moz-animation:colorchange 2s ease 0s infinite alternate;
-		animation-play-state:paused;
-		
-	}
-	.no:hover{
-		animation-play-state:running;
-	}
-	@-webkit-keyframes colorchange{
-		0%   {background-color: #000}
-		10%  {background-color: #111}
-		20%  {background-color: #222}
-		30%  {background-color: #333}
-		40%  {background-color: #444}
-		50%  {background-color: #555}
-		60%  {background-color: #666}
-		70%  {background-color: #777}
-		80%  {background-color: #888}
-		90%  {background-color: #999}
-		100% {background-color: #aaa}
-	}
-	@keyframes colorchange{
-		0%   {background-color: #000}
-		10%  {background-color: #111}
-		20%  {background-color: #222}
-		30%  {background-color: #333}
-		40%  {background-color: #444}
-		50%  {background-color: #555}
-		60%  {background-color: #666}
-		70%  {background-color: #777}
-		80%  {background-color: #888}
-		90%  {background-color: #999}
-		100% {background-color: #aaa}
-	}
-	.text{
-		text-indent:100%;
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	</style>
+	<meta charset="utf-8"></meta>
+    <title></title>
 </head>
-<body data-ok-pk="ok" title="no" class="pb">
-	<input type="text" value="搜索">
-	<a href="" class="ii"></a>
-	<div class="ok" style="background-color:red">
-		it is a test!
-	</div>
-	<p>欧克
-	</p>
-	<div class="no" style="background-color:red">
-		it is a test!
-	</div>
-	
-	<div class="mm">
-	</div>
-	<input type="radio" checked class="input">
-	<input type="radio" checked class="input">
-	<div class="text">it is a test!!</div>
-	<form action="">
-		<input type="button" value="ok">
-	</form>
-	<script>
-	</script>
-	<div id="ok"></div>
+<body>
+    
+    <script>
+    window.onload = function(){
+        if(window.File && window.FileReader && window.FileList && window.Blob){
+            var progress = {
+                init:function(){
+                    this.fileChange()
+                },
+                errorHandler:function(e){
+                    switch(e.target.error.code){
+                        case e.target.error.NOT_FOUND_ERR:
+                            alert("File not found!");
+                            break;
+                        case e.target.error.NOT_READABLE_ERR:
+                            alert("File is not readable!");
+                            break;
+                        case e.target.error.ABORT_ERR:
+                            break;
+                        default:
+                            alert("An error occurred reading this file!");
+                    }
+                },
+                updateProgress:function(e){
+                    if(e.lengthComputable){
+                        var percentLoaded = Math.round((e.loaded / e.total) * 100);
+                        if(percentLoaded < 100){
+                            console.log(percentLoaded)
+                        }
+                    }
+                },
+                handleFileSelect:function(e){
+                    var reader = new FileReader();
+                    reader.onerror = progress.errorHandler;
+                    reader.onprogress = progress.updateProgress;
+                    reader.onabort = function(e){
+                        alert("File read cancelled!")
+                    }
+                    reader.onloadstart = function(e){
+                        console.log("start...")
+                    }
+                    reader.onload = function(e){
+                        console.log("file upload complete!")
+                    }
+                    reader.readAsBinaryString(e.target.files[0])
+                },
+                fileChange:function(){
+                    var that = this;
+                    document.getElementById("file-upload").addEventListener("change",that.handleFileSelect,false)
+                }
+            }
+            progress.init()
+        }  
+
+        // // XHR
+        // var xhr = new XMLHttpRequest();
+        // xhr.open("GET","demo.jpg",true);
+        // xhr.overrideMimeType("text/plain;charset=x-user-defined");
+        // xhr.onreadystatechange = function(e){
+        //     if(this.readyState === 4 && this.status === 200){
+        //         var binStr = this.responseText;
+        //         for(var i = 0,len = binStr.length;i < len;i++){
+        //             var c = binStr.charCodeAt(i);
+        //             var byte = c & 0xff;
+        //         }
+        //     }
+        // } 
+        // xhr.send();
+    }
+   // 赋值对象方法
+    // Object.prototype.clone = function () {
+    //     var newObj = {};
+    //     for (var i in this) {
+    //         newObj[i] = this[i];
+    //     }
+    //     return newObj;
+    // }
+
+    // // 待赋值的对象
+    // var oldObj = {
+    //     name : "harole",
+    //     age  : "21"
+    // }
+
+    // // 复制对象
+    // var newObj = oldObj.clone();
+
+    // delete newObj.name;
+    // console.log(newObj.name);   // 输出 undefined
+    // console.log(oldObj.name);   // 输出 harole
+     
+        // Object.prototype.aa = "司徒正美";
+        var foo = 1;
+(function(){
+    console.log(1, foo); // undefined
+    var foo = 2;
+})();
+console.log(2, foo); // 1
+
+    </script>
+    <input type="file" id="file-upload">
 </body>
 </html>

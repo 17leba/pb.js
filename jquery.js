@@ -8799,7 +8799,7 @@ jQuery.extend({
 		// Handle falsy url in the settings object (#10093: consistency with old signature)
 		// We also use the url parameter if available
 		// 对请求链接的处理:
-		// 首先是去除hash即window.location.href的影响,然后是排除IE7下的protocol的bug,即//17leba.com/demo.html在IE7下回报错.
+		// 首先是去除hash即window.location.href的影响,然后是排除IE7下的protocol的bug,即//17leba.com/demo.html在IE7下会报错.
 		// 而其它浏览器则会正常处理为加上http:的.
 		s.url = ( ( url || s.url || ajaxLocation ) + "" ).replace( rhash, "" ).replace( rprotocol, ajaxLocParts[ 1 ] + "//" );
 
