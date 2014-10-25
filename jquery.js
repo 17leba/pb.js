@@ -8717,7 +8717,7 @@ jQuery.extend({
 			// Deferreds
 			// 创建异步队列,用于存放和触发成功失败回调函数等等.
 			deferred = jQuery.Deferred(),
-			// 创建回调函数列表,用于存放和触发完成回调函数.
+			// 创建回调函数列表,用于存放和触发完成回调函数,即参数集合中的complete参数.
 			completeDeferred = jQuery.Callbacks("once memory"),
 			// Status-dependent callbacks
 			// 用于存放HTTP状态码和对应的回调函数.
@@ -8794,13 +8794,12 @@ jQuery.extend({
 						if ( state < 2 ) {
 							for ( code in map ) {
 								// Lazy-add the new callback in a way that preserves old ones
-								// PB_PROBLEM!!!
 								// 懒加载新的回调,同时也保存了旧的回调.
 								statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
 							}
 						} else {
 							// Execute the appropriate callbacks
-							// 响应成功
+							// 响应成功,添加到异步队列的列表中立即执行.
 							jqXHR.always( map[ jqXHR.status ] );
 						}
 					}
@@ -8873,9 +8872,11 @@ jQuery.extend({
 		}
 
 		// Apply prefilters
+		// 修正参数.
 		inspectPrefiltersOrTransports( prefilters, s, options, jqXHR );
 
 		// If request was aborted inside a prefilter, stop there
+		// 如果在inspectPrefiltersOrTransports函数中取消了本次请求,则直接返回jqXHR对象.
 		if ( state === 2 ) {
 			return jqXHR;
 		}
@@ -8973,6 +8974,7 @@ jQuery.extend({
 		strAbort = "abort";
 
 		// Install callbacks on deferreds
+		// 为jqXHR添加相对应的 success/error/complete 回调函数
 		for ( i in { success: 1, error: 1, complete: 1 } ) {
 			jqXHR[ i ]( s[ i ] );
 		}
@@ -8981,16 +8983,19 @@ jQuery.extend({
 		transport = inspectPrefiltersOrTransports( transports, s, options, jqXHR );
 		
 		// If no transport, we auto-abort
+		// 不存在transport,直接调用done触发失败回调函数.
 		if ( !transport ) {
 			done( -1, "No Transport" );
 		} else {
 			jqXHR.readyState = 1;
 
 			// Send global event
+			// 触发全局事件ajaxSend
 			if ( fireGlobals ) {
 				globalEventContext.trigger( "ajaxSend", [ jqXHR, s ] );
 			}
 			// Timeout
+			// 设置过时定时器
 			if ( s.async && s.timeout > 0 ) {
 				timeoutTimer = setTimeout(function() {
 					jqXHR.abort("timeout");
@@ -8999,6 +9004,7 @@ jQuery.extend({
 
 			try {
 				state = 1;
+				// 
 				transport.send( requestHeaders, done );
 			} catch ( e ) {
 				// Propagate exception as error if not done
@@ -9012,6 +9018,7 @@ jQuery.extend({
 		}
 
 		// Callback for when everything is done
+		// 服务端完成响应后的回调函数.
 		function done( status, nativeStatusText, responses, headers ) {
 			var isSuccess, success, error, response, modified,
 				statusText = nativeStatusText;
@@ -9023,6 +9030,7 @@ jQuery.extend({
 			}
 
 			// State is "done" now
+			// 响应成功的标记
 			state = 2;
 
 			// Clear timeout if it exists
@@ -9037,21 +9045,21 @@ jQuery.extend({
 			transport = undefined;
 
 			// Cache response headers
-			// 缓存响应头
+			// 缓存响应头到responseHeadersString中
 			responseHeadersString = headers || "";
 
 			// Set readyState
-			// 设置http请求的状态
-			// 状态码大于0则设置为4,表示已完全响应接受,否则设置为0(初始化状态)
+			// 设置http请求的状态码
+			// 状态码大于0则设置为4,表示已完全响应请求,否则设置为0(初始化状态)
 			jqXHR.readyState = status > 0 ? 4 : 0;
 
 			// Get response data
-			// 处理响应的内容
+			// 有响应内容则处理响应内容
 			if ( responses ) {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
 			// If successful, handle type chaining
-			// 由服务器返回的状态码在200-300 或者为304时.
+			// 由服务器返回的状态码在 200-300 间或为304时.
 			if ( status >= 200 && status < 300 || status === 304 ) {
 
 				// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
@@ -9062,25 +9070,29 @@ jQuery.extend({
 						jQuery.lastModified[ cacheURL ] = modified;
 					}
 					modified = jqXHR.getResponseHeader("etag");
-					console.log(jqXHR)
 					if ( modified ) {
 						jQuery.etag[ cacheURL ] = modified;
 					}
 				}
 
 				// if no content
-				// http状态码204表示请求成功,但是没有数据.
+				// HTTP状态码204表示请求成功,但是没有数据.
+				// 设置isSuccess为true表示响应成功,请求状态设置为"nocontent"
 				if ( status === 204 ) {
 					isSuccess = true;
 					statusText = "nocontent";
 
 				// if not modified
+				// 请求响应没有变化.
 				} else if ( status === 304 ) {
 					isSuccess = true;
 					statusText = "notmodified";
 
 				// If we have data, let's convert it
 				} else {
+					// 200-300表示响应成功且有响应数据.
+					// ajaxConvert转换响应数据并返回给isSuccess参数.
+					// 最后isSuccess设置为true(当然是根据error的值来判断)
 					isSuccess = ajaxConvert( s, response );
 					statusText = isSuccess.state;
 					success = isSuccess.data;
@@ -9090,6 +9102,7 @@ jQuery.extend({
 			} else {
 				// We extract error from statusText
 				// then normalize statusText and status for non-aborts
+				// 响应失败.设置statusText为error.
 				error = statusText;
 				if ( status || !statusText ) {
 					statusText = "error";
@@ -9100,18 +9113,21 @@ jQuery.extend({
 			}
 
 			// Set data for the fake xhr object
+			// 设置jqXHR对象的status和statusText,对应XMLHTTPResquest的相应属性.
 			jqXHR.status = status;
 			jqXHR.statusText = ( nativeStatusText || statusText ) + "";
 
 			// Success/Error
 			if ( isSuccess ) {
+				// 响应成功,触发成功回调函数.
 				deferred.resolveWith( callbackContext, [ success, statusText, jqXHR ] );
 			} else {
+				// 响应失败,触发失败回调函数.
 				deferred.rejectWith( callbackContext, [ jqXHR, statusText, error ] );
 			}
 
 			// Status-dependent callbacks
-			// 根据http响应代码执行相对应的函数.
+			// 根据HTTP响应状态码执行相对应的回调函数.
 			// 如:
 			/*
 			 *	$.ajax({
@@ -9128,17 +9144,22 @@ jQuery.extend({
 			jqXHR.statusCode( statusCode );
 			statusCode = undefined;
 
+			// 如果global(s.global已赋值给fireGlobals)设置为true,即未禁用全局事件.
+			// 根据响应是否成功来触发对应的全局事件(ajaxSuccess or ajaxError).
 			if ( fireGlobals ) {
 				globalEventContext.trigger( isSuccess ? "ajaxSuccess" : "ajaxError",
 					[ jqXHR, s, isSuccess ? success : error ] );
 			}
 
 			// Complete
+			// 触发完成回调函数.
 			completeDeferred.fireWith( callbackContext, [ jqXHR, statusText ] );
 
 			if ( fireGlobals ) {
+				// 触发全局事件ajaxComplete.
 				globalEventContext.trigger( "ajaxComplete", [ jqXHR, s ] );
 				// Handle the global AJAX counter
+				// 所有请求完成以后,触发全局事件ajaxStop
 				if ( !( --jQuery.active ) ) {
 					jQuery.event.trigger("ajaxStop");
 				}
