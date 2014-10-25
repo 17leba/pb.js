@@ -8467,7 +8467,8 @@ function ajaxExtend( target, src ) {
 
 	for ( key in src ) {
 		if ( src[ key ] !== undefined ) {
-			// 如果有context和url两个参数中的一个,则直接返回target,不赋值deep.
+			// 如果有context和url两个参数中的一个,则直接设置到target中,不赋值deep.
+			// 其它的属性和值则赋值到deep对象中,以便做深度拷贝.
 			( flatOptions[ key ] ? target : ( deep || (deep = {}) ) )[ key ] = src[ key ];
 		}
 	}
@@ -8584,7 +8585,7 @@ jQuery.extend({
 	lastModified: {},
 	etag: {},
 
-	// 默认的一些参数.
+	// 默认的一些参数集合.
 	ajaxSettings: {
 		url: ajaxLocation,
 		type: "GET",
@@ -8654,8 +8655,9 @@ jQuery.extend({
 	// Creates a full fledged settings object into target
 	// with both ajaxSettings and settings fields.
 	// If target is omitted, writes into ajaxSettings.
-	// target:公共请求的参数,即通过$.ajaxSetup设置的参数.
-	// settings:单个请求的参数
+	// ajaxSetup 为请求设置全局的默认参数的集合
+	// 如果存在两个参数,即先把默认的设置集合复制到target上,然后用设置的自定义settings覆盖target
+	// 如果只存在一个参数,则用target覆盖默认的设置集合.
 	ajaxSetup: function( target, settings ) {
 		return settings ?
 
@@ -8688,33 +8690,46 @@ jQuery.extend({
 			// URL without anti-cache param
 			cacheURL,
 			// Response headers as string
+			// 存储响应头字符串
 			responseHeadersString,
 			// timeout handle
 			timeoutTimer,
 
 			// To know if global events are to be dispatched
+			// 是否触发全局事件
 			fireGlobals,
 
 			transport,
 			// Response headers
+			// 存储解析后的响应头和值
 			responseHeaders,
 			// Create the final options object
 			s = jQuery.ajaxSetup( {}, options ),
 			// Callbacks context
+			// 回调函数上下文,参数中指定了context,则以其为回调函数上下文,否则以参数集合为上下文.
 			callbackContext = s.context || s,
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
+			// 全局事件(ajax)的上下文
+			// 默认为jQuery.event,如果存在context且为DOM元素或者jquery对象,则上下文变为context(callbackContext)
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
 				jQuery( callbackContext ) :
 				jQuery.event,
 			// Deferreds
+			// 创建异步队列,用于存放和触发成功失败回调函数等等.
 			deferred = jQuery.Deferred(),
+			// 创建回调函数列表,用于存放和触发完成回调函数.
 			completeDeferred = jQuery.Callbacks("once memory"),
 			// Status-dependent callbacks
+			// 用于存放HTTP状态码和对应的回调函数.
+			// 例如 服务器返回404状态码时触发响应的回调函数.
 			statusCode = s.statusCode || {},
 			// Headers (they are sent all at once)
+			// 储存请求头集合
 			requestHeaders = {},
+			// 记录请求头集合
 			requestHeadersNames = {},
 			// The jqXHR state
+			// 表示当前请求的状态,有0,1,2三个值,分别表示初始状态,处理中和响应成功.
 			state = 0,
 			// Default abort message
 			strAbort = "canceled",
@@ -8723,9 +8738,12 @@ jQuery.extend({
 				readyState: 0,
 
 				// Builds headers hashtable if needed
+				// 获取指定名称的响应头的值.
+				// 只有状态为2(响应成功)时才返回响应头可供获取.
 				getResponseHeader: function( key ) {
 					var match;
 					if ( state === 2 ) {
+						// 第一次调用会把解析响应头字符串值responseHeadersString的值存储到responseHeaders中,以后就可直接从中读取了.
 						if ( !responseHeaders ) {
 							responseHeaders = {};
 							while ( (match = rheaders.exec( responseHeadersString )) ) {
@@ -8738,14 +8756,19 @@ jQuery.extend({
 				},
 
 				// Raw string
+				// 就是获取响应头字符串responseHeadersString
 				getAllResponseHeaders: function() {
 					return state === 2 ? responseHeadersString : null;
 				},
 
 				// Caches the header
+				// 设置响请求头,对应原生XMLHTTPRequest中的setRequestHeader
 				setRequestHeader: function( name, value ) {
 					var lname = name.toLowerCase();
+					// 未开始请求时设置
 					if ( !state ) {
+						// 名字和值分别存储在requestHeadersNames和requestHeaders中
+						// 小技巧 get √:先把那么存储到requestHeadersNames中,下次设置的name可以在这里面寻找有没有,有的话就不需要在设置了.
 						name = requestHeadersNames[ lname ] = requestHeadersNames[ lname ] || name;
 						requestHeaders[ name ] = value;
 					}
@@ -8753,6 +8776,8 @@ jQuery.extend({
 				},
 
 				// Overrides response content-type header
+				// 用于覆盖MIME类型
+				// 原生的overrideMimeType强覆盖浏览器返回的MIME类型(Content-Type),这个仅仅是设置.
 				overrideMimeType: function( type ) {
 					if ( !state ) {
 						s.mimeType = type;
@@ -8761,17 +8786,21 @@ jQuery.extend({
 				},
 
 				// Status-dependent callbacks
+				// HTTP状态返回码的回调.
+				// map是一个包含状态码和相对应的回调函数的集合.
 				statusCode: function( map ) {
 					var code;
 					if ( map ) {
 						if ( state < 2 ) {
 							for ( code in map ) {
 								// Lazy-add the new callback in a way that preserves old ones
-								// PB_PROBLEM
+								// PB_PROBLEM!!!
+								// 懒加载新的回调,同时也保存了旧的回调.
 								statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
 							}
 						} else {
 							// Execute the appropriate callbacks
+							// 响应成功
 							jqXHR.always( map[ jqXHR.status ] );
 						}
 					}
@@ -8779,6 +8808,8 @@ jQuery.extend({
 				},
 
 				// Cancel the request
+				// 取消请求,对应原生的abort(),这儿是调用transport中的abort方法.
+				// done用来触发失败回调函数,具体见done函数的解析
 				abort: function( statusText ) {
 					var finalText = statusText || strAbort;
 					if ( transport ) {
