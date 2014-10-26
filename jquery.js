@@ -9004,7 +9004,7 @@ jQuery.extend({
 
 			try {
 				state = 1;
-				// 
+				// 这儿才是真的发送请求了,对应XMLHTTPRequest中的send().
 				transport.send( requestHeaders, done );
 			} catch ( e ) {
 				// Propagate exception as error if not done
