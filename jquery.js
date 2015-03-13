@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * jQuery JavaScript Library v1.9.1
  * http://jquery.com/
  *
@@ -975,7 +975,7 @@ jQuery.extend({
 		}
 
 		// Simulated bind
-		// 没有搞懂这一步的必要？？下面又把它与arguments合并成了一个新数组作为fn的参数--PB_PROBLEM
+		// 排除前两个参数
 		args = core_slice.call( arguments, 2 );
 
 		proxy = function() {
@@ -1148,7 +1148,12 @@ function isArraylike( obj ) {
 	}
 	// 纯正的array,带有length属性的object且length-1也是obj的属性
 	// 但是好像不严谨如:{0:"2","ok":34,"length":2}这个返回false,而{1:"2","ok":34,"length":2}返回true
-	// 究竟什么是类数组？？--PB_PROBLEM
+	// 究竟什么是类数组？？
+	// 一个类数组首先不具有纯数组所具有的数组方法（push/pop，indexOf等），其次是具有指向对象元素的数字索引下标以及
+	// length属性用来告诉我们元素个数。之所以会出现以上的两个对象返回结果不一样，就是没有判断是否具有指向对象元素的数字索引下标。
+	// 其实js中的类数组主要就是arguments和部分DOM方法的返回结果（document.getElementsByTagName()等）
+	// 可以多一步索引下标的判断：
+	// ( length - 1 ) in obj ==> obj[0] in obj
 	return type === "array" || type !== "function" &&
 		( length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj );
