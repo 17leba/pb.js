@@ -848,9 +848,9 @@ jQuery.extend({
 			// indexOf原本是判断String的,但是ES5中加入了Array支持旧版IE不支持
 			// 所以会发现在标准浏览器中用这个函数判断stirng也可以,但是IE会报错,因为下面用到了in操作符
 			// 所以这只能判断数组切不可判断其他
-			// if ( core_indexOf ) {
-			// 	return core_indexOf.call( arr, elem, i );
-			// }
+			if ( core_indexOf ) {
+				return core_indexOf.call( arr, elem, i );
+			}
 
 			len = arr.length;
 			// 修正i主要是解决i为负数的情况
@@ -860,7 +860,7 @@ jQuery.extend({
 				// Skip accessing in sparse arrays
 				// 确保i在arr中,不在则没有判断arr[i] === elem的必要
 				// 如没有i in arr这个判断:
-				// var arr = {0:2,1:2,"ok":3,"length":3};$.inArray(undefined,o);
+				// var arr = {0:2,1:2,"ok":3,"length":3};$.inArray(undefined,arr);
 				// 会返回2
 				if ( i in arr && arr[ i ] === elem ) {
 					return i;
